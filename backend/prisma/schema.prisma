@@ -1,0 +1,1360 @@
+generator client {
+  provider      = "prisma-client-js"
+  engineType    = "binary"
+  binaryTargets = ["native", "rhel-openssl-1.0.x", "rhel-openssl-1.1.x", "debian-openssl-1.1.x", "linux-musl"]
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                 String         @id @default(uuid())
+  phone              String?        @unique
+  email              String?        @unique
+  password           String
+  role               Role           @default(CALON_WALI)
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
+  permissions        Json? // Array of strings e.g. ["PPDB", "KEUANGAN"]
+  portalAppsAccess   Json? // Array of PortalApp IDs e.g. ["uuid-1"]
+  markazAccess       Json? // Array of Markaz IDs e.g. [1, 2]
+  registrations      Registration[]
+  examAttempts       ExamAttempt[]
+  assignedInterviews Registration[] @relation("AssignedInterviewer")
+  adminGroups        AdminGroup[]   @relation("UserToAdminGroup")
+  activityLogs       ActivityLog[]
+  namaLengkap String?      @db.VarChar(150)
+  verifiedAt  DateTime?
+  waliSantri  WaliSantri[]
+  pembayaran  Pembayaran[]
+  donasi      Donasi[]
+  perizinan   Perizinan[]
+  chatPesan   ChatPesan[]
+  notifikasi  Notifikasi[]
+  supervisors   UserHierarchy[] @relation("SubordinateToHierarchy")
+  subordinates  UserHierarchy[] @relation("SupervisorToHierarchy")
+  assignedTasks UserTask[]      @relation("AssignedTasks")
+  givenTasks    UserTask[]      @relation("GivenTasks")
+  groupMessages GroupMessage[]
+
+  @@index([role])
+}
+
+model UserHierarchy {
+  id            String   @id @default(uuid())
+  subordinateId String
+  supervisorId  String
+  createdAt     DateTime @default(now())
+
+  subordinate   User     @relation("SubordinateToHierarchy", fields: [subordinateId], references: [id], onDelete: Cascade)
+  supervisor    User     @relation("SupervisorToHierarchy", fields: [supervisorId], references: [id], onDelete: Cascade)
+
+  @@unique([subordinateId, supervisorId])
+}
+
+model UserTask {
+  id          String   @id @default(uuid())
+  title       String
+  description String?  @db.Text
+  taskType    String   // 'RUTIN', 'TUGAS_ATASAN', 'INISIATIF'
+  dueDate     DateTime @db.Date
+  status      String   @default("PENDING") // PENDING, SELESAI
+  
+  assigneeId  String
+  assignee    User     @relation("AssignedTasks", fields: [assigneeId], references: [id], onDelete: Cascade)
+  
+  assignerId  String?
+  assigner    User?    @relation("GivenTasks", fields: [assignerId], references: [id], onDelete: SetNull)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model GroupMessage {
+  id        String   @id @default(uuid())
+  content   String   @db.Text
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+}
+
+model Registration {
+  id                        String                 @id @default(uuid())
+  userId                    String
+  user                      User                   @relation(fields: [userId], references: [id])
+  studentName               String                 @default("")
+  academicYear              String
+  program                   String
+  gender                    Gender
+  previousSchool            String
+  source                    String
+  motivation                String                 @db.Text
+  status                    RegistrationStatus     @default(PENDAFTARAN)
+  testMethod                TestMethod?
+  testDate                  DateTime?
+  interviewDate             DateTime?
+  onlineInterviewSantriDone Boolean                @default(false)
+  onlineInterviewParentDone Boolean                @default(false)
+  createdAt                 DateTime               @default(now())
+  updatedAt                 DateTime               @updatedAt
+  documents                 Document[]
+  registrationData          RegistrationData?
+  parentInterview           ParentInterview?
+  santri                    Santri?
+  interviewerEvaluation     InterviewerEvaluation?
+  examAttempts              ExamAttempt[]
+  surveyKunjungan           SurveyKunjungan[]
+
+  markazId Int?
+  markaz   Markaz? @relation(fields: [markazId], references: [id])
+
+  interviewerId          String?
+  interviewer            User?            @relation("AssignedInterviewer", fields: [interviewerId], references: [id])
+  offlineCode            String?          @db.VarChar(5)
+  attendance             AttendanceStatus @default(PENDING)
+  attendanceTime         DateTime?
+  pembayaran             Pembayaran[]
+  uangMasukDeadline      DateTime?
+  uangMasukWaiverFileUrl String?          @db.VarChar(500)
+  uangMasukNominal       Decimal?         @db.Decimal(12, 0)
+  sppNominal             Decimal?         @db.Decimal(12, 0)
+
+  @@index([status])
+  @@index([createdAt])
+}
+
+model InterviewerEvaluation {
+  id             String       @id @default(uuid())
+  registrationId String       @unique
+  registration   Registration @relation(fields: [registrationId], references: [id])
+
+  // Evaluasi Santri
+  santriRecommendation RecommendationStatus?
+  santriNotes          String?               @db.Text
+  santriInterviewer    String? // Nama/ID pewawancara
+  santriRubricAnswers  Json? // Format: [{ topicId, score, notes }]
+
+  // Evaluasi Orang Tua
+  parentRecommendation RecommendationStatus?
+  parentNotes          String?               @db.Text
+  parentInterviewer    String? // Nama/ID pewawancara
+  parentRubricAnswers  Json? // Format: [{ topicId, score, notes }]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum RecommendationStatus {
+  DIREKOMENDASIKAN
+  DIPERTIMBANGKAN
+  TIDAK_DIREKOMENDASIKAN
+}
+
+model Document {
+  id             String         @id @default(uuid())
+  registrationId String
+  registration   Registration   @relation(fields: [registrationId], references: [id])
+  type           DocumentType
+  fileUrl        String
+  status         DocumentStatus @default(PENDING)
+  notes          String?        @db.Text
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+}
+
+enum Role {
+  CALON_WALI
+  WALI_AKTIF
+  ADMIN_PUSAT
+  ADMIN_LEGAL_ASET
+  STAF_LEGAL_ASET
+}
+
+enum Gender {
+  LAKI_LAKI
+  PEREMPUAN
+}
+
+enum RegistrationStatus {
+  PENDAFTARAN
+  PEMBAYARAN_REGISTRASI
+  KELENGKAPAN_DATA
+  TES_WAWANCARA
+  PENGUMUMAN
+  DAFTAR_ULANG
+  DITOLAK
+  SELESAI
+  TIDAK_LANJUT_BAYAR_REGISTRASI
+  TIDAK_LANJUT_TES
+  TIDAK_LANJUT_DAFTAR_ULANG
+  TIDAK_LANJUT_JADI_SANTRI
+  NO_LEAD_DOUBLE
+}
+
+enum DocumentType {
+  KK
+  KTP_AYAH
+  KTP_IBU
+  AKTA
+  IJAZAH
+  FOTO
+  SURAT_SEHAT
+  SKKB
+}
+
+enum AttendanceStatus {
+  PENDING
+  PRESENT
+  NO_SHOW
+}
+
+enum DocumentStatus {
+  PENDING
+  DITERIMA
+  DITOLAK
+  REVISI
+}
+
+model RegistrationData {
+  id             String       @id @default(uuid())
+  registrationId String       @unique
+  registration   Registration @relation(fields: [registrationId], references: [id])
+  noKk           String?
+  nickname       String?
+  birthPlace     String?
+  birthDate      DateTime?
+  nik            String?
+  nisn           String?
+  childNumber    Int?
+  siblingCount   Int?
+  achievements   String?      @db.Text
+  medicalHistory String?      @db.Text
+  talents        String?      @db.Text
+
+  fatherName       String?
+  fatherAge        Int?
+  fatherEducation  String?
+  fatherOccupation String?
+  fatherIncome     String?
+  fatherAddress    String? @db.Text
+
+  motherName       String?
+  motherAge        Int?
+  motherEducation  String?
+  motherOccupation String?
+  motherIncome     String?
+  motherAddress    String? @db.Text
+
+  parentStatus ParentStatus?
+
+  siblings   Sibling[]
+  mqSiblings MqSibling[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum ParentStatus {
+  BERSAMA
+  CERAI
+}
+
+model Sibling {
+  id                 String           @id @default(uuid())
+  registrationDataId String
+  registrationData   RegistrationData @relation(fields: [registrationDataId], references: [id])
+  name               String
+  age                Int?
+  education          String?
+  occupation         String?
+}
+
+model MqSibling {
+  id                 String           @id @default(uuid())
+  registrationDataId String
+  registrationData   RegistrationData @relation(fields: [registrationDataId], references: [id])
+  name               String
+  program            MqProgram
+  class              String?
+}
+
+enum MqProgram {
+  SD
+  SMP
+  SMA
+  MAHAD_ALY
+}
+
+enum TestMethod {
+  OFFLINE
+  ONLINE
+}
+
+model Exam {
+  id           String        @id @default(uuid())
+  title        String
+  duration     Int // in minutes
+  passingGrade Int
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  questions    Question[]
+  attempts     ExamAttempt[]
+}
+
+model Question {
+  id            String   @id @default(uuid())
+  examId        String
+  exam          Exam     @relation(fields: [examId], references: [id])
+  text          String   @db.Text
+  imageUrl      String?
+  options       Json // Array of strings
+  correctOption Int // Index of correct option
+  category      String
+  urutan        Int      @default(0) // Order of the question
+  answers       Answer[]
+}
+
+model ExamAttempt {
+  id             String          @id @default(uuid())
+  userId         String
+  user           User            @relation(fields: [userId], references: [id])
+  registrationId String?
+  registration   Registration?   @relation(fields: [registrationId], references: [id])
+  examId         String
+  exam           Exam            @relation(fields: [examId], references: [id])
+  startTime      DateTime        @default(now())
+  endTime        DateTime?
+  remainingTime  Int // in seconds
+  status         AttemptStatus   @default(ONGOING)
+  score          Int?
+  answers        Answer[]
+  logs           ProctoringLog[]
+}
+
+enum AttemptStatus {
+  ONGOING
+  COMPLETED
+  FAILED
+}
+
+model Answer {
+  id             String      @id @default(uuid())
+  attemptId      String
+  attempt        ExamAttempt @relation(fields: [attemptId], references: [id])
+  questionId     String
+  question       Question    @relation(fields: [questionId], references: [id])
+  selectedOption Int?
+  isCorrect      Boolean?
+}
+
+model ProctoringLog {
+  id        String      @id @default(uuid())
+  attemptId String
+  attempt   ExamAttempt @relation(fields: [attemptId], references: [id])
+  event     String
+  timestamp DateTime    @default(now())
+}
+
+model ParentInterview {
+  id             String       @id @default(uuid())
+  registrationId String       @unique
+  registration   Registration @relation(fields: [registrationId], references: [id])
+
+  answers Json @default("{}") // Disimpan sebagai Array/Object karena pertanyaannya dinamis
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model InterviewQuestion {
+  id           String   @id @default(uuid())
+  questionText String   @db.Text
+  orderIndex   Int      @default(0)
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model InterviewerRubric {
+  id          String   @id @default(uuid())
+  target      String   @default("SANTRI") // "SANTRI" atau "WALI"
+  topic       String   @db.VarChar(255)
+  description String?  @db.Text // Penjelasan topik / panduan bertanya
+  option1     String   @db.Text // Deskripsi untuk nilai 1
+  option2     String   @db.Text // Deskripsi untuk nilai 2
+  option3     String   @db.Text // Deskripsi untuk nilai 3
+  isActive    Boolean  @default(true)
+  urutan      Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model OfflineSchedule {
+  id        String   @id @default(uuid())
+  date      DateTime @db.Date
+  timeStart String   @db.VarChar(10) // e.g. "08:00"
+  timeEnd   String   @db.VarChar(10) // e.g. "12:00"
+  quota     Int      @default(10)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model OnlineSchedule {
+  id        String   @id @default(uuid())
+  date      DateTime
+  timeStart String   @db.VarChar(10) // e.g. "08:00"
+  timeEnd   String   @db.VarChar(10) // e.g. "12:00"
+  quota     Int      @default(10)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ==========================================
+// MY MQ CORE & FEATURES SCHEMA
+// ==========================================
+
+model Markaz {
+  id        Int      @id @default(autoincrement())
+  kode      String   @unique @db.VarChar(20)
+  nama      String   @db.VarChar(100)
+  alamat    String?  @db.Text
+  aktif     Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  santri        Santri[]
+  kalender      KalenderKegiatan[]
+  registrations Registration[]
+  InfoDokumen   InfoDokumen[]
+  Broadcast     Broadcast[]
+}
+
+model Santri {
+  id           String       @id
+  registration Registration @relation(fields: [id], references: [id])
+  nis          String?      @unique @db.VarChar(30)
+  markazId     Int?
+  markaz       Markaz?      @relation(fields: [markazId], references: [id])
+  kelas        String?      @db.VarChar(50)
+  asrama       String?      @db.VarChar(100)
+  tahunMasuk   Int?
+  sppNominal   Decimal?     @db.Decimal(12, 0)
+  status       StatusSantri @default(AKTIF)
+  fotoUrl      String?      @db.VarChar(500)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  waliSantri      WaliSantri[]
+  tagihan         Tagihan[]
+  uangSaku        UangSaku?
+  uangSakuMutasi  UangSakuMutasi[]
+  pembayaran      Pembayaran[]
+  donasi          Donasi[]
+  tahfidzCapaian  TahfidzCapaianTahapan[]
+  tahfidzHarian   TahfidzHafalanHarian[]
+  tahfidzCatatan  TahfidzCatatanPengampu[]
+  kehadiran       Kehadiran[]
+  pelanggaran     Pelanggaran[]
+  suratPeringatan SuratPeringatan[]
+  prestasi        Prestasi[]
+  kepengurusan    Kepengurusan[]
+  sertifikat      Sertifikat[]
+  matanCapaian    MatanCapaian[]
+  perizinan       Perizinan[]
+  healthRecords   HealthRecord[]
+}
+
+model HealthRecord {
+  id          String           @id @default(uuid())
+  santriId    String
+  santri      Santri           @relation(fields: [santriId], references: [id], onDelete: Cascade)
+  type        HealthRecordType
+  date        DateTime         @default(now())
+  title       String           @db.VarChar(150)
+  description String?          @db.Text
+  handledBy   String?          @db.VarChar(100)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+}
+
+enum HealthRecordType {
+  PERAWATAN
+  SAKIT
+  PENGAMBILAN_OBAT
+  PENGECEKAN_BERKALA
+  RUJUKAN
+}
+
+enum StatusSantri {
+  AKTIF
+  ALUMNI
+  KELUAR
+}
+
+model WaliSantri {
+  id        Int          @id @default(autoincrement())
+  userId    String
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  santriId  String
+  santri    Santri       @relation(fields: [santriId], references: [id], onDelete: Cascade)
+  hubungan  HubunganWali @default(WALI)
+  isPrimary Boolean      @default(false)
+  createdAt DateTime     @default(now())
+
+  @@unique([userId, santriId])
+}
+
+enum HubunganWali {
+  AYAH
+  IBU
+  WALI
+}
+
+model TagihanJenis {
+  id        Int         @id @default(autoincrement())
+  kode      KodeTagihan
+  label     String      @db.VarChar(100)
+  deskripsi String?     @db.Text
+  aktif     Boolean     @default(true)
+  tagihan   Tagihan[]
+}
+
+enum KodeTagihan {
+  SPP
+  DAFTAR_ULANG
+  UANG_MASUK
+  LAINNYA
+}
+
+model Tagihan {
+  id          String        @id @default(uuid())
+  santriId    String
+  santri      Santri        @relation(fields: [santriId], references: [id], onDelete: Cascade)
+  jenisId     Int
+  jenis       TagihanJenis  @relation(fields: [jenisId], references: [id])
+  label       String        @db.VarChar(200)
+  tahunAjaran String?       @db.VarChar(10)
+  bulan       Int?          @db.TinyInt
+  nominal     Decimal       @db.Decimal(12, 0)
+  jatuhTempo  DateTime      @db.Date
+  status      StatusTagihan @default(BELUM)
+  keterangan  String?       @db.Text
+  isTentative Boolean       @default(false)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  pembayaranItem PembayaranItem[]
+}
+
+enum StatusTagihan {
+  BELUM
+  LUNAS
+  SEBAGIAN
+}
+
+model Pembayaran {
+  id             String           @id @default(uuid())
+  userId         String
+  user           User             @relation(fields: [userId], references: [id])
+  santriId       String?
+  santri         Santri?          @relation(fields: [santriId], references: [id])
+  registrationId String?
+  registration   Registration?    @relation(fields: [registrationId], references: [id])
+  kodeBayar      String?          @unique @db.VarChar(50)
+  snapToken      String?          @db.VarChar(255)
+  totalNominal   Decimal          @db.Decimal(12, 0)
+  metode         MetodeBayar
+  bank           String?          @db.VarChar(50)
+  status         StatusPembayaran @default(PENDING)
+  buktiUrl       String?          @db.VarChar(500)
+  catatan        String?          @db.Text
+  paidAt         DateTime?
+  expiredAt      DateTime?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  items          PembayaranItem[]
+  uangSakuMutasi UangSakuMutasi[]
+  donasi         Donasi[]
+}
+
+enum MetodeBayar {
+  TRANSFER_BANK
+  VIRTUAL_ACCOUNT
+  QRIS
+  TUNAI
+  MIDTRANS
+  LAINNYA
+}
+
+enum StatusPembayaran {
+  PENDING
+  LUNAS
+  GAGAL
+  KEDALUWARSA
+}
+
+model PembayaranItem {
+  id           Int                @id @default(autoincrement())
+  pembayaranId String
+  pembayaran   Pembayaran         @relation(fields: [pembayaranId], references: [id], onDelete: Cascade)
+  tipe         TipePembayaranItem
+  tagihanId    String?
+  tagihan      Tagihan?           @relation(fields: [tagihanId], references: [id])
+  nominal      Decimal            @db.Decimal(12, 0)
+  keterangan   String?            @db.VarChar(200)
+}
+
+enum TipePembayaranItem {
+  TAGIHAN
+  UANG_SAKU
+  DONASI
+}
+
+model UangSaku {
+  id          String   @id @default(uuid())
+  santriId    String   @unique
+  santri      Santri   @relation(fields: [santriId], references: [id], onDelete: Cascade)
+  saldo       Decimal  @default(0) @db.Decimal(12, 0)
+  limitHarian Decimal? @db.Decimal(12, 0)
+  updatedAt   DateTime @updatedAt
+}
+
+model UangSakuMutasi {
+  id           String      @id @default(uuid())
+  santriId     String
+  santri       Santri      @relation(fields: [santriId], references: [id], onDelete: Cascade)
+  pembayaranId String?
+  pembayaran   Pembayaran? @relation(fields: [pembayaranId], references: [id])
+  tipe         TipeMutasi
+  nominal      Decimal     @db.Decimal(12, 0)
+  saldoSebelum Decimal     @db.Decimal(12, 0)
+  saldoSesudah Decimal     @db.Decimal(12, 0)
+  keterangan   String?     @db.VarChar(200)
+  createdAt    DateTime    @default(now())
+}
+
+enum TipeMutasi {
+  TOPUP
+  DEBIT
+  KOREKSI
+}
+
+model Donasi {
+  id           String       @id @default(uuid())
+  pembayaranId String?
+  pembayaran   Pembayaran?  @relation(fields: [pembayaranId], references: [id])
+  userId       String
+  user         User         @relation(fields: [userId], references: [id])
+  santriId     String?
+  santri       Santri?      @relation(fields: [santriId], references: [id])
+  nominal      Decimal      @db.Decimal(12, 0)
+  program      String?      @db.VarChar(200)
+  pesan        String?      @db.Text
+  status       StatusDonasi @default(PENDING)
+  createdAt    DateTime     @default(now())
+}
+
+enum StatusDonasi {
+  PENDING
+  DITERIMA
+  GAGAL
+}
+
+model TahfidzTahapan {
+  id        Int                     @id @default(autoincrement()) @db.UnsignedTinyInt
+  urutan    Int                     @db.UnsignedTinyInt
+  nama      String                  @db.VarChar(100)
+  deskripsi String?                 @db.Text
+  capaian   TahfidzCapaianTahapan[]
+}
+
+model TahfidzCapaianTahapan {
+  id             String         @id @default(uuid())
+  santriId       String
+  santri         Santri         @relation(fields: [santriId], references: [id], onDelete: Cascade)
+  tahapanId      Int            @db.UnsignedTinyInt
+  tahapan        TahfidzTahapan @relation(fields: [tahapanId], references: [id])
+  targetTanggal  DateTime?      @db.Date
+  selesaiTanggal DateTime?      @db.Date
+  status         StatusCapaian  @default(BELUM)
+  catatan        String?        @db.Text
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  @@unique([santriId, tahapanId])
+}
+
+enum StatusCapaian {
+  BELUM
+  PROSES
+  SELESAI
+}
+
+model TahfidzHafalanHarian {
+  id         String   @id @default(uuid())
+  santriId   String
+  santri     Santri   @relation(fields: [santriId], references: [id], onDelete: Cascade)
+  tanggal    DateTime @db.Date
+  targetHal  Int      @default(5) @db.UnsignedTinyInt
+  capaianHal Int      @default(0) @db.UnsignedTinyInt
+  totalJuz   Decimal? @db.Decimal(4, 1)
+  keterangan String?  @db.VarChar(300)
+  createdAt  DateTime @default(now())
+
+  @@unique([santriId, tanggal])
+}
+
+model TahfidzCatatanPengampu {
+  id           String       @id @default(uuid())
+  santriId     String
+  santri       Santri       @relation(fields: [santriId], references: [id], onDelete: Cascade)
+  pengampuId   String?
+  namaPengampu String?      @db.VarChar(150)
+  jenis        JenisCatatan @default(UMUM)
+  catatan      String       @db.Text
+  createdAt    DateTime     @default(now())
+}
+
+enum JenisCatatan {
+  APRESIASI
+  PERBAIKAN
+  UMUM
+}
+
+model KehadiranKategori {
+  id        Int         @id @default(autoincrement()) @db.UnsignedTinyInt
+  kode      String      @unique @db.VarChar(30)
+  nama      String      @db.VarChar(100)
+  kehadiran Kehadiran[]
+}
+
+model Kehadiran {
+  id         String            @id @default(uuid())
+  santriId   String
+  santri     Santri            @relation(fields: [santriId], references: [id], onDelete: Cascade)
+  kategoriId Int               @db.UnsignedTinyInt
+  kategori   KehadiranKategori @relation(fields: [kategoriId], references: [id])
+  tanggal    DateTime          @db.Date
+  sesi       String?           @db.VarChar(50)
+  status     StatusKehadiran
+  keterangan String?           @db.VarChar(200)
+  createdAt  DateTime          @default(now())
+}
+
+enum StatusKehadiran {
+  HADIR
+  IZIN
+  SAKIT
+  ALFA
+}
+
+model Pelanggaran {
+  id              String              @id @default(uuid())
+  santriId        String
+  santri          Santri              @relation(fields: [santriId], references: [id], onDelete: Cascade)
+  tanggal         DateTime            @db.Date
+  kategori        KategoriPelanggaran
+  deskripsi       String              @db.Text
+  poin            Int                 @default(0) @db.UnsignedSmallInt
+  sanksi          String?             @db.VarChar(300)
+  inputOleh       String?
+  createdAt       DateTime            @default(now())
+  suratPeringatan SuratPeringatan[]
+}
+
+enum KategoriPelanggaran {
+  RINGAN
+  SEDANG
+  BERAT
+}
+
+model SuratPeringatan {
+  id            String       @id @default(uuid())
+  santriId      String
+  santri        Santri       @relation(fields: [santriId], references: [id], onDelete: Cascade)
+  nomorSurat    String       @unique @db.VarChar(100)
+  tanggal       DateTime     @db.Date
+  tingkat       TingkatSP
+  perihal       String       @db.VarChar(300)
+  fileUrl       String?      @db.VarChar(500)
+  pelanggaranId String?
+  pelanggaran   Pelanggaran? @relation(fields: [pelanggaranId], references: [id])
+  createdAt     DateTime     @default(now())
+}
+
+enum TingkatSP {
+  SP_1
+  SP_2
+  SP_3
+}
+
+model Prestasi {
+  id         String           @id @default(uuid())
+  santriId   String
+  santri     Santri           @relation(fields: [santriId], references: [id], onDelete: Cascade)
+  tanggal    DateTime         @db.Date
+  judul      String           @db.VarChar(300)
+  kategori   KategoriPrestasi
+  tingkat    TingkatPrestasi  @default(INTERNAL)
+  peringkat  String?          @db.VarChar(50)
+  poin       Int              @default(0) @db.UnsignedSmallInt
+  keterangan String?          @db.Text
+  createdAt  DateTime         @default(now())
+  sertifikat Sertifikat[]
+}
+
+enum KategoriPrestasi {
+  AKADEMIK
+  TAHFIDZ
+  OLAHRAGA
+  SENI
+  ORGANISASI
+  LAINNYA
+}
+
+enum TingkatPrestasi {
+  INTERNAL
+  KECAMATAN
+  KABUPATEN
+  PROVINSI
+  NASIONAL
+  INTERNASIONAL
+}
+
+model Kepengurusan {
+  id         String           @id @default(uuid())
+  santriId   String
+  santri     Santri           @relation(fields: [santriId], references: [id], onDelete: Cascade)
+  jabatan    String           @db.VarChar(150)
+  organisasi String           @db.VarChar(200)
+  tipe       TipeKepengurusan @default(ORGANISASI)
+  periode    String?          @db.VarChar(20)
+  isAktif    Boolean          @default(false)
+  createdAt  DateTime         @default(now())
+}
+
+enum TipeKepengurusan {
+  ORGANISASI
+  KEPANITIAAN
+}
+
+model Sertifikat {
+  id         String    @id @default(uuid())
+  santriId   String
+  santri     Santri    @relation(fields: [santriId], references: [id], onDelete: Cascade)
+  prestasiId String?
+  prestasi   Prestasi? @relation(fields: [prestasiId], references: [id])
+  judul      String    @db.VarChar(300)
+  penerbit   String    @db.VarChar(200)
+  tanggal    DateTime  @db.Date
+  fileUrl    String?   @db.VarChar(500)
+  createdAt  DateTime  @default(now())
+}
+
+model MatanReferensi {
+  id         Int            @id @default(autoincrement()) @db.UnsignedInt
+  judul      String         @db.VarChar(200)
+  bidang     String         @db.VarChar(100)
+  jumlahBait Int?           @db.UnsignedSmallInt
+  tipe       TipeMatan      @default(UTAMA)
+  urutan     Int?           @db.UnsignedSmallInt
+  aktif      Boolean        @default(true)
+  capaian    MatanCapaian[]
+}
+
+enum TipeMatan {
+  UTAMA
+  TAMBAHAN
+}
+
+model MatanCapaian {
+  id           String         @id @default(uuid())
+  santriId     String
+  santri       Santri         @relation(fields: [santriId], references: [id], onDelete: Cascade)
+  matanId      Int            @db.UnsignedInt
+  matan        MatanReferensi @relation(fields: [matanId], references: [id])
+  status       StatusCapaian  @default(BELUM)
+  nilaiUjian   Int?           @db.UnsignedTinyInt
+  tanggalUjian DateTime?      @db.Date
+  catatan      String?        @db.Text
+  updatedAt    DateTime       @updatedAt
+
+  @@unique([santriId, matanId])
+}
+
+model Perizinan {
+  id                   String     @id @default(uuid())
+  santriId             String
+  santri               Santri     @relation(fields: [santriId], references: [id], onDelete: Cascade)
+  userId               String
+  user                 User       @relation(fields: [userId], references: [id])
+  jenis                JenisIzin
+  alasan               String     @db.Text
+  tanggalMulai         DateTime
+  tanggalKembali       DateTime
+  tanggalKembaliAktual DateTime?
+  status               StatusIzin @default(TINJAUAN)
+  catatanAdmin         String?    @db.Text
+  diprosesOleh         String?
+  diprosesAt           DateTime?
+  createdAt            DateTime   @default(now())
+  updatedAt            DateTime   @updatedAt
+}
+
+enum JenisIzin {
+  PULANG
+  BEROBAT
+  ZIARAH
+  LAINNYA
+}
+
+enum StatusIzin {
+  TINJAUAN
+  AKTIF
+  WARNING
+  SELESAI
+  DITOLAK
+}
+
+model DokumenKategori {
+  id      Int           @id @default(autoincrement()) @db.UnsignedTinyInt
+  kode    String        @unique @db.VarChar(30)
+  nama    String        @db.VarChar(100)
+  ikon    String?       @db.VarChar(10)
+  dokumen InfoDokumen[]
+}
+
+model InfoDokumen {
+  id         String          @id @default(uuid())
+  kategoriId Int             @db.UnsignedTinyInt
+  kategori   DokumenKategori @relation(fields: [kategoriId], references: [id])
+  markazId   Int?
+  markaz     Markaz?         @relation(fields: [markazId], references: [id])
+  judul      String          @db.VarChar(300)
+  deskripsi  String?         @db.Text
+  fileUrl    String          @db.VarChar(500)
+  tipeFile   String          @default("PDF") @db.VarChar(20)
+  isPublik   Boolean         @default(true)
+  createdAt  DateTime        @default(now())
+  updatedAt  DateTime        @updatedAt
+}
+
+model KalenderKegiatan {
+  id        String       @id @default(uuid())
+  markazId  Int?
+  markaz    Markaz?      @relation(fields: [markazId], references: [id])
+  tanggal   DateTime     @db.Date
+  judul     String       @db.VarChar(200)
+  deskripsi String?      @db.Text
+  tipe      TipeKalender @default(KEGIATAN)
+  isLibur   Boolean      @default(false)
+  createdAt DateTime     @default(now())
+}
+
+enum TipeKalender {
+  AKADEMIK
+  LIBUR
+  KEGIATAN
+  KUNJUNGAN
+  LAINNYA
+}
+
+model ChatKontak {
+  id          Int         @id @default(autoincrement()) @db.UnsignedTinyInt
+  nama        String      @db.VarChar(100)
+  kode        String      @unique @db.VarChar(50)
+  roleHandler String?     @db.VarChar(50)
+  aktif       Boolean     @default(true)
+  pesan       ChatPesan[]
+}
+
+model ChatPesan {
+  id        String     @id @default(uuid())
+  userId    String
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  kontakId  Int        @db.UnsignedTinyInt
+  kontak    ChatKontak @relation(fields: [kontakId], references: [id])
+  arah      ArahChat
+  isi       String     @db.Text
+  dibaca    Boolean    @default(false)
+  createdAt DateTime   @default(now())
+}
+
+enum ArahChat {
+  MASUK
+  KELUAR
+}
+
+model Notifikasi {
+  id        String         @id @default(uuid())
+  userId    String
+  user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  judul     String         @db.VarChar(200)
+  isi       String?        @db.Text
+  tipe      TipeNotifikasi @default(UMUM)
+  urlTarget String?        @db.VarChar(300)
+  dibaca    Boolean        @default(false)
+  createdAt DateTime       @default(now())
+}
+
+enum TipeNotifikasi {
+  TAGIHAN
+  PERIZINAN
+  PELANGGARAN
+  PRESTASI
+  TAHFIDZ
+  KEHADIRAN
+  UMUM
+}
+
+enum StatusSurvey {
+  MENUNGGU
+  DAFTAR
+  TIDAK_DAFTAR
+  BATAL
+  LAINNYA
+}
+
+model SurveyKunjungan {
+  id             String        @id @default(uuid())
+  namaSantri     String        @db.VarChar(150)
+  noHp           String        @default("") @db.VarChar(20)
+  tanggal        DateTime      @db.Date
+  jam            String        @db.VarChar(10)
+  program        String        @db.VarChar(10)
+  gender         Gender
+  harapan        String        @db.Text
+  isHandled      Boolean       @default(false)
+  status         StatusSurvey  @default(MENUNGGU)
+  catatan        String?       @db.Text
+  registrationId String?
+  registration   Registration? @relation(fields: [registrationId], references: [id])
+  createdAt      DateTime      @default(now())
+}
+
+enum StatusCatatan {
+  PENDING
+  SELESAI
+}
+
+model CatatanAdmin {
+  id        String        @id @default(uuid())
+  tanggal   DateTime      @db.Date
+  tugas     String        @db.Text
+  status    StatusCatatan @default(PENDING)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+}
+
+// ==========================================
+// 19. BROADCAST & INFORMASI
+// ==========================================
+
+enum TipeBroadcast {
+  UMUM
+  PENTING
+}
+
+enum TargetBroadcast {
+  SEMUA
+  PPDB
+  SANTRI_AKTIF
+}
+
+model Broadcast {
+  id        String          @id @default(uuid())
+  judul     String          @db.VarChar(200)
+  pesan     String          @db.Text
+  tipe      TipeBroadcast   @default(UMUM)
+  target    TargetBroadcast @default(SEMUA)
+  markazId  Int?
+  markaz    Markaz?         @relation(fields: [markazId], references: [id])
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+}
+
+// ==========================================
+// PENGATURAN KEUANGAN
+// ==========================================
+
+model FinanceTahunAjaran {
+  id             String    @id @default(uuid())
+  nama           String    @unique @db.VarChar(50) // e.g. "2027/2028"
+  tanggalMulai   DateTime? @db.Date
+  tanggalSelesai DateTime? @db.Date
+  aktif          Boolean   @default(false)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  periodes FinancePeriodePendaftaran[]
+}
+
+model FinancePeriodePendaftaran {
+  id             String             @id @default(uuid())
+  tahunAjaranId  String
+  tahunAjaran    FinanceTahunAjaran @relation(fields: [tahunAjaranId], references: [id], onDelete: Cascade)
+  nama           String             @db.VarChar(100) // e.g. "Gelombang 1"
+  tanggalMulai   DateTime           @db.Date
+  tanggalSelesai DateTime           @db.Date
+  program        MqProgram // SD, SMP, SMA, MAHAD_ALY
+  uangPangkal    Decimal            @db.Decimal(12, 0)
+  spp            Decimal            @db.Decimal(12, 0)
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+
+  @@unique([tahunAjaranId, nama, program])
+}
+
+// ==========================================
+// PORTAL APP LAUNCHER
+// ==========================================
+
+model PortalApp {
+  id        String   @id @default(uuid())
+  nama      String   @db.VarChar(150)
+  deskripsi String?  @db.Text
+  url       String   @db.VarChar(255)
+  ikon      String?  @db.VarChar(100)
+  isAktif   Boolean  @default(true)
+  urutan    Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum McDaftarTugas_kategori {
+  JANGKA_PENDEK
+  JANGKA_PANJANG
+  REQUEST_UNIT
+}
+
+enum McPlan_type {
+  YEARLY
+  SEMIANNUAL
+  MONTHLY
+  WEEKLY
+}
+
+enum McUnitRequest_urgency {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+}
+
+enum McRoutineSchedule_status {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+}
+
+enum McDailyTask_status {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+}
+
+enum McUnitRequest_status {
+  PENDING
+  APPROVED
+  INTEGRATED
+  REJECTED
+}
+
+enum McPlan_status {
+  DRAFT
+  PENDING
+  ON_PROGRESS
+  COMPLETED
+  DELAYED
+  CANCELLED
+}
+
+model McBudget {
+  id            String   @id
+  planId        String
+  category      String
+  estimatedCost Decimal  @db.Decimal(12, 0)
+  description   String?  @db.Text
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime
+  McPlan        McPlan   @relation(fields: [planId], references: [id])
+
+  @@index([planId], map: "McBudget_planId_fkey")
+}
+
+model McDaftarTugas {
+  id                String                  @id
+  rencanaPekerjaan  String
+  kategori          McDaftarTugas_kategori?
+  status            String                  @default("REGISTER")
+  sumberTugas       String?
+  createdAt         DateTime                @default(now())
+  updatedAt         DateTime
+  kategoriPekerjaan String?
+  markaz            String?
+  namaRequestor     String?
+  keterangan        String?                 @db.Text
+  McPlan            McPlan[]
+}
+
+model McDailyTask {
+  id         String             @id
+  planId     String
+  workerName String
+  taskDetail String             @db.Text
+  taskDate   DateTime           @db.Date
+  status     McDailyTask_status @default(PENDING)
+  createdAt  DateTime           @default(now())
+  updatedAt  DateTime
+  McPlan     McPlan             @relation(fields: [planId], references: [id])
+
+  @@index([planId], map: "McDailyTask_planId_fkey")
+}
+
+model McMaterial {
+  id        String   @id
+  kode      String   @unique
+  nama      String
+  kategori  String
+  satuan    String
+  harga     Decimal  @db.Decimal(12, 0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+}
+
+model McPlan {
+  id              String          @id
+  parentId        String?
+  type            McPlan_type
+  title           String
+  description     String?         @db.Text
+  startDate       DateTime        @db.Date
+  endDate         DateTime        @db.Date
+  priority        Int             @default(3)
+  status          McPlan_status   @default(DRAFT)
+  source          String?
+  workers         String?         @db.Text
+  vendor          String?
+  category        String?
+  urgency         String?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime
+  mcDaftarTugasId String?
+  McBudget        McBudget[]
+  McDailyTask     McDailyTask[]
+  McDaftarTugas   McDaftarTugas?  @relation(fields: [mcDaftarTugasId], references: [id])
+  McPlan          McPlan?         @relation("McPlanToMcPlan", fields: [parentId], references: [id])
+  other_McPlan    McPlan[]        @relation("McPlanToMcPlan")
+  McRealization   McRealization[]
+
+  @@index([mcDaftarTugasId], map: "McPlan_mcDaftarTugasId_fkey")
+  @@index([parentId], map: "McPlan_parentId_fkey")
+}
+
+model McRealization {
+  id         String   @id
+  planId     String
+  actualCost Decimal  @db.Decimal(12, 0)
+  spendDate  DateTime @db.Date
+  proofImage String?
+  notes      String?  @db.Text
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime
+  McPlan     McPlan   @relation(fields: [planId], references: [id])
+
+  @@index([planId], map: "McRealization_planId_fkey")
+}
+
+model McRoutineSchedule {
+  id            String                   @id
+  routineTaskId String
+  taskDate      DateTime                 @db.Date
+  petugas       String                   @db.Text
+  status        McRoutineSchedule_status @default(PENDING)
+  createdAt     DateTime                 @default(now())
+  updatedAt     DateTime
+  McRoutineTask McRoutineTask            @relation(fields: [routineTaskId], references: [id])
+
+  @@index([routineTaskId], map: "McRoutineSchedule_routineTaskId_fkey")
+}
+
+model McRoutineTask {
+  id                String              @id
+  aktivitas         String
+  frekuensi         String
+  jamMulai          String?
+  jamSelesai        String?
+  petugas           String?
+  deskripsi         String?             @db.Text
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime
+  McRoutineSchedule McRoutineSchedule[]
+}
+
+model McUnitRequest {
+  id            String                @id
+  unitName      String
+  requesterName String
+  description   String                @db.Text
+  urgency       McUnitRequest_urgency @default(NORMAL)
+  requestDate   DateTime              @default(now())
+  status        McUnitRequest_status  @default(PENDING)
+  createdAt     DateTime              @default(now())
+  updatedAt     DateTime
+}
+
+model McVendor {
+  id        String   @id
+  nama      String
+  kategori  String
+  kontak    String?
+  alamat    String?  @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+}
+
+model McWorker {
+  id         String   @id
+  nama       String
+  kategori   String
+  kontak     String?
+  upahHarian Decimal  @db.Decimal(12, 0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime
+}
+
+// ==========================================
+// ADMIN GROUP & ACTIVITY LOG
+// ==========================================
+
+model AdminGroup {
+  id          String   @id @default(uuid())
+  nama        String   @unique @db.VarChar(100)
+  deskripsi   String?  @db.Text
+  permissions Json?    // Array of strings (permissions)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  users       User[]   @relation("UserToAdminGroup")
+}
+
+model ActivityLog {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  action    String   @db.VarChar(100) // CREATE, UPDATE, DELETE, LOGIN, dll
+  entity    String   @db.VarChar(100) // Nama modul atau tabel, misal Santri, Pembayaran
+  entityId  String?  @db.VarChar(100) // ID entitas
+  details   String?  @db.Text         // Deskripsi atau diff (JSON string)
+  ipAddress String?  @db.VarChar(45)
+  userAgent String?  @db.Text
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([action])
+  @@index([entity])
+}
+

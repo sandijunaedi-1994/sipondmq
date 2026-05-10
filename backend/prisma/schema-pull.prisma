@@ -1,0 +1,1334 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Answer {
+  id             String      @id
+  attemptId      String
+  questionId     String
+  selectedOption Int?
+  isCorrect      Boolean?
+  ExamAttempt    ExamAttempt @relation(fields: [attemptId], references: [id])
+  Question       Question    @relation(fields: [questionId], references: [id])
+
+  @@index([attemptId], map: "Answer_attemptId_fkey")
+  @@index([questionId], map: "Answer_questionId_fkey")
+}
+
+model Broadcast {
+  id        String           @id
+  judul     String           @db.VarChar(200)
+  pesan     String           @db.Text
+  tipe      Broadcast_tipe   @default(UMUM)
+  target    Broadcast_target @default(SEMUA)
+  markazId  Int?
+  createdAt DateTime         @default(now())
+  updatedAt DateTime
+  Markaz    Markaz?          @relation(fields: [markazId], references: [id])
+
+  @@index([markazId], map: "Broadcast_markazId_fkey")
+}
+
+model CatatanAdmin {
+  id        String              @id
+  tanggal   DateTime            @db.Date
+  tugas     String              @db.Text
+  status    CatatanAdmin_status @default(PENDING)
+  createdAt DateTime            @default(now())
+  updatedAt DateTime
+}
+
+model ChatKontak {
+  id          Int         @id @default(autoincrement()) @db.UnsignedTinyInt
+  nama        String      @db.VarChar(100)
+  kode        String      @unique @db.VarChar(50)
+  roleHandler String?     @db.VarChar(50)
+  aktif       Boolean     @default(true)
+  ChatPesan   ChatPesan[]
+}
+
+model ChatPesan {
+  id         String         @id
+  userId     String
+  kontakId   Int            @db.UnsignedTinyInt
+  arah       ChatPesan_arah
+  isi        String         @db.Text
+  dibaca     Boolean        @default(false)
+  createdAt  DateTime       @default(now())
+  ChatKontak ChatKontak     @relation(fields: [kontakId], references: [id])
+  User       User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([kontakId], map: "ChatPesan_kontakId_fkey")
+  @@index([userId], map: "ChatPesan_userId_fkey")
+}
+
+model Document {
+  id             String          @id
+  registrationId String
+  type           Document_type
+  fileUrl        String
+  status         Document_status @default(PENDING)
+  notes          String?         @db.Text
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime
+  Registration   Registration    @relation(fields: [registrationId], references: [id])
+
+  @@index([registrationId], map: "Document_registrationId_fkey")
+}
+
+model DokumenKategori {
+  id          Int           @id @default(autoincrement()) @db.UnsignedTinyInt
+  kode        String        @unique @db.VarChar(30)
+  nama        String        @db.VarChar(100)
+  ikon        String?       @db.VarChar(10)
+  InfoDokumen InfoDokumen[]
+}
+
+model Donasi {
+  id           String        @id
+  pembayaranId String?
+  userId       String
+  santriId     String?
+  nominal      Decimal       @db.Decimal(12, 0)
+  program      String?       @db.VarChar(200)
+  pesan        String?       @db.Text
+  status       Donasi_status @default(PENDING)
+  createdAt    DateTime      @default(now())
+  Pembayaran   Pembayaran?   @relation(fields: [pembayaranId], references: [id])
+  Santri       Santri?       @relation(fields: [santriId], references: [id])
+  User         User          @relation(fields: [userId], references: [id])
+
+  @@index([pembayaranId], map: "Donasi_pembayaranId_fkey")
+  @@index([santriId], map: "Donasi_santriId_fkey")
+  @@index([userId], map: "Donasi_userId_fkey")
+}
+
+model Exam {
+  id           String        @id
+  title        String
+  duration     Int
+  passingGrade Int
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime
+  ExamAttempt  ExamAttempt[]
+  Question     Question[]
+}
+
+model ExamAttempt {
+  id             String             @id
+  userId         String
+  examId         String
+  startTime      DateTime           @default(now())
+  endTime        DateTime?
+  remainingTime  Int
+  status         ExamAttempt_status @default(ONGOING)
+  score          Int?
+  registrationId String?
+  Answer         Answer[]
+  Exam           Exam               @relation(fields: [examId], references: [id])
+  Registration   Registration?      @relation(fields: [registrationId], references: [id])
+  User           User               @relation(fields: [userId], references: [id])
+  ProctoringLog  ProctoringLog[]
+
+  @@index([examId], map: "ExamAttempt_examId_fkey")
+  @@index([registrationId], map: "ExamAttempt_registrationId_fkey")
+  @@index([userId], map: "ExamAttempt_userId_fkey")
+}
+
+model FinancePeriodePendaftaran {
+  id                 String                            @id
+  tahunAjaranId      String
+  nama               String                            @db.VarChar(100)
+  tanggalMulai       DateTime                          @db.Date
+  tanggalSelesai     DateTime                          @db.Date
+  program            FinancePeriodePendaftaran_program
+  uangPangkal        Decimal                           @db.Decimal(12, 0)
+  spp                Decimal                           @db.Decimal(12, 0)
+  createdAt          DateTime                          @default(now())
+  updatedAt          DateTime
+  FinanceTahunAjaran FinanceTahunAjaran                @relation(fields: [tahunAjaranId], references: [id], onDelete: Cascade)
+
+  @@unique([tahunAjaranId, nama, program])
+}
+
+model FinanceTahunAjaran {
+  id                        String                      @id
+  nama                      String                      @unique @db.VarChar(50)
+  tanggalMulai              DateTime?                   @db.Date
+  tanggalSelesai            DateTime?                   @db.Date
+  aktif                     Boolean                     @default(false)
+  createdAt                 DateTime                    @default(now())
+  updatedAt                 DateTime
+  FinancePeriodePendaftaran FinancePeriodePendaftaran[]
+}
+
+model HealthRecord {
+  id          String            @id
+  santriId    String
+  type        HealthRecord_type
+  date        DateTime          @default(now())
+  title       String            @db.VarChar(150)
+  description String?           @db.Text
+  handledBy   String?           @db.VarChar(100)
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime
+  Santri      Santri            @relation(fields: [santriId], references: [id], onDelete: Cascade)
+
+  @@index([santriId], map: "HealthRecord_santriId_fkey")
+}
+
+model InfoDokumen {
+  id              String          @id
+  kategoriId      Int             @db.UnsignedTinyInt
+  judul           String          @db.VarChar(300)
+  deskripsi       String?         @db.Text
+  fileUrl         String          @db.VarChar(500)
+  tipeFile        String          @default("PDF") @db.VarChar(20)
+  isPublik        Boolean         @default(true)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime
+  markazId        Int?
+  DokumenKategori DokumenKategori @relation(fields: [kategoriId], references: [id])
+  Markaz          Markaz?         @relation(fields: [markazId], references: [id])
+
+  @@index([kategoriId], map: "InfoDokumen_kategoriId_fkey")
+  @@index([markazId], map: "InfoDokumen_markazId_fkey")
+}
+
+model InterviewQuestion {
+  id           String   @id
+  questionText String   @db.Text
+  orderIndex   Int      @default(0)
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime
+}
+
+model InterviewerEvaluation {
+  id                   String                                      @id
+  registrationId       String                                      @unique
+  santriRecommendation InterviewerEvaluation_santriRecommendation?
+  santriNotes          String?                                     @db.Text
+  santriInterviewer    String?
+  parentRecommendation InterviewerEvaluation_parentRecommendation?
+  parentNotes          String?                                     @db.Text
+  parentInterviewer    String?
+  createdAt            DateTime                                    @default(now())
+  updatedAt            DateTime
+  parentRubricAnswers  String?                                     @db.LongText
+  santriRubricAnswers  String?                                     @db.LongText
+  Registration         Registration                                @relation(fields: [registrationId], references: [id])
+}
+
+model InterviewerRubric {
+  id          String   @id
+  target      String   @default("SANTRI")
+  topic       String   @db.VarChar(255)
+  description String?  @db.Text
+  option1     String   @db.Text
+  option2     String   @db.Text
+  option3     String   @db.Text
+  isActive    Boolean  @default(true)
+  urutan      Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime
+}
+
+model KalenderKegiatan {
+  id        String                @id
+  markazId  Int?
+  tanggal   DateTime              @db.Date
+  judul     String                @db.VarChar(200)
+  deskripsi String?               @db.Text
+  tipe      KalenderKegiatan_tipe @default(KEGIATAN)
+  isLibur   Boolean               @default(false)
+  createdAt DateTime              @default(now())
+  Markaz    Markaz?               @relation(fields: [markazId], references: [id])
+
+  @@index([markazId], map: "KalenderKegiatan_markazId_fkey")
+}
+
+model Kehadiran {
+  id                String            @id
+  santriId          String
+  kategoriId        Int               @db.UnsignedTinyInt
+  tanggal           DateTime          @db.Date
+  sesi              String?           @db.VarChar(50)
+  status            Kehadiran_status
+  keterangan        String?           @db.VarChar(200)
+  createdAt         DateTime          @default(now())
+  KehadiranKategori KehadiranKategori @relation(fields: [kategoriId], references: [id])
+  Santri            Santri            @relation(fields: [santriId], references: [id], onDelete: Cascade)
+
+  @@index([kategoriId], map: "Kehadiran_kategoriId_fkey")
+  @@index([santriId], map: "Kehadiran_santriId_fkey")
+}
+
+model KehadiranKategori {
+  id        Int         @id @default(autoincrement()) @db.UnsignedTinyInt
+  kode      String      @unique @db.VarChar(30)
+  nama      String      @db.VarChar(100)
+  Kehadiran Kehadiran[]
+}
+
+model Kepengurusan {
+  id         String            @id
+  santriId   String
+  jabatan    String            @db.VarChar(150)
+  organisasi String            @db.VarChar(200)
+  tipe       Kepengurusan_tipe @default(ORGANISASI)
+  periode    String?           @db.VarChar(20)
+  isAktif    Boolean           @default(false)
+  createdAt  DateTime          @default(now())
+  Santri     Santri            @relation(fields: [santriId], references: [id], onDelete: Cascade)
+
+  @@index([santriId], map: "Kepengurusan_santriId_fkey")
+}
+
+model Markaz {
+  id               Int                @id @default(autoincrement())
+  kode             String             @unique @db.VarChar(20)
+  nama             String             @db.VarChar(100)
+  alamat           String?            @db.Text
+  aktif            Boolean            @default(true)
+  createdAt        DateTime           @default(now())
+  Broadcast        Broadcast[]
+  InfoDokumen      InfoDokumen[]
+  KalenderKegiatan KalenderKegiatan[]
+  Registration     Registration[]
+  Santri           Santri[]
+}
+
+model MatanCapaian {
+  id             String              @id
+  santriId       String
+  matanId        Int                 @db.UnsignedInt
+  status         MatanCapaian_status @default(BELUM)
+  nilaiUjian     Int?                @db.UnsignedTinyInt
+  tanggalUjian   DateTime?           @db.Date
+  catatan        String?             @db.Text
+  updatedAt      DateTime
+  MatanReferensi MatanReferensi      @relation(fields: [matanId], references: [id])
+  Santri         Santri              @relation(fields: [santriId], references: [id], onDelete: Cascade)
+
+  @@unique([santriId, matanId])
+  @@index([matanId], map: "MatanCapaian_matanId_fkey")
+}
+
+model MatanReferensi {
+  id           Int                 @id @default(autoincrement()) @db.UnsignedInt
+  judul        String              @db.VarChar(200)
+  bidang       String              @db.VarChar(100)
+  jumlahBait   Int?                @db.UnsignedSmallInt
+  tipe         MatanReferensi_tipe @default(UTAMA)
+  urutan       Int?                @db.UnsignedSmallInt
+  aktif        Boolean             @default(true)
+  MatanCapaian MatanCapaian[]
+}
+
+model McBudget {
+  id            String   @id
+  planId        String
+  category      String
+  estimatedCost Decimal  @db.Decimal(12, 0)
+  description   String?  @db.Text
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime
+  McPlan        McPlan   @relation(fields: [planId], references: [id])
+
+  @@index([planId], map: "McBudget_planId_fkey")
+}
+
+model McDaftarTugas {
+  id                String                  @id
+  rencanaPekerjaan  String
+  kategori          McDaftarTugas_kategori?
+  status            String                  @default("REGISTER")
+  sumberTugas       String?
+  createdAt         DateTime                @default(now())
+  updatedAt         DateTime
+  kategoriPekerjaan String?
+  markaz            String?
+  namaRequestor     String?
+  keterangan        String?                 @db.Text
+  McPlan            McPlan[]
+}
+
+model McDailyTask {
+  id         String             @id
+  planId     String
+  workerName String
+  taskDetail String             @db.Text
+  taskDate   DateTime           @db.Date
+  status     McDailyTask_status @default(PENDING)
+  createdAt  DateTime           @default(now())
+  updatedAt  DateTime
+  McPlan     McPlan             @relation(fields: [planId], references: [id])
+
+  @@index([planId], map: "McDailyTask_planId_fkey")
+}
+
+model McMaterial {
+  id        String   @id
+  kode      String   @unique
+  nama      String
+  kategori  String
+  satuan    String
+  harga     Decimal  @db.Decimal(12, 0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+}
+
+model McPlan {
+  id              String          @id
+  parentId        String?
+  type            McPlan_type
+  title           String
+  description     String?         @db.Text
+  startDate       DateTime        @db.Date
+  endDate         DateTime        @db.Date
+  priority        Int             @default(3)
+  status          McPlan_status   @default(DRAFT)
+  source          String?
+  workers         String?         @db.Text
+  vendor          String?
+  category        String?
+  urgency         String?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime
+  mcDaftarTugasId String?
+  McBudget        McBudget[]
+  McDailyTask     McDailyTask[]
+  McDaftarTugas   McDaftarTugas?  @relation(fields: [mcDaftarTugasId], references: [id])
+  McPlan          McPlan?         @relation("McPlanToMcPlan", fields: [parentId], references: [id])
+  other_McPlan    McPlan[]        @relation("McPlanToMcPlan")
+  McRealization   McRealization[]
+
+  @@index([mcDaftarTugasId], map: "McPlan_mcDaftarTugasId_fkey")
+  @@index([parentId], map: "McPlan_parentId_fkey")
+}
+
+model McRealization {
+  id         String   @id
+  planId     String
+  actualCost Decimal  @db.Decimal(12, 0)
+  spendDate  DateTime @db.Date
+  proofImage String?
+  notes      String?  @db.Text
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime
+  McPlan     McPlan   @relation(fields: [planId], references: [id])
+
+  @@index([planId], map: "McRealization_planId_fkey")
+}
+
+model McRoutineSchedule {
+  id            String                   @id
+  routineTaskId String
+  taskDate      DateTime                 @db.Date
+  petugas       String                   @db.Text
+  status        McRoutineSchedule_status @default(PENDING)
+  createdAt     DateTime                 @default(now())
+  updatedAt     DateTime
+  McRoutineTask McRoutineTask            @relation(fields: [routineTaskId], references: [id])
+
+  @@index([routineTaskId], map: "McRoutineSchedule_routineTaskId_fkey")
+}
+
+model McRoutineTask {
+  id                String              @id
+  aktivitas         String
+  frekuensi         String
+  jamMulai          String?
+  jamSelesai        String?
+  petugas           String?
+  deskripsi         String?             @db.Text
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime
+  McRoutineSchedule McRoutineSchedule[]
+}
+
+model McUnitRequest {
+  id            String                @id
+  unitName      String
+  requesterName String
+  description   String                @db.Text
+  urgency       McUnitRequest_urgency @default(NORMAL)
+  requestDate   DateTime              @default(now())
+  status        McUnitRequest_status  @default(PENDING)
+  createdAt     DateTime              @default(now())
+  updatedAt     DateTime
+}
+
+model McVendor {
+  id        String   @id
+  nama      String
+  kategori  String
+  kontak    String?
+  alamat    String?  @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+}
+
+model McWorker {
+  id         String   @id
+  nama       String
+  kategori   String
+  kontak     String?
+  upahHarian Decimal  @db.Decimal(12, 0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime
+}
+
+model MqSibling {
+  id                 String            @id
+  registrationDataId String
+  name               String
+  program            MqSibling_program
+  class              String?
+  RegistrationData   RegistrationData  @relation(fields: [registrationDataId], references: [id])
+
+  @@index([registrationDataId], map: "MqSibling_registrationDataId_fkey")
+}
+
+model Notifikasi {
+  id        String          @id
+  userId    String
+  judul     String          @db.VarChar(200)
+  isi       String?         @db.Text
+  tipe      Notifikasi_tipe @default(UMUM)
+  urlTarget String?         @db.VarChar(300)
+  dibaca    Boolean         @default(false)
+  createdAt DateTime        @default(now())
+  User      User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId], map: "Notifikasi_userId_fkey")
+}
+
+model OfflineSchedule {
+  id        String   @id
+  date      DateTime @db.Date
+  timeStart String   @db.VarChar(10)
+  timeEnd   String   @db.VarChar(10)
+  quota     Int      @default(10)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+}
+
+model OnlineSchedule {
+  id        String   @id
+  date      DateTime
+  timeStart String   @db.VarChar(10)
+  timeEnd   String   @db.VarChar(10)
+  quota     Int      @default(10)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+}
+
+model ParentInterview {
+  id             String       @id
+  registrationId String       @unique
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime
+  answers        String       @db.LongText
+  Registration   Registration @relation(fields: [registrationId], references: [id])
+}
+
+model Pelanggaran {
+  id              String               @id
+  santriId        String
+  tanggal         DateTime             @db.Date
+  kategori        Pelanggaran_kategori
+  deskripsi       String               @db.Text
+  poin            Int                  @default(0) @db.UnsignedSmallInt
+  sanksi          String?              @db.VarChar(300)
+  inputOleh       String?
+  createdAt       DateTime             @default(now())
+  Santri          Santri               @relation(fields: [santriId], references: [id], onDelete: Cascade)
+  SuratPeringatan SuratPeringatan[]
+
+  @@index([santriId], map: "Pelanggaran_santriId_fkey")
+}
+
+model Pembayaran {
+  id             String            @id
+  userId         String
+  santriId       String?
+  kodeBayar      String?           @unique @db.VarChar(50)
+  totalNominal   Decimal           @db.Decimal(12, 0)
+  metode         Pembayaran_metode
+  bank           String?           @db.VarChar(50)
+  status         Pembayaran_status @default(PENDING)
+  buktiUrl       String?           @db.VarChar(500)
+  catatan        String?           @db.Text
+  paidAt         DateTime?
+  expiredAt      DateTime?
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime
+  registrationId String?
+  snapToken      String?           @db.VarChar(255)
+  Donasi         Donasi[]
+  Registration   Registration?     @relation(fields: [registrationId], references: [id])
+  Santri         Santri?           @relation(fields: [santriId], references: [id])
+  User           User              @relation(fields: [userId], references: [id])
+  PembayaranItem PembayaranItem[]
+  UangSakuMutasi UangSakuMutasi[]
+
+  @@index([registrationId], map: "Pembayaran_registrationId_fkey")
+  @@index([santriId], map: "Pembayaran_santriId_fkey")
+  @@index([userId], map: "Pembayaran_userId_fkey")
+}
+
+model PembayaranItem {
+  id           Int                 @id @default(autoincrement())
+  pembayaranId String
+  tipe         PembayaranItem_tipe
+  tagihanId    String?
+  nominal      Decimal             @db.Decimal(12, 0)
+  keterangan   String?             @db.VarChar(200)
+  Pembayaran   Pembayaran          @relation(fields: [pembayaranId], references: [id], onDelete: Cascade)
+  Tagihan      Tagihan?            @relation(fields: [tagihanId], references: [id])
+
+  @@index([pembayaranId], map: "PembayaranItem_pembayaranId_fkey")
+  @@index([tagihanId], map: "PembayaranItem_tagihanId_fkey")
+}
+
+model Perizinan {
+  id                   String           @id
+  santriId             String
+  userId               String
+  jenis                Perizinan_jenis
+  alasan               String           @db.Text
+  tanggalMulai         DateTime
+  tanggalKembali       DateTime
+  tanggalKembaliAktual DateTime?
+  status               Perizinan_status @default(TINJAUAN)
+  catatanAdmin         String?          @db.Text
+  diprosesOleh         String?
+  diprosesAt           DateTime?
+  createdAt            DateTime         @default(now())
+  updatedAt            DateTime
+  Santri               Santri           @relation(fields: [santriId], references: [id], onDelete: Cascade)
+  User                 User             @relation(fields: [userId], references: [id])
+
+  @@index([santriId], map: "Perizinan_santriId_fkey")
+  @@index([userId], map: "Perizinan_userId_fkey")
+}
+
+model Prestasi {
+  id         String            @id
+  santriId   String
+  tanggal    DateTime          @db.Date
+  judul      String            @db.VarChar(300)
+  kategori   Prestasi_kategori
+  tingkat    Prestasi_tingkat  @default(INTERNAL)
+  peringkat  String?           @db.VarChar(50)
+  poin       Int               @default(0) @db.UnsignedSmallInt
+  keterangan String?           @db.Text
+  createdAt  DateTime          @default(now())
+  Santri     Santri            @relation(fields: [santriId], references: [id], onDelete: Cascade)
+  Sertifikat Sertifikat[]
+
+  @@index([santriId], map: "Prestasi_santriId_fkey")
+}
+
+model ProctoringLog {
+  id          String      @id
+  attemptId   String
+  event       String
+  timestamp   DateTime    @default(now())
+  ExamAttempt ExamAttempt @relation(fields: [attemptId], references: [id])
+
+  @@index([attemptId], map: "ProctoringLog_attemptId_fkey")
+}
+
+model Question {
+  id            String   @id
+  examId        String
+  text          String   @db.Text
+  imageUrl      String?
+  options       String   @db.LongText
+  correctOption Int
+  category      String
+  urutan        Int      @default(0)
+  Answer        Answer[]
+  Exam          Exam     @relation(fields: [examId], references: [id])
+
+  @@index([examId], map: "Question_examId_fkey")
+}
+
+model Registration {
+  id                                    String                   @id
+  userId                                String
+  academicYear                          String
+  program                               String
+  gender                                Registration_gender
+  previousSchool                        String
+  source                                String
+  motivation                            String                   @db.Text
+  status                                Registration_status      @default(PENDAFTARAN)
+  createdAt                             DateTime                 @default(now())
+  updatedAt                             DateTime
+  studentName                           String                   @default("")
+  interviewDate                         DateTime?
+  testDate                              DateTime?
+  testMethod                            Registration_testMethod?
+  onlineInterviewParentDone             Boolean                  @default(false)
+  onlineInterviewSantriDone             Boolean                  @default(false)
+  attendance                            Registration_attendance  @default(PENDING)
+  attendanceTime                        DateTime?
+  interviewerId                         String?
+  offlineCode                           String?                  @db.VarChar(5)
+  uangMasukDeadline                     DateTime?
+  uangMasukWaiverFileUrl                String?                  @db.VarChar(500)
+  uangMasukNominal                      Decimal?                 @db.Decimal(12, 0)
+  markazId                              Int?
+  sppNominal                            Decimal?                 @db.Decimal(12, 0)
+  Document                              Document[]
+  ExamAttempt                           ExamAttempt[]
+  InterviewerEvaluation                 InterviewerEvaluation?
+  ParentInterview                       ParentInterview?
+  Pembayaran                            Pembayaran[]
+  User_Registration_interviewerIdToUser User?                    @relation("Registration_interviewerIdToUser", fields: [interviewerId], references: [id])
+  Markaz                                Markaz?                  @relation(fields: [markazId], references: [id])
+  User_Registration_userIdToUser        User                     @relation("Registration_userIdToUser", fields: [userId], references: [id])
+  RegistrationData                      RegistrationData?
+  Santri                                Santri?
+  SurveyKunjungan                       SurveyKunjungan[]
+
+  @@index([createdAt])
+  @@index([interviewerId], map: "Registration_interviewerId_fkey")
+  @@index([markazId], map: "Registration_markazId_fkey")
+  @@index([status])
+  @@index([userId])
+}
+
+model RegistrationData {
+  id               String                         @id
+  registrationId   String                         @unique
+  nickname         String?
+  birthPlace       String?
+  birthDate        DateTime?
+  nik              String?
+  nisn             String?
+  childNumber      Int?
+  siblingCount     Int?
+  achievements     String?                        @db.Text
+  medicalHistory   String?                        @db.Text
+  talents          String?                        @db.Text
+  fatherName       String?
+  fatherAge        Int?
+  fatherEducation  String?
+  fatherOccupation String?
+  fatherIncome     String?
+  fatherAddress    String?                        @db.Text
+  motherName       String?
+  motherAge        Int?
+  motherEducation  String?
+  motherOccupation String?
+  motherIncome     String?
+  motherAddress    String?                        @db.Text
+  parentStatus     RegistrationData_parentStatus?
+  createdAt        DateTime                       @default(now())
+  updatedAt        DateTime
+  noKk             String?
+  MqSibling        MqSibling[]
+  Registration     Registration                   @relation(fields: [registrationId], references: [id])
+  Sibling          Sibling[]
+}
+
+model Santri {
+  id                     String                   @id
+  nis                    String?                  @unique @db.VarChar(30)
+  markazId               Int?
+  kelas                  String?                  @db.VarChar(50)
+  asrama                 String?                  @db.VarChar(100)
+  tahunMasuk             Int?
+  status                 Santri_status            @default(AKTIF)
+  fotoUrl                String?                  @db.VarChar(500)
+  createdAt              DateTime                 @default(now())
+  updatedAt              DateTime
+  sppNominal             Decimal?                 @db.Decimal(12, 0)
+  Donasi                 Donasi[]
+  HealthRecord           HealthRecord[]
+  Kehadiran              Kehadiran[]
+  Kepengurusan           Kepengurusan[]
+  MatanCapaian           MatanCapaian[]
+  Pelanggaran            Pelanggaran[]
+  Pembayaran             Pembayaran[]
+  Perizinan              Perizinan[]
+  Prestasi               Prestasi[]
+  Registration           Registration             @relation(fields: [id], references: [id])
+  Markaz                 Markaz?                  @relation(fields: [markazId], references: [id])
+  Sertifikat             Sertifikat[]
+  SuratPeringatan        SuratPeringatan[]
+  Tagihan                Tagihan[]
+  TahfidzCapaianTahapan  TahfidzCapaianTahapan[]
+  TahfidzCatatanPengampu TahfidzCatatanPengampu[]
+  TahfidzHafalanHarian   TahfidzHafalanHarian[]
+  UangSaku               UangSaku?
+  UangSakuMutasi         UangSakuMutasi[]
+  WaliSantri             WaliSantri[]
+
+  @@index([markazId], map: "Santri_markazId_fkey")
+}
+
+model Sertifikat {
+  id         String    @id
+  santriId   String
+  prestasiId String?
+  judul      String    @db.VarChar(300)
+  penerbit   String    @db.VarChar(200)
+  tanggal    DateTime  @db.Date
+  fileUrl    String?   @db.VarChar(500)
+  createdAt  DateTime  @default(now())
+  Prestasi   Prestasi? @relation(fields: [prestasiId], references: [id])
+  Santri     Santri    @relation(fields: [santriId], references: [id], onDelete: Cascade)
+
+  @@index([prestasiId], map: "Sertifikat_prestasiId_fkey")
+  @@index([santriId], map: "Sertifikat_santriId_fkey")
+}
+
+model Sibling {
+  id                 String           @id
+  registrationDataId String
+  name               String
+  age                Int?
+  education          String?
+  occupation         String?
+  RegistrationData   RegistrationData @relation(fields: [registrationDataId], references: [id])
+
+  @@index([registrationDataId], map: "Sibling_registrationDataId_fkey")
+}
+
+model SuratPeringatan {
+  id            String                  @id
+  santriId      String
+  nomorSurat    String                  @unique @db.VarChar(100)
+  tanggal       DateTime                @db.Date
+  tingkat       SuratPeringatan_tingkat
+  perihal       String                  @db.VarChar(300)
+  fileUrl       String?                 @db.VarChar(500)
+  pelanggaranId String?
+  createdAt     DateTime                @default(now())
+  Pelanggaran   Pelanggaran?            @relation(fields: [pelanggaranId], references: [id])
+  Santri        Santri                  @relation(fields: [santriId], references: [id], onDelete: Cascade)
+
+  @@index([pelanggaranId], map: "SuratPeringatan_pelanggaranId_fkey")
+  @@index([santriId], map: "SuratPeringatan_santriId_fkey")
+}
+
+model SurveyKunjungan {
+  id             String                 @id
+  namaSantri     String                 @db.VarChar(150)
+  tanggal        DateTime               @db.Date
+  jam            String                 @db.VarChar(10)
+  program        String                 @db.VarChar(10)
+  gender         SurveyKunjungan_gender
+  harapan        String                 @db.Text
+  isHandled      Boolean                @default(false)
+  createdAt      DateTime               @default(now())
+  catatan        String?                @db.Text
+  noHp           String                 @default("") @db.VarChar(20)
+  registrationId String?
+  status         SurveyKunjungan_status @default(MENUNGGU)
+  Registration   Registration?          @relation(fields: [registrationId], references: [id])
+
+  @@index([registrationId], map: "SurveyKunjungan_registrationId_fkey")
+}
+
+model Tagihan {
+  id             String           @id
+  santriId       String
+  jenisId        Int
+  label          String           @db.VarChar(200)
+  tahunAjaran    String?          @db.VarChar(10)
+  bulan          Int?             @db.TinyInt
+  nominal        Decimal          @db.Decimal(12, 0)
+  jatuhTempo     DateTime         @db.Date
+  status         Tagihan_status   @default(BELUM)
+  keterangan     String?          @db.Text
+  isTentative    Boolean          @default(false)
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime
+  PembayaranItem PembayaranItem[]
+  TagihanJenis   TagihanJenis     @relation(fields: [jenisId], references: [id])
+  Santri         Santri           @relation(fields: [santriId], references: [id], onDelete: Cascade)
+
+  @@index([jenisId], map: "Tagihan_jenisId_fkey")
+  @@index([santriId], map: "Tagihan_santriId_fkey")
+}
+
+model TagihanJenis {
+  id        Int               @id @default(autoincrement())
+  kode      TagihanJenis_kode
+  label     String            @db.VarChar(100)
+  deskripsi String?           @db.Text
+  aktif     Boolean           @default(true)
+  Tagihan   Tagihan[]
+}
+
+model TahfidzCapaianTahapan {
+  id             String                       @id
+  santriId       String
+  tahapanId      Int                          @db.UnsignedTinyInt
+  targetTanggal  DateTime?                    @db.Date
+  selesaiTanggal DateTime?                    @db.Date
+  status         TahfidzCapaianTahapan_status @default(BELUM)
+  catatan        String?                      @db.Text
+  createdAt      DateTime                     @default(now())
+  updatedAt      DateTime
+  Santri         Santri                       @relation(fields: [santriId], references: [id], onDelete: Cascade)
+  TahfidzTahapan TahfidzTahapan               @relation(fields: [tahapanId], references: [id])
+
+  @@unique([santriId, tahapanId])
+  @@index([tahapanId], map: "TahfidzCapaianTahapan_tahapanId_fkey")
+}
+
+model TahfidzCatatanPengampu {
+  id           String                       @id
+  santriId     String
+  pengampuId   String?
+  namaPengampu String?                      @db.VarChar(150)
+  jenis        TahfidzCatatanPengampu_jenis @default(UMUM)
+  catatan      String                       @db.Text
+  createdAt    DateTime                     @default(now())
+  Santri       Santri                       @relation(fields: [santriId], references: [id], onDelete: Cascade)
+
+  @@index([santriId], map: "TahfidzCatatanPengampu_santriId_fkey")
+}
+
+model TahfidzHafalanHarian {
+  id         String   @id
+  santriId   String
+  tanggal    DateTime @db.Date
+  targetHal  Int      @default(5) @db.UnsignedTinyInt
+  capaianHal Int      @default(0) @db.UnsignedTinyInt
+  totalJuz   Decimal? @db.Decimal(4, 1)
+  keterangan String?  @db.VarChar(300)
+  createdAt  DateTime @default(now())
+  Santri     Santri   @relation(fields: [santriId], references: [id], onDelete: Cascade)
+
+  @@unique([santriId, tanggal])
+}
+
+model TahfidzTahapan {
+  id                    Int                     @id @default(autoincrement()) @db.UnsignedTinyInt
+  urutan                Int                     @db.UnsignedTinyInt
+  nama                  String                  @db.VarChar(100)
+  deskripsi             String?                 @db.Text
+  TahfidzCapaianTahapan TahfidzCapaianTahapan[]
+}
+
+model UangSaku {
+  id          String   @id
+  santriId    String   @unique
+  saldo       Decimal  @default(0) @db.Decimal(12, 0)
+  updatedAt   DateTime
+  limitHarian Decimal? @db.Decimal(12, 0)
+  Santri      Santri   @relation(fields: [santriId], references: [id], onDelete: Cascade)
+}
+
+model UangSakuMutasi {
+  id           String              @id
+  santriId     String
+  pembayaranId String?
+  tipe         UangSakuMutasi_tipe
+  nominal      Decimal             @db.Decimal(12, 0)
+  saldoSebelum Decimal             @db.Decimal(12, 0)
+  saldoSesudah Decimal             @db.Decimal(12, 0)
+  keterangan   String?             @db.VarChar(200)
+  createdAt    DateTime            @default(now())
+  Pembayaran   Pembayaran?         @relation(fields: [pembayaranId], references: [id])
+  Santri       Santri              @relation(fields: [santriId], references: [id], onDelete: Cascade)
+
+  @@index([pembayaranId], map: "UangSakuMutasi_pembayaranId_fkey")
+  @@index([santriId], map: "UangSakuMutasi_santriId_fkey")
+}
+
+model User {
+  id                                            String         @id
+  phone                                         String?        @unique
+  email                                         String?        @unique
+  password                                      String
+  role                                          User_role      @default(CALON_WALI)
+  createdAt                                     DateTime       @default(now())
+  updatedAt                                     DateTime
+  namaLengkap                                   String?        @db.VarChar(150)
+  verifiedAt                                    DateTime?
+  permissions                                   String?        @db.LongText
+  ChatPesan                                     ChatPesan[]
+  Donasi                                        Donasi[]
+  ExamAttempt                                   ExamAttempt[]
+  Notifikasi                                    Notifikasi[]
+  Pembayaran                                    Pembayaran[]
+  Perizinan                                     Perizinan[]
+  Registration_Registration_interviewerIdToUser Registration[] @relation("Registration_interviewerIdToUser")
+  Registration_Registration_userIdToUser        Registration[] @relation("Registration_userIdToUser")
+  WaliSantri                                    WaliSantri[]
+
+  @@index([role])
+}
+
+model WaliSantri {
+  id        Int                 @id @default(autoincrement())
+  userId    String
+  santriId  String
+  hubungan  WaliSantri_hubungan @default(WALI)
+  isPrimary Boolean             @default(false)
+  createdAt DateTime            @default(now())
+  Santri    Santri              @relation(fields: [santriId], references: [id], onDelete: Cascade)
+  User      User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, santriId])
+  @@index([santriId], map: "WaliSantri_santriId_fkey")
+}
+
+enum TagihanJenis_kode {
+  SPP
+  DAFTAR_ULANG
+  UANG_MASUK
+  LAINNYA
+}
+
+enum HealthRecord_type {
+  PERAWATAN
+  SAKIT
+  PENGAMBILAN_OBAT
+  PENGECEKAN_BERKALA
+  RUJUKAN
+}
+
+enum McDaftarTugas_kategori {
+  JANGKA_PENDEK
+  JANGKA_PANJANG
+  REQUEST_UNIT
+}
+
+enum InterviewerEvaluation_santriRecommendation {
+  DIREKOMENDASIKAN
+  DIPERTIMBANGKAN
+  TIDAK_DIREKOMENDASIKAN
+}
+
+enum McPlan_type {
+  YEARLY
+  SEMIANNUAL
+  MONTHLY
+  WEEKLY
+}
+
+enum PembayaranItem_tipe {
+  TAGIHAN
+  UANG_SAKU
+  DONASI
+}
+
+enum Document_type {
+  KK
+  KTP_AYAH
+  KTP_IBU
+  AKTA
+  IJAZAH
+  FOTO
+  SURAT_SEHAT
+  SKKB
+}
+
+enum MatanCapaian_status {
+  BELUM
+  PROSES
+  SELESAI
+}
+
+enum UangSakuMutasi_tipe {
+  TOPUP
+  DEBIT
+  KOREKSI
+}
+
+enum CatatanAdmin_status {
+  PENDING
+  SELESAI
+}
+
+enum MqSibling_program {
+  SD
+  SMP
+  SMA
+  MAHAD_ALY
+}
+
+enum WaliSantri_hubungan {
+  AYAH
+  IBU
+  WALI
+}
+
+enum Pelanggaran_kategori {
+  RINGAN
+  SEDANG
+  BERAT
+}
+
+enum Broadcast_tipe {
+  UMUM
+  PENTING
+}
+
+enum ChatPesan_arah {
+  MASUK
+  KELUAR
+}
+
+enum Perizinan_jenis {
+  PULANG
+  BEROBAT
+  ZIARAH
+  LAINNYA
+}
+
+enum Registration_gender {
+  LAKI_LAKI
+  PEREMPUAN
+}
+
+enum Prestasi_kategori {
+  AKADEMIK
+  TAHFIDZ
+  OLAHRAGA
+  SENI
+  ORGANISASI
+  LAINNYA
+}
+
+enum User_role {
+  CALON_WALI
+  WALI_AKTIF
+  ADMIN_PUSAT
+  ADMIN_LEGAL_ASET
+  STAF_LEGAL_ASET
+}
+
+enum MatanReferensi_tipe {
+  UTAMA
+  TAMBAHAN
+}
+
+enum SuratPeringatan_tingkat {
+  SP_1
+  SP_2
+  SP_3
+}
+
+enum McUnitRequest_urgency {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+}
+
+enum Broadcast_target {
+  SEMUA
+  PPDB
+  SANTRI_AKTIF
+}
+
+enum Kepengurusan_tipe {
+  ORGANISASI
+  KEPANITIAAN
+}
+
+enum Notifikasi_tipe {
+  TAGIHAN
+  PERIZINAN
+  PELANGGARAN
+  PRESTASI
+  TAHFIDZ
+  KEHADIRAN
+  UMUM
+}
+
+enum McRoutineSchedule_status {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+}
+
+enum TahfidzCatatanPengampu_jenis {
+  APRESIASI
+  PERBAIKAN
+  UMUM
+}
+
+enum Document_status {
+  PENDING
+  DITERIMA
+  DITOLAK
+  REVISI
+}
+
+enum McDailyTask_status {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+}
+
+enum FinancePeriodePendaftaran_program {
+  SD
+  SMP
+  SMA
+  MAHAD_ALY
+}
+
+enum Prestasi_tingkat {
+  INTERNAL
+  KECAMATAN
+  KABUPATEN
+  PROVINSI
+  NASIONAL
+  INTERNASIONAL
+}
+
+enum Kehadiran_status {
+  HADIR
+  IZIN
+  SAKIT
+  ALFA
+}
+
+enum InterviewerEvaluation_parentRecommendation {
+  DIREKOMENDASIKAN
+  DIPERTIMBANGKAN
+  TIDAK_DIREKOMENDASIKAN
+}
+
+enum Pembayaran_metode {
+  TRANSFER_BANK
+  VIRTUAL_ACCOUNT
+  QRIS
+  TUNAI
+  MIDTRANS
+  LAINNYA
+}
+
+enum SurveyKunjungan_gender {
+  LAKI_LAKI
+  PEREMPUAN
+}
+
+enum KalenderKegiatan_tipe {
+  AKADEMIK
+  LIBUR
+  KEGIATAN
+  KUNJUNGAN
+  LAINNYA
+}
+
+enum TahfidzCapaianTahapan_status {
+  BELUM
+  PROSES
+  SELESAI
+}
+
+enum McUnitRequest_status {
+  PENDING
+  APPROVED
+  INTEGRATED
+  REJECTED
+}
+
+enum Santri_status {
+  AKTIF
+  ALUMNI
+  KELUAR
+}
+
+enum ExamAttempt_status {
+  ONGOING
+  COMPLETED
+  FAILED
+}
+
+enum Donasi_status {
+  PENDING
+  DITERIMA
+  GAGAL
+}
+
+enum Pembayaran_status {
+  PENDING
+  LUNAS
+  GAGAL
+  KEDALUWARSA
+}
+
+enum Registration_status {
+  PENDAFTARAN
+  PEMBAYARAN_REGISTRASI
+  KELENGKAPAN_DATA
+  TES_WAWANCARA
+  PENGUMUMAN
+  DAFTAR_ULANG
+  DITOLAK
+  SELESAI
+  TIDAK_LANJUT_BAYAR_REGISTRASI
+  TIDAK_LANJUT_TES
+  TIDAK_LANJUT_DAFTAR_ULANG
+  TIDAK_LANJUT_JADI_SANTRI
+  NO_LEAD_DOUBLE
+}
+
+enum McPlan_status {
+  DRAFT
+  PENDING
+  ON_PROGRESS
+  COMPLETED
+  DELAYED
+  CANCELLED
+}
+
+enum Perizinan_status {
+  TINJAUAN
+  AKTIF
+  WARNING
+  SELESAI
+  DITOLAK
+}
+
+enum Tagihan_status {
+  BELUM
+  LUNAS
+  SEBAGIAN
+}
+
+enum SurveyKunjungan_status {
+  MENUNGGU
+  DAFTAR
+  TIDAK_DAFTAR
+  BATAL
+  LAINNYA
+}
+
+enum Registration_testMethod {
+  OFFLINE
+  ONLINE
+}
+
+enum Registration_attendance {
+  PENDING
+  PRESENT
+  NO_SHOW
+}
+
+enum RegistrationData_parentStatus {
+  BERSAMA
+  CERAI
+}

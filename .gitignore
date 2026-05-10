@@ -1,0 +1,60 @@
+# ============================================
+# DEPENDENCY DIRECTORIES
+# ============================================
+node_modules/
+.pnp
+.pnp.js
+
+# ============================================
+# ENVIRONMENT / SECRETS (JANGAN PERNAH COMMIT!)
+# ============================================
+.env
+.env.local
+.env.development
+.env.production
+backend/.env
+backend/.env.production
+web/.env.local
+web/.env.production
+
+# ============================================
+# BUILD OUTPUTS
+# ============================================
+# Next.js
+web/.next/
+web/out/
+web/build/
+
+# Backend zip sementara
+*.zip
+backend_temp/
+web_temp/
+
+# ============================================
+# LOGS
+# ============================================
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# ============================================
+# DATABASE
+# ============================================
+*.sql
+*.sqlite
+*.db
+
+# ============================================
+# OS / EDITOR FILES
+# ============================================
+.DS_Store
+Thumbs.db
+.vscode/settings.json
+.idea/
+
+# ============================================
+# PRISMA
+# ============================================
+backend/prisma/migrations/

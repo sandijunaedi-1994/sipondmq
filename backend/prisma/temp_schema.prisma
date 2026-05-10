@@ -1,0 +1,7 @@
+datasource db {
+  provider = "mysql"
+  url      = "mysql://root:nkyAuXZqhTl23Spo@194.233.83.203:3306/ponp9455_mymq"
+}
+generator client {
+  provider = "prisma-client-js"
+}
