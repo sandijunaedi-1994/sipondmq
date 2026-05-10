@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useTheme } from "next-themes";
 import { Sun, Moon, Menu, X, Bell } from "lucide-react";
+import FloatingChat from "./components/FloatingChat";
 
 export default function AdminLayout({ children }) {
   const router = useRouter();
@@ -301,6 +302,7 @@ export default function AdminLayout({ children }) {
           {children}
         </main>
       </div>
+      <FloatingChat />
     </div>
   );
 }

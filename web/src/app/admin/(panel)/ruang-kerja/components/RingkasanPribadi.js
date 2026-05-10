@@ -1,17 +1,12 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import { Send, CheckCircle2, Circle, Clock, Plus } from "lucide-react";
+import { Clock, CheckCircle2, Circle, Plus, Sparkles } from "lucide-react";
 import AddActivityModal from "./AddActivityModal";
 
 export default function RingkasanPribadi() {
   const [tasks, setTasks] = useState([]);
   const [loadingTasks, setLoadingTasks] = useState(true);
-
-  const [chatMessages, setChatMessages] = useState([]);
-  const [newChat, setNewChat] = useState("");
-  const [loadingChat, setLoadingChat] = useState(true);
-  const chatEndRef = useRef(null);
 
   const [showAddModal, setShowAddModal] = useState(false);
 
@@ -30,16 +25,7 @@ export default function RingkasanPribadi() {
     }
 
     fetchTasks();
-    fetchChat();
-
-    // Auto-refresh chat every 10 seconds
-    const interval = setInterval(fetchChat, 10000);
-    return () => clearInterval(interval);
   }, []);
-
-  useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
-  }, [chatMessages]);
 
   const fetchTasks = async () => {
     try {
@@ -59,41 +45,42 @@ export default function RingkasanPribadi() {
     }
   };
 
-  const fetchChat = async () => {
-    try {
-      const token = localStorage.getItem("admin_token");
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"}`}/api/admin/group-chat`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setChatMessages(data);
-      }
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoadingChat(false);
-    }
-  };
+  const [isGeneratingMotivation, setIsGeneratingMotivation] = useState(false);
+  const [currentMotivation, setCurrentMotivation] = useState(null);
 
-  const sendChat = async (e) => {
-    e.preventDefault();
-    if (!newChat.trim()) return;
+  const MOTIVATIONS = [
+    "Barangsiapa bersungguh-sungguh, sesungguhnya kesungguhannya itu adalah untuk dirinya sendiri. (QS. Al-Ankabut: 6)",
+    "Pekerjaan yang paling dicintai Allah adalah yang dilakukan secara terus-menerus (rutin) meskipun sedikit. (HR. Muslim)",
+    "Lakukanlah kebaikan sekecil apapun, karena kau tak pernah tahu kebaikan mana yang akan membawamu ke Surga. (Imam Hasan Al-Bashri)",
+    "Waktu itu seperti pedang. Jika kau tidak memotongnya, ia yang akan memotongmu.",
+    "Tidak ada kesuksesan tanpa kerja keras. Tidak ada keberhasilan tanpa doa. Hari ini adalah kesempatan emas Anda!",
+    "Keberkahan suatu pekerjaan terletak pada keikhlasan hati saat melakukannya. Niatkan karena Allah, dan segalanya akan terasa ringan.",
+    "Sebaik-baik manusia adalah yang paling bermanfaat bagi manusia lainnya. Semangat bertugas hari ini!",
+    "Jangan pernah meremehkan amal yang kecil. Sebuah senyuman atau sapaan hangat bisa menjadi penyemangat luar biasa bagi rekan kerja Anda.",
+    "Disiplin adalah jembatan antara cita-cita dan pencapaian. Jadikan rutinitas hari ini sebagai batu loncatan menuju kesuksesan.",
+    "Syukuri apa yang Anda kerjakan hari ini, karena banyak orang di luar sana yang menginginkan posisi Anda saat ini.",
+    "Bekerja keras adalah bagian dari ibadah. Tetesan keringat Anda hari ini akan menjadi saksi kebaikan di akhirat kelak.",
+    "Sabar dalam menjalankan rutinitas memang berat, tapi buah kesabaran selalu manis pada akhirnya.",
+    "Bukan tentang seberapa cepat Anda berlari, tapi tentang seberapa konsisten Anda melangkah. Konsistensi adalah kunci!",
+    "Setiap kesulitan pasti ada kemudahan. Jika tugas hari ini terasa berat, percayalah bahwa Allah sedang menaikkan derajat Anda.",
+    "Bekerjalah dengan cinta, seakan-akan Anda tidak membutuhkan uang. Maka Anda akan memberikan hasil yang maksimal.",
+    "Mari hadirkan senyum terbaik hari ini. Aura positif yang Anda pancarkan akan menular ke seluruh keluarga besar MQBS!",
+    "Fokuslah pada solusi, bukan pada masalah. Setiap tantangan di tempat kerja adalah ujian untuk naik level.",
+    "Jangan biarkan rasa lelah mengalahkan semangat perjuangan. Ingatlah selalu tujuan mulia mengapa Anda berada di sini.",
+    "Rahasia kemajuan adalah mulai bertindak. Selesaikan tugas Anda satu per satu dengan ketenangan dan fokus.",
+    "Kualitas kerja Anda adalah cerminan dari karakter Anda. Berikan yang terbaik, bahkan ketika tidak ada yang melihat."
+  ];
 
-    try {
-      const token = localStorage.getItem("admin_token");
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"}`}/api/admin/group-chat`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ content: newChat })
-      });
-      if (res.ok) {
-        setNewChat("");
-        fetchChat();
-      }
-    } catch (error) {
-      console.error(error);
-    }
+  const generateMotivation = () => {
+    setIsGeneratingMotivation(true);
+    setCurrentMotivation(null);
+    
+    // Fake AI Generation Delay
+    setTimeout(() => {
+      const randomIndex = Math.floor(Math.random() * MOTIVATIONS.length);
+      setCurrentMotivation(MOTIVATIONS[randomIndex]);
+      setIsGeneratingMotivation(false);
+    }, 1500);
   };
 
   const toggleTaskStatus = async (taskId, currentStatus, isUserTask) => {
@@ -224,71 +211,70 @@ export default function RingkasanPribadi() {
           </div>
         </div>
 
-        {/* Right Column: Keluarga Besar MQBS (Chat) */}
-        <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 flex flex-col h-[500px]">
-          <div className="p-5 border-b border-slate-100 dark:border-slate-800 bg-emerald-50 dark:bg-emerald-950/30 rounded-t-2xl">
-            <h3 className="text-lg font-bold text-emerald-800 dark:text-emerald-400 flex items-center gap-2">
-              <span className="text-2xl">☕</span>
-              Keluarga Besar MQBS
+        {/* Right Column: AI Motivation Generator */}
+        <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 flex flex-col h-[500px] overflow-hidden relative group">
+          {/* Background Decorative Elements */}
+          <div className="absolute top-0 right-0 w-64 h-64 bg-fuchsia-500/10 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none"></div>
+          <div className="absolute bottom-0 left-0 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl -ml-20 -mb-20 pointer-events-none"></div>
+
+          <div className="p-6 border-b border-slate-100 dark:border-slate-800 bg-gradient-to-r from-fuchsia-50 to-indigo-50 dark:from-fuchsia-950/20 dark:to-indigo-950/20 rounded-t-2xl z-10">
+            <h3 className="text-lg font-black bg-clip-text text-transparent bg-gradient-to-r from-fuchsia-600 to-indigo-600 dark:from-fuchsia-400 dark:to-indigo-400 flex items-center gap-2">
+              <Sparkles size={20} className="text-fuchsia-500" />
+              AI Motivasi Harian
             </h3>
-            <p className="text-xs text-emerald-600 dark:text-emerald-500 mt-1">
-              Ruang obrolan internal hari ini. Mari saling menyapa dan memotivasi!
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium">
+              Dapatkan suntikan semangat segar untuk memulai aktivitas Anda hari ini.
             </p>
           </div>
           
-          <div className="flex-1 p-5 overflow-y-auto custom-scrollbar space-y-4 bg-slate-50/50 dark:bg-slate-900/50">
-            {loadingChat ? (
-              <div className="flex justify-center items-center h-full">
-                <div className="w-6 h-6 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
+          <div className="flex-1 p-8 flex flex-col items-center justify-center relative z-10">
+            {isGeneratingMotivation ? (
+              <div className="flex flex-col items-center justify-center space-y-4 animate-in fade-in duration-300">
+                <div className="w-16 h-16 relative flex items-center justify-center">
+                  <div className="absolute inset-0 border-4 border-fuchsia-200 dark:border-fuchsia-900/30 rounded-full"></div>
+                  <div className="absolute inset-0 border-4 border-fuchsia-500 border-t-transparent rounded-full animate-spin"></div>
+                  <Sparkles size={24} className="text-fuchsia-500 animate-pulse" />
+                </div>
+                <p className="text-sm font-bold text-fuchsia-600 dark:text-fuchsia-400 animate-pulse">
+                  Meracik kalimat motivasi...
+                </p>
               </div>
-            ) : chatMessages.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-full text-center text-slate-400">
-                <span className="text-3xl mb-2">👋</span>
-                <p className="text-sm">Jadilah yang pertama menyapa hari ini!</p>
+            ) : currentMotivation ? (
+              <div className="flex flex-col items-center text-center space-y-6 animate-in zoom-in-95 duration-500">
+                <div className="w-16 h-16 bg-gradient-to-br from-fuchsia-100 to-indigo-100 dark:from-fuchsia-900/30 dark:to-indigo-900/30 rounded-full flex items-center justify-center text-2xl shadow-inner mb-2 transform transition-transform hover:scale-110 hover:rotate-12">
+                  ✨
+                </div>
+                <blockquote className="text-lg md:text-xl font-bold text-slate-800 dark:text-slate-100 italic leading-relaxed relative">
+                  <span className="absolute -top-4 -left-4 text-4xl text-fuchsia-200 dark:text-fuchsia-900/40 select-none">"</span>
+                  {currentMotivation}
+                  <span className="absolute -bottom-6 -right-4 text-4xl text-indigo-200 dark:text-indigo-900/40 select-none">"</span>
+                </blockquote>
               </div>
             ) : (
-              chatMessages.map(msg => {
-                const isMe = msg.user.id === currentUserId;
-                return (
-                  <div key={msg.id} className={`flex flex-col ${isMe ? 'items-end' : 'items-start'}`}>
-                    <div className={`max-w-[85%] rounded-2xl px-4 py-2 ${
-                      isMe 
-                        ? 'bg-emerald-600 text-white rounded-tr-none' 
-                        : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100 rounded-tl-none shadow-sm'
-                    }`}>
-                      {!isMe && (
-                        <div className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 mb-1">
-                          {msg.user.namaLengkap}
-                        </div>
-                      )}
-                      <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.content}</p>
-                      <div className={`text-[9px] mt-1 text-right ${isMe ? 'text-emerald-200' : 'text-slate-400'}`}>
-                        {new Date(msg.createdAt).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
-                      </div>
-                    </div>
-                  </div>
-                );
-              })
+              <div className="flex flex-col items-center text-center space-y-4 opacity-70">
+                <div className="w-20 h-20 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center text-3xl shadow-sm mb-2">
+                  🌱
+                </div>
+                <p className="text-slate-500 dark:text-slate-400 font-medium">
+                  Klik tombol di bawah untuk mendapatkan kutipan motivasi acak hari ini!
+                </p>
+              </div>
             )}
-            <div ref={chatEndRef} />
           </div>
 
-          <form onSubmit={sendChat} className="p-3 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 rounded-b-2xl flex gap-2">
-            <input 
-              type="text" 
-              value={newChat}
-              onChange={e => setNewChat(e.target.value)}
-              placeholder="Tulis pesan..." 
-              className="flex-1 px-4 py-2.5 bg-slate-100 dark:bg-slate-800 border-transparent focus:border-emerald-500 focus:bg-white dark:focus:bg-slate-900 rounded-xl text-sm transition-all outline-none"
-            />
+          <div className="p-6 border-t border-slate-100 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm z-10 flex justify-center">
             <button 
-              type="submit" 
-              disabled={!newChat.trim()}
-              className="p-3 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition disabled:opacity-50 disabled:hover:bg-emerald-600"
+              onClick={generateMotivation}
+              disabled={isGeneratingMotivation}
+              className="w-full max-w-xs group relative py-3.5 px-6 font-bold text-white rounded-xl shadow-lg shadow-fuchsia-500/20 overflow-hidden transition-all active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed disabled:active:scale-100"
             >
-              <Send size={18} />
+              <div className="absolute inset-0 bg-gradient-to-r from-fuchsia-500 to-indigo-500 group-hover:from-fuchsia-600 group-hover:to-indigo-600 transition-colors"></div>
+              <div className="relative flex items-center justify-center gap-2">
+                <Sparkles size={18} className={isGeneratingMotivation ? "animate-spin" : ""} />
+                {isGeneratingMotivation ? "Memproses..." : currentMotivation ? "Generate Ulang" : "Generate Motivasi"}
+              </div>
             </button>
-          </form>
+          </div>
         </div>
       </div>
       
