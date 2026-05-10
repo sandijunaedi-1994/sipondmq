@@ -74,11 +74,16 @@ export default function MasterTime() {
         },
         body: JSON.stringify({ status: newStatus })
       });
+      
       if (res.ok) {
         setSchedules(schedules.map(s => s.id === scheduleId ? { ...s, status: newStatus } : s));
+      } else {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.message || "Failed to update status");
       }
     } catch (error) {
       console.error(error);
+      alert("Gagal mengupdate status: " + error.message);
     }
   };
 
@@ -529,20 +534,40 @@ function ScheduleCard({ schedule, onToggle, size = "sm" }) {
   const isDone = schedule.status === 'SELESAI';
   const task = schedule.McRoutineTask;
   
+  // Cek apakah tanggal jadwal sudah lewat (sebelum hari ini)
+  const getLocalDateString = (d) => {
+    const date = new Date(d);
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+  };
+  const isPast = getLocalDateString(schedule.taskDate) < getLocalDateString(new Date());
+  
+  const handleToggle = (e) => {
+    e.stopPropagation();
+    if (isPast) {
+      alert("Aktivitas yang sudah lewat tanggalnya tidak dapat diubah.");
+      return;
+    }
+    onToggle(schedule.id, schedule.status, schedule.isUserTask);
+  };
+  
   return (
     <div 
-      onClick={(e) => { e.stopPropagation(); onToggle(schedule.id, schedule.status, schedule.isUserTask); }}
-      className={`p-3 rounded-xl border cursor-pointer transition-all flex items-start gap-3 group ${
+      onClick={handleToggle}
+      className={`p-3 rounded-xl border transition-all flex items-start gap-3 group ${
+        isPast ? 'cursor-not-allowed opacity-75' : 'cursor-pointer'
+      } ${
         isDone 
           ? 'bg-slate-50 border-slate-200 dark:bg-slate-800/50 dark:border-slate-800 opacity-60' 
-          : 'bg-white border-emerald-100 hover:border-emerald-300 hover:shadow-md hover:shadow-emerald-500/5 dark:bg-slate-900 dark:border-emerald-900 dark:hover:border-emerald-700'
+          : isPast
+            ? 'bg-slate-50 border-slate-200 dark:bg-slate-900 dark:border-slate-800'
+            : 'bg-white border-emerald-100 hover:border-emerald-300 hover:shadow-md hover:shadow-emerald-500/5 dark:bg-slate-900 dark:border-emerald-900 dark:hover:border-emerald-700'
       }`}
     >
-      <div className="mt-0.5">
+      <div className="mt-0.5 relative">
         {isDone ? (
-          <CheckCircle2 size={size === "lg" ? 24 : 18} className="text-emerald-500" />
+          <CheckCircle2 size={size === "lg" ? 24 : 18} className={`text-emerald-500 ${isPast && 'opacity-50'}`} />
         ) : (
-          <Circle size={size === "lg" ? 24 : 18} className="text-slate-300 group-hover:text-emerald-400 transition-colors" />
+          <Circle size={size === "lg" ? 24 : 18} className={`text-slate-300 ${!isPast && 'group-hover:text-emerald-400'} transition-colors`} />
         )}
       </div>
       <div className="flex-1">
@@ -551,7 +576,7 @@ function ScheduleCard({ schedule, onToggle, size = "sm" }) {
         </h4>
         <div className="flex items-center gap-3 mt-1.5">
           <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md border ${
-            isDone 
+            isDone || isPast
               ? 'bg-slate-100 text-slate-500 border-slate-200 dark:bg-slate-800 dark:border-slate-700' 
               : 'bg-emerald-50 text-emerald-600 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20'
           }`}>

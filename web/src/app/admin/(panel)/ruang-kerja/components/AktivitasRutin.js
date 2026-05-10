@@ -145,13 +145,16 @@ export default function AktivitasRutin() {
     }
   };
 
+  const [showGenerateModal, setShowGenerateModal] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [generateResult, setGenerateResult] = useState(null);
+
   const generateSchedules = async () => {
-    if (!confirm("Generate jadwal rutin untuk bulan ini?")) return;
     try {
-      setLoading(true);
+      setIsGenerating(true);
       const token = localStorage.getItem("admin_token");
       const now = new Date();
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"}`}/api/admin/routines/schedules/generate`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"}/api/admin/routines/schedules/generate`, {
         method: "POST",
         headers: { 
           "Content-Type": "application/json",
@@ -161,14 +164,15 @@ export default function AktivitasRutin() {
       });
       if (res.ok) {
         const data = await res.json();
-        alert(data.message);
+        setGenerateResult({ type: 'success', message: data.message });
       } else {
-        alert("Gagal meng-generate jadwal");
+        setGenerateResult({ type: 'error', message: "Gagal meng-generate jadwal. Silakan coba lagi." });
       }
     } catch (error) {
       console.error(error);
+      setGenerateResult({ type: 'error', message: "Terjadi kesalahan koneksi saat generate jadwal." });
     } finally {
-      setLoading(false);
+      setIsGenerating(false);
     }
   };
 
@@ -186,7 +190,7 @@ export default function AktivitasRutin() {
         </div>
         <div className="flex items-center gap-3">
           <button 
-            onClick={generateSchedules}
+            onClick={() => setShowGenerateModal(true)}
             className="flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400 font-bold rounded-xl text-sm border border-blue-200 dark:border-blue-500/20 hover:bg-blue-100 transition-colors"
           >
             <span>⚙️</span> Generate Jadwal Bulan Ini
@@ -398,6 +402,104 @@ export default function AktivitasRutin() {
                 Simpan Aktivitas
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Generate Schedule Modal */}
+      {showGenerateModal && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-slate-900 w-full max-w-md rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden transform transition-all scale-100">
+            
+            {!generateResult ? (
+              <>
+                {/* Header with gradient */}
+                <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-8 text-center relative overflow-hidden">
+                  <div className="absolute top-0 right-0 p-4">
+                    <button onClick={() => !isGenerating && setShowGenerateModal(false)} disabled={isGenerating} className="text-white/70 hover:text-white transition-colors disabled:opacity-50">
+                      <X size={24} />
+                    </button>
+                  </div>
+                  <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4 backdrop-blur-md shadow-inner">
+                    <span className="text-4xl shadow-sm">⚙️</span>
+                  </div>
+                  <h3 className="font-black text-2xl text-white tracking-tight">Generate Jadwal</h3>
+                  <p className="text-blue-100 font-medium mt-2 text-sm">
+                    Bulan {new Date().toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })}
+                  </p>
+                </div>
+                
+                {/* Body */}
+                <div className="p-8 text-center space-y-4">
+                  <p className="text-slate-600 dark:text-slate-300 font-medium text-base leading-relaxed">
+                    Aksi ini akan membuat jadwal harian dan mingguan berdasarkan <span className="font-bold text-slate-800 dark:text-white">Aktivitas Rutin</span> untuk bulan ini.
+                  </p>
+                  <div className="bg-blue-50 dark:bg-blue-500/10 border border-blue-100 dark:border-blue-500/20 rounded-xl p-4 text-left">
+                    <ul className="text-sm text-blue-700 dark:text-blue-300 font-semibold space-y-2 list-disc list-inside">
+                      <li>Tugas harian digenerate otomatis setiap hari (kecuali Minggu)</li>
+                      <li>Tugas pekanan menyesuaikan hari yang dipilih</li>
+                      <li>Aman dijalankan berkali-kali (tidak duplikat)</li>
+                    </ul>
+                  </div>
+                </div>
+                
+                {/* Footer */}
+                <div className="p-6 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 flex justify-center gap-4">
+                  <button 
+                    onClick={() => setShowGenerateModal(false)}
+                    disabled={isGenerating}
+                    className="px-6 py-3 font-bold text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-xl transition-colors disabled:opacity-50"
+                  >
+                    Batal
+                  </button>
+                  <button 
+                    onClick={generateSchedules}
+                    disabled={isGenerating}
+                    className="px-8 py-3 font-bold bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-lg shadow-blue-500/30 transition-all flex items-center justify-center min-w-[160px] disabled:opacity-70 disabled:cursor-not-allowed"
+                  >
+                    {isGenerating ? (
+                      <>
+                        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2"></div>
+                        Memproses...
+                      </>
+                    ) : (
+                      "Generate Sekarang"
+                    )}
+                  </button>
+                </div>
+              </>
+            ) : (
+              /* Success / Error State */
+              <div className="p-10 text-center animate-in zoom-in-95 duration-300">
+                <div className={`w-24 h-24 rounded-full mx-auto mb-6 flex items-center justify-center shadow-inner ${generateResult.type === 'success' ? 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-500' : 'bg-red-100 dark:bg-red-500/20 text-red-500'}`}>
+                  {generateResult.type === 'success' ? (
+                    <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
+                  ) : (
+                    <X size={48} strokeWidth={3} />
+                  )}
+                </div>
+                <h3 className={`text-2xl font-black mb-3 ${generateResult.type === 'success' ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
+                  {generateResult.type === 'success' ? 'Berhasil!' : 'Gagal'}
+                </h3>
+                <p className="text-slate-600 dark:text-slate-300 font-medium mb-8 leading-relaxed">
+                  {generateResult.message}
+                </p>
+                <button 
+                  onClick={() => {
+                    setGenerateResult(null);
+                    setShowGenerateModal(false);
+                  }}
+                  className={`w-full py-3.5 font-bold text-white rounded-xl shadow-lg transition-all active:scale-[0.98] ${
+                    generateResult.type === 'success' 
+                      ? 'bg-emerald-500 hover:bg-emerald-600 shadow-emerald-500/30' 
+                      : 'bg-red-500 hover:bg-red-600 shadow-red-500/30'
+                  }`}
+                >
+                  Selesai
+                </button>
+              </div>
+            )}
+
           </div>
         </div>
       )}

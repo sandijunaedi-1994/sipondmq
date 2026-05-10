@@ -116,11 +116,13 @@ export default function RingkasanPribadi() {
       });
 
       if (!res.ok) {
-        throw new Error("Failed to update status");
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.message || "Failed to update status");
       }
     } catch (error) {
       // Revert on error
       console.error(error);
+      alert("Gagal mengupdate status: " + error.message);
       setTasks(tasks.map(t => t.id === taskId ? { ...t, status: currentStatus } : t));
     }
   };
@@ -161,13 +163,25 @@ export default function RingkasanPribadi() {
             ) : (
               tasks.map(task => {
                 const isDone = task.status === 'SELESAI';
-                const isOverdue = new Date(task.taskDate).setHours(0,0,0,0) < new Date().setHours(0,0,0,0);
+                const getLocalDateString = (d) => {
+                  const date = new Date(d);
+                  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+                };
+                const isOverdue = getLocalDateString(task.taskDate) < getLocalDateString(new Date());
                 
                 return (
                   <div 
                     key={task.id} 
-                    onClick={() => toggleTaskStatus(task.id, task.status, task.isUserTask)}
-                    className={`p-4 rounded-xl border cursor-pointer transition-all flex items-start gap-3 group ${
+                    onClick={() => {
+                      if (isOverdue) {
+                        alert("Aktivitas yang sudah lewat tanggalnya tidak dapat diubah.");
+                        return;
+                      }
+                      toggleTaskStatus(task.id, task.status, task.isUserTask);
+                    }}
+                    className={`p-4 rounded-xl border transition-all flex items-start gap-3 group ${
+                      isOverdue ? 'cursor-not-allowed opacity-75' : 'cursor-pointer'
+                    } ${
                       isDone 
                         ? 'bg-slate-50 border-slate-200 dark:bg-slate-800/50 dark:border-slate-800 opacity-60' 
                         : isOverdue

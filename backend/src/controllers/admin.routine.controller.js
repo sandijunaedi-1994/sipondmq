@@ -124,6 +124,9 @@ const getRoutineSchedules = async (req, res) => {
   try {
     const { month, year, petugas } = req.query;
     
+    const currentUser = await prisma.user.findUnique({ where: { id: req.user.userId } });
+    const isSuperAdmin = currentUser?.permissions?.includes('MANAJEMEN_ADMIN');
+    
     let whereClause = {};
     if (month && year) {
       const startDate = new Date(year, parseInt(month) - 1, 1);
@@ -136,6 +139,9 @@ const getRoutineSchedules = async (req, res) => {
     
     if (petugas) {
       whereClause.petugas = petugas;
+    } else if (!isSuperAdmin && currentUser) {
+      // Hanya tampilkan schedule milik user ini
+      whereClause.petugas = { contains: currentUser.namaLengkap };
     }
 
     const schedules = await prisma.mcRoutineSchedule.findMany({
@@ -155,6 +161,11 @@ const getRoutineSchedules = async (req, res) => {
         gte: startDate,
         lte: endDate
       };
+    }
+    
+    if (!isSuperAdmin) {
+      // Filter tugas atasan/inisiatif hanya yang ditugaskan ke user ini
+      utWhereClause.assigneeId = req.user.userId;
     }
     
     const userTasksRaw = await prisma.userTask.findMany({
@@ -232,7 +243,19 @@ const generateSchedules = async (req, res) => {
     const y = parseInt(year);
     const m = parseInt(month) - 1; // 0-11
     
-    const tasks = await prisma.mcRoutineTask.findMany();
+    const currentUser = await prisma.user.findUnique({ where: { id: req.user.userId } });
+    const isSuperAdmin = currentUser?.permissions?.includes('MANAJEMEN_ADMIN');
+    
+    let whereClause = {};
+    if (!isSuperAdmin) {
+      whereClause = {
+        petugas: { contains: currentUser.namaLengkap }
+      };
+    }
+    
+    const tasks = await prisma.mcRoutineTask.findMany({
+      where: whereClause
+    });
     
     const startDate = new Date(y, m, 1);
     const endDate = new Date(y, m + 1, 0); // last day of month
@@ -247,12 +270,16 @@ const generateSchedules = async (req, res) => {
       
       for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
         const dayOfWeek = d.getDay(); // 0 = Sunday, 1 = Monday
-        const currentDate = new Date(d);
+        // Set to 12:00 PM local time to prevent UTC date shifting backward in Prisma
+        const currentDate = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 12, 0, 0, 0);
         
         let shouldGenerate = false;
         
         if (freqUpper === 'HARIAN' || freqUpper === 'SETIAP HARI' || freqUpper === 'DAILY') {
-          shouldGenerate = true;
+          // Lewatkan hari Minggu (0) untuk rutinitas harian
+          if (dayOfWeek !== 0) {
+            shouldGenerate = true;
+          }
         } 
         else if (freqUpper.startsWith('PEKANAN')) {
           if (freqUpper.includes('SENIN') && dayOfWeek === 1) shouldGenerate = true;
@@ -282,11 +309,17 @@ const generateSchedules = async (req, res) => {
         }
 
         if (shouldGenerate) {
-          // Check if already exists to prevent duplicates
+          // Check if already exists to prevent duplicates (using range to avoid timezone mismatch)
+          const startOfDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), 0, 0, 0);
+          const endOfDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), 23, 59, 59);
+          
           const exists = await prisma.mcRoutineSchedule.findFirst({
             where: {
               routineTaskId,
-              taskDate: currentDate
+              taskDate: {
+                gte: startOfDay,
+                lte: endOfDay
+              }
             }
           });
           
@@ -398,13 +431,20 @@ const getDashboardTasks = async (req, res) => {
     const today = new Date();
     today.setHours(23, 59, 59, 999);
     
+    const threeDaysAgo = new Date();
+    threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
+    threeDaysAgo.setHours(0, 0, 0, 0);
+    
     const user = await prisma.user.findUnique({ where: { id: req.user.userId } });
 
-    // 1. Ambil UserTask (Inisiatif / Tugas Atasan) yang dueDate-nya sampai hari ini
+    // 1. Ambil UserTask (Inisiatif / Tugas Atasan) yang dueDate-nya dari 3 hari lalu sampai hari ini
     const userTasksRaw = await prisma.userTask.findMany({
       where: {
         assigneeId: req.user.userId,
-        dueDate: { lte: today }
+        dueDate: { 
+          gte: threeDaysAgo,
+          lte: today 
+        }
       },
       include: {
         assigner: { select: { namaLengkap: true } }
@@ -429,11 +469,14 @@ const getDashboardTasks = async (req, res) => {
       }
     }));
 
-    // 2. Ambil McRoutineSchedule yang petugasnya sama dengan user dan taskDate sampai hari ini
+    // 2. Ambil McRoutineSchedule yang petugasnya sama dengan user dan taskDate dari 3 hari lalu sampai hari ini
     const schedules = await prisma.mcRoutineSchedule.findMany({
       where: {
-        petugas: user.namaLengkap,
-        taskDate: { lte: today }
+        petugas: { contains: user.namaLengkap },
+        taskDate: { 
+          gte: threeDaysAgo,
+          lte: today 
+        }
       },
       include: {
         McRoutineTask: true
