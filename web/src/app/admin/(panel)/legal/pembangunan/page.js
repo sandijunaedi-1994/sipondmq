@@ -5,6 +5,8 @@ import { Hammer, Users, Briefcase, Truck, Box } from "lucide-react";
 import TabPengaturanPekerja from "./components/TabPengaturanPekerja";
 import TabPengaturanVendor from "./components/TabPengaturanVendor";
 import TabPengaturanMaterial from "./components/TabPengaturanMaterial";
+import TabDaftarProject from "./components/TabDaftarProject";
+import TabPembagianTugas from "./components/TabPembagianTugas";
 
 export default function PembangunanMaintenancePage() {
   const [activeTab, setActiveTab] = useState("project");
@@ -34,27 +36,11 @@ export default function PembangunanMaintenancePage() {
       <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
         
         {/* Tab 1: Daftar Project */}
-        {activeTab === 'project' && (
-          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 p-8 text-center">
-            <div className="w-16 h-16 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <Briefcase size={32} />
-            </div>
-            <h3 className="text-xl font-bold text-slate-800 dark:text-slate-100 mb-2">Daftar Project</h3>
-            <p className="text-slate-500 max-w-md mx-auto">Pantau seluruh project pembangunan dan perbaikan aset di sini.</p>
-            {/* Area untuk tabel project nantinya */}
-          </div>
-        )}
+        {activeTab === 'project' && <TabDaftarProject />}
 
         {/* Tab 2: Pembagian Tugas */}
         {activeTab === 'tugas' && (
-          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 p-8 text-center">
-            <div className="w-16 h-16 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <Hammer size={32} />
-            </div>
-            <h3 className="text-xl font-bold text-slate-800 dark:text-slate-100 mb-2">Pembagian Tugas</h3>
-            <p className="text-slate-500 max-w-md mx-auto">Atur distribusi kerja mandor dan pekerja untuk setiap project.</p>
-            {/* Area untuk tabel tugas nantinya */}
-          </div>
+          <TabPembagianTugas />
         )}
 
         {/* Tab 3: Pengaturan */}

@@ -37,6 +37,12 @@ export default function AdminPPDBPage() {
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [deleteSuccessModalOpen, setDeleteSuccessModalOpen] = useState(false);
 
+  // Reset Password states
+  const [resetConfirmTarget, setResetConfirmTarget] = useState(null);
+  const [resetLoading, setResetLoading] = useState(false);
+  const [resetSuccessModalOpen, setResetSuccessModalOpen] = useState(false);
+  const [resetError, setResetError] = useState("");
+
   const fetchList = useCallback(async () => {
     try {
       setLoading(true);
@@ -105,22 +111,32 @@ export default function AdminPPDBPage() {
     fetchAcademicYears();
   }, [fetchList]);
 
-  const handleResetPassword = async (id, studentName) => {
-    if (!confirm(`Apakah Anda yakin ingin mereset password untuk peserta ${studentName} menjadi mqbs2026?`)) return;
+  const handleResetPasswordClick = (id, studentName) => {
+    setResetError("");
+    setResetConfirmTarget({ id, studentName });
+  };
+
+  const confirmResetPassword = async () => {
+    if (!resetConfirmTarget) return;
+    setResetLoading(true);
+    setResetError("");
     try {
       const token = localStorage.getItem("admin_token");
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || `${process.env.NEXT_PUBLIC_API_URL || `${process.env.NEXT_PUBLIC_API_URL || `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"}`}`}`}/api/admin/ppdb/${id}/reset-password`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"}/api/admin/ppdb/${resetConfirmTarget.id}/reset-password`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.ok) {
-        alert("Password berhasil direset menjadi mqbs2026");
+        setResetConfirmTarget(null);
+        setResetSuccessModalOpen(true);
       } else {
         const data = await res.json();
-        alert(`Gagal: ${data.message || 'Terjadi kesalahan'}`);
+        setResetError(data.message || 'Terjadi kesalahan saat mereset password');
       }
     } catch (err) {
-      alert("Kesalahan jaringan");
+      setResetError("Kesalahan jaringan. Gagal terhubung ke server.");
+    } finally {
+      setResetLoading(false);
     }
   };
 
@@ -387,7 +403,7 @@ export default function AdminPPDBPage() {
                       <Link href={`/admin/ppdb/peserta/${reg.id}`} className="inline-flex items-center justify-center bg-slate-100 dark:bg-slate-800 hover:bg-emerald-500 text-slate-600 dark:text-slate-300 hover:text-white transition-colors p-2 rounded-lg" title="Lihat Detail">
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
                       </Link>
-                      <button onClick={() => handleResetPassword(reg.id, reg.studentName || 'Peserta')} className="inline-flex items-center justify-center bg-slate-100 dark:bg-slate-800 hover:bg-amber-500 text-slate-600 dark:text-slate-300 hover:text-white transition-colors p-2 rounded-lg" title="Reset Password">
+                      <button onClick={() => handleResetPasswordClick(reg.id, reg.studentName || 'Peserta')} className="inline-flex items-center justify-center bg-slate-100 dark:bg-slate-800 hover:bg-amber-500 text-slate-600 dark:text-slate-300 hover:text-white transition-colors p-2 rounded-lg" title="Reset Password">
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4v-5.257A4.01 4.01 0 014.743 14l5.514-5.514A6 6 0 0115 5z" /></svg>
                       </button>
                       {permissions.includes("MANAJEMEN_ADMIN") && (
@@ -732,6 +748,78 @@ export default function AdminPPDBPage() {
               </p>
               <button 
                 onClick={() => setDeleteSuccessModalOpen(false)}
+                className="w-full py-3 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-lg shadow-emerald-500/30 transition-colors"
+              >
+                Tutup
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Reset Password Confirmation Modal ── */}
+      {resetConfirmTarget && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl max-w-sm w-full overflow-hidden border border-slate-200 dark:border-slate-800 animate-in zoom-in-95 duration-200">
+            <div className="p-8 text-center">
+              <div className="w-20 h-20 bg-amber-50 dark:bg-amber-500/10 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4v-5.257A4.01 4.01 0 014.743 14l5.514-5.514A6 6 0 0115 5z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-black text-slate-800 dark:text-white mb-2">Reset Password?</h3>
+              <p className="text-slate-500 dark:text-slate-400 mb-6 text-sm leading-relaxed">
+                Apakah Anda yakin ingin mereset password untuk peserta <strong>{resetConfirmTarget.studentName}</strong> menjadi <span className="font-mono bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded text-amber-600 font-bold">mqbs2026</span>?
+              </p>
+              
+              {resetError && (
+                <div className="mb-4 p-3 bg-red-50 text-red-600 text-xs rounded-xl font-medium border border-red-200">
+                  {resetError}
+                </div>
+              )}
+
+              <div className="flex gap-3">
+                <button 
+                  onClick={() => setResetConfirmTarget(null)} 
+                  disabled={resetLoading}
+                  className="flex-1 py-3 px-4 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-xl transition-colors disabled:opacity-50"
+                >
+                  Batal
+                </button>
+                <button 
+                  onClick={confirmResetPassword}
+                  disabled={resetLoading}
+                  className="flex-1 py-3 px-4 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-xl shadow-lg shadow-amber-500/30 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                  {resetLoading ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                      Proses...
+                    </>
+                  ) : "Ya, Reset"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Reset Password Success Modal ── */}
+      {resetSuccessModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl max-w-sm w-full overflow-hidden border border-slate-200 dark:border-slate-800 animate-in zoom-in-95 duration-200">
+            <div className="p-8 text-center">
+              <div className="w-20 h-20 bg-emerald-50 dark:bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <h3 className="text-2xl font-black text-slate-800 dark:text-white mb-2">Reset Berhasil</h3>
+              <p className="text-slate-500 dark:text-slate-400 mb-6 text-sm">
+                Password peserta telah berhasil direset menjadi <span className="font-mono bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded text-emerald-600 font-bold">mqbs2026</span>.
+              </p>
+              <button 
+                onClick={() => setResetSuccessModalOpen(false)}
                 className="w-full py-3 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-lg shadow-emerald-500/30 transition-colors"
               >
                 Tutup

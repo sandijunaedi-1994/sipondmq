@@ -1220,16 +1220,41 @@ enum McPlan_status {
 }
 
 model McBudget {
-  id            String   @id
-  planId        String
-  category      String
-  estimatedCost Decimal  @db.Decimal(12, 0)
-  description   String?  @db.Text
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime
-  McPlan        McPlan   @relation(fields: [planId], references: [id])
+  id              String   @id
+  planId          String?
+  category        String
+  estimatedCost   Decimal  @db.Decimal(12, 0)
+  description     String?  @db.Text
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime
+  McPlan          McPlan?  @relation(fields: [planId], references: [id])
+  mcDaftarTugasId String?
+  McDaftarTugas   McDaftarTugas? @relation(fields: [mcDaftarTugasId], references: [id], onDelete: Cascade)
+  tipe            String?  @db.VarChar(50)
+  itemId          String?  @db.VarChar(100)
+  qty             Int?     @default(1)
+  hargaSatuan     Decimal? @db.Decimal(12, 0)
+  pembayaranTipe  String?  @db.VarChar(50) // HARIAN or BORONGAN
 
   @@index([planId], map: "McBudget_planId_fkey")
+  @@index([mcDaftarTugasId], map: "McBudget_mcDaftarTugasId_fkey")
+}
+
+model McSubTugas {
+  id              String   @id
+  mcDaftarTugasId String
+  namaPekerjaan   String
+  status          String   @default("PENDING") // PENDING, ON_PROGRESS, COMPLETED
+  targetSelesai   DateTime? @db.Date
+  catatan         String?  @db.Text
+  pekerjaIds      String?  @db.Text // Array of worker IDs in JSON format
+  vendorId        String?  @db.VarChar(100)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime
+  
+  McDaftarTugas   McDaftarTugas @relation(fields: [mcDaftarTugasId], references: [id], onDelete: Cascade)
+
+  @@index([mcDaftarTugasId], map: "McSubTugas_mcDaftarTugasId_fkey")
 }
 
 model McDaftarTugas {
@@ -1244,7 +1269,14 @@ model McDaftarTugas {
   markaz            String?
   namaRequestor     String?
   keterangan        String?                 @db.Text
+  tanggalMulai      DateTime?               @db.Date
+  tanggalSelesai    DateTime?               @db.Date
+  semester          String?                 @db.VarChar(20)
+  tahunAjaran       String?                 @db.VarChar(20)
+  prioritas         String?                 @db.VarChar(50)
   McPlan            McPlan[]
+  McBudget          McBudget[]
+  McSubTugas        McSubTugas[]
 }
 
 model McDailyTask {

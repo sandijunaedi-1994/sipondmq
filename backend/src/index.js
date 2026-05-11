@@ -45,6 +45,7 @@ app.use('/api/portal-apps', portalAppsRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/admin/finance', financeSettingsRoutes);
 app.use('/api/admin/pembangunan', pembangunanRoutes);
+app.use('/api/admin/projects', require('./routes/admin.project.routes'));
 app.use('/api/midtrans', midtransRoutes);
 
 app.get('/api/health', (req, res) => {
