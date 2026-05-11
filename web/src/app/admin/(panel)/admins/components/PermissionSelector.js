@@ -189,6 +189,15 @@ export const PERMISSIONS_SCHEMA = [
           { id: "LEGAL_VIEW", label: "Lihat Data Aset" },
           { id: "LEGAL_EDIT", label: "Kelola Aset/Legal" }
         ]
+      },
+      {
+        nama: "Pembangunan & Maintenance",
+        actions: [
+          { id: "PEMBANGUNAN_VIEW", label: "Lihat Daftar Proyek" },
+          { id: "PEMBANGUNAN_CREATE", label: "Tambah/Edit Proyek" },
+          { id: "PEMBANGUNAN_APPROVE", label: "Setujui Request Unit" },
+          { id: "PEMBANGUNAN_DELETE", label: "Hapus Proyek" }
+        ]
       }
     ]
   },
@@ -303,6 +312,13 @@ export const PERMISSIONS_SCHEMA = [
         actions: [
           { id: "RUANGKERJA_CATATAN_VIEW", label: "Lihat Catatan" },
           { id: "RUANGKERJA_CATATAN_EDIT", label: "Kelola Catatan" }
+        ]
+      },
+      {
+        nama: "Aktivitas Rutin",
+        actions: [
+          { id: "RUANGKERJA_RUTIN_VIEW", label: "Lihat Aktivitas Rutin" },
+          { id: "RUANGKERJA_RUTIN_EDIT", label: "Tambah/Edit Aktivitas Rutin" }
         ]
       },
       {

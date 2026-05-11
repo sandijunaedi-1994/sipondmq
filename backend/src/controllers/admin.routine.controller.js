@@ -9,9 +9,12 @@ const getRoutineTasks = async (req, res) => {
     
     let whereClause = {};
     if (!isSuperAdmin) {
-      // Only show tasks assigned to this user
+      // Only show tasks created by this user OR assigned to them by name
       whereClause = {
-        petugas: { contains: currentUser.namaLengkap }
+        OR: [
+          { creatorId: req.user.userId },
+          ...(currentUser?.namaLengkap ? [{ petugas: { contains: currentUser.namaLengkap } }] : [])
+        ]
       };
     }
 
@@ -39,6 +42,7 @@ const createRoutineTask = async (req, res) => {
         jamSelesai,
         petugas,
         deskripsi,
+        creatorId: req.user.userId,
         updatedAt: new Date()
       }
     });

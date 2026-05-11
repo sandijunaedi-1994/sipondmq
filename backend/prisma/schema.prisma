@@ -1368,6 +1368,7 @@ model McRoutineTask {
   jamSelesai        String?
   petugas           String?
   deskripsi         String?             @db.Text
+  creatorId         String?
   createdAt         DateTime            @default(now())
   updatedAt         DateTime
   McRoutineSchedule McRoutineSchedule[]

@@ -33,7 +33,7 @@ const createKalender = async (req, res) => {
           tipe: tipe || 'LAINNYA',
           isLibur: isLibur || false
         });
-        current.setDate(current.getDate() + 1);
+        current.setTime(current.getTime() + 24 * 60 * 60 * 1000);
       }
       
       await prisma.kalenderKegiatan.createMany({ data: eventsToCreate });
@@ -109,7 +109,7 @@ const updateKalenderBatch = async (req, res) => {
           tipe: tipe || 'LAINNYA',
           isLibur: isLibur || false
         });
-        current.setDate(current.getDate() + 1);
+        current.setTime(current.getTime() + 24 * 60 * 60 * 1000);
       }
       
       await prisma.kalenderKegiatan.createMany({ data: eventsToCreate });

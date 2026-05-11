@@ -52,8 +52,13 @@ export default function TabDaftarProject() {
     status: "REGISTER"
   });
 
+  // Form States
   const [isEdit, setIsEdit] = useState(false);
   const [error, setError] = useState(null);
+  
+  // Delete Project State
+  const [deleteProjectId, setDeleteProjectId] = useState(null);
+  const [isDeleteProjectModalOpen, setIsDeleteProjectModalOpen] = useState(false);
 
   // RAB Form
   const [rabList, setRabList] = useState([]);
@@ -148,15 +153,22 @@ export default function TabDaftarProject() {
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!confirm("Hapus project ini beserta rincian RAB-nya?")) return;
+  const openDeleteProjectModal = (id) => {
+    setDeleteProjectId(id);
+    setIsDeleteProjectModalOpen(true);
+  };
+
+  const handleDeleteProject = async () => {
+    if (!deleteProjectId) return;
     try {
       const token = localStorage.getItem("admin_token");
-      await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"}/api/admin/projects/${id}`, {
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"}/api/admin/projects/${deleteProjectId}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` }
       });
       fetchData();
+      setIsDeleteProjectModalOpen(false);
+      setDeleteProjectId(null);
     } catch (err) {
       console.error(err);
     }
@@ -523,8 +535,8 @@ export default function TabDaftarProject() {
                       <div className="flex items-center justify-center gap-1">
                         <button onClick={() => openDetailModal(item)} className="p-1.5 text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 rounded-lg" title="Detail Project"><Eye size={16} /></button>
                         <button onClick={() => openRabModal(item)} className="p-1.5 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 rounded-lg" title="Kelola RAB"><DollarSign size={16} /></button>
-                        <button onClick={() => openModal(item)} className="p-1.5 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg" title="Edit"><Edit2 size={16} /></button>
-                        <button onClick={() => handleDelete(item.id)} className="p-1.5 text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/30 rounded-lg" title="Hapus"><Trash2 size={16} /></button>
+                        <button onClick={() => openModal(item)} className="p-1.5 text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-500/10 rounded-lg transition-colors"><Edit2 size={16} /></button>
+                        <button onClick={() => openDeleteProjectModal(item.id)} className="p-1.5 text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 rounded-lg transition-colors"><Trash2 size={16} /></button>
                       </div>
                     </td>
                   </tr>
