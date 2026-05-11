@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import PermissionSelector from "./PermissionSelector";
 
 export default function ManajemenUser() {
@@ -30,6 +31,22 @@ export default function ManajemenUser() {
     fetchMarkazList();
     fetchGroupList();
   }, []);
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape" && isModalOpen) {
+        setIsModalOpen(false);
+      }
+    };
+    
+    if (isModalOpen) {
+      window.addEventListener("keydown", handleKeyDown);
+    }
+    
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isModalOpen]);
 
   const fetchPortalApps = async () => {
     try {
@@ -260,21 +277,37 @@ export default function ManajemenUser() {
                         </div>
                       )}
                       
-                      <div className="flex flex-wrap gap-1">
+                      <div className="flex flex-wrap gap-1 mt-1">
                         {admin.permissions && admin.permissions.length > 0 ? (
-                          admin.permissions.map(p => (
-                            <span key={p} className="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 rounded text-[10px] font-bold transition-colors">
-                              {p}
+                          admin.permissions.includes("MANAJEMEN_ADMIN") ? (
+                            <span className="px-2 py-0.5 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20 rounded text-[10px] font-bold transition-colors">
+                              Akses Superadmin Penuh
                             </span>
-                          ))
+                          ) : (
+                            <>
+                              {admin.permissions.slice(0, 2).map(p => (
+                                <span key={p} className="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 rounded text-[10px] font-bold transition-colors">
+                                  {p}
+                                </span>
+                              ))}
+                              {admin.permissions.length > 2 && (
+                                <span className="px-2 py-0.5 bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 border border-slate-300 dark:border-slate-600 rounded text-[10px] font-bold transition-colors">
+                                  +{admin.permissions.length - 2} Lainnya
+                                </span>
+                              )}
+                            </>
+                          )
                         ) : (
-                          <span className="text-xs text-slate-400 italic">Tidak ada akses spesifik (hanya dari grup)</span>
+                          <span className="text-[10px] text-slate-400 font-semibold italic">Tanpa akses individu</span>
                         )}
                       </div>
                     </div>
                   </td>
                   <td className="px-6 py-4 text-center">
                     <div className="flex items-center justify-center gap-2">
+                      <Link href={`/admin/admins/${admin.id}`} className="p-2 text-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 rounded-lg transition" title="Lihat Profil & Izin">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z" /><path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" /></svg>
+                      </Link>
                       <button onClick={() => handleOpenModal(admin)} className="p-2 text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-500/10 rounded-lg transition" title="Edit Admin">
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" /></svg>
                       </button>

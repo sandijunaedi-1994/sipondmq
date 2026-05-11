@@ -53,6 +53,7 @@ exports.getSantriAktif = async (req, res) => {
             select: {
               studentName: true,
               program: true,
+              documents: true,
             }
           },
           markaz: true,
@@ -284,5 +285,219 @@ exports.importSantriCsv = async (req, res) => {
   } catch (error) {
     console.error("importSantriCsv error:", error);
     res.status(500).json({ success: false, message: "Server Error saat memproses file." });
+  }
+};
+
+exports.getSantriDetail = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const santri = await prisma.santri.findUnique({
+      where: { id },
+      include: {
+        registration: {
+          include: {
+            registrationData: true
+          }
+        },
+        markaz: true,
+        waliSantri: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                namaLengkap: true,
+                phone: true,
+                email: true
+              }
+            }
+          }
+        }
+      }
+    });
+
+    if (!santri) {
+      return res.status(404).json({ success: false, message: "Data santri tidak ditemukan" });
+    }
+
+    res.json({ success: true, santri });
+  } catch (error) {
+    console.error("getSantriDetail error:", error);
+    res.status(500).json({ success: false, message: "Server Error" });
+  }
+};
+
+exports.deleteSantri = async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    // Check if santri has any transactions (Tagihan, Pembayaran, Tahfidz, dll)
+    const santri = await prisma.santri.findUnique({
+      where: { id },
+      include: {
+        tagihan: { take: 1 },
+        pembayaran: { take: 1 },
+        tahfidzCapaian: { take: 1 },
+        kehadiran: { take: 1 },
+        pelanggaran: { take: 1 },
+        prestasi: { take: 1 }
+      }
+    });
+
+    if (!santri) {
+      return res.status(404).json({ success: false, message: "Data santri tidak ditemukan" });
+    }
+
+    // Validation: Prevent deletion if there are related academic/financial records
+    if (
+      santri.tagihan.length > 0 ||
+      santri.pembayaran.length > 0 ||
+      santri.tahfidzCapaian.length > 0 ||
+      santri.kehadiran.length > 0 ||
+      santri.pelanggaran.length > 0 ||
+      santri.prestasi.length > 0
+    ) {
+      return res.status(400).json({ 
+        success: false, 
+        message: "Santri ini sudah memiliki riwayat akademik/keuangan. Gunakan fitur 'Keluar'/'Lulus' (Update Status) alih-alih menghapusnya." 
+      });
+    }
+
+    // Proceed with deletion in a transaction
+    await prisma.$transaction(async (tx) => {
+      // 1. Delete WaliSantri mapping
+      await tx.waliSantri.deleteMany({ where: { santriId: id } });
+      
+      // 2. Delete Santri
+      await tx.santri.delete({ where: { id } });
+
+      // 3. Delete RegistrationData & Registration (if exists and is IMPORT_CSV, or just delete anyway since Santri ID = Registration ID)
+      const reg = await tx.registration.findUnique({ where: { id } });
+      if (reg) {
+        await tx.registrationData.deleteMany({ where: { registrationId: id } });
+        await tx.document.deleteMany({ where: { registrationId: id } });
+        await tx.parentInterview.deleteMany({ where: { registrationId: id } });
+        await tx.interviewerEvaluation.deleteMany({ where: { registrationId: id } });
+        await tx.surveyKunjungan.deleteMany({ where: { registrationId: id } }).catch(() => {});
+        await tx.registration.delete({ where: { id } });
+
+        // Optionally delete user if they were CALON_WALI or WALI_AKTIF without other children
+        const otherRegs = await tx.registration.count({ where: { userId: reg.userId } });
+        if (otherRegs === 0) {
+          const user = await tx.user.findUnique({ where: { id: reg.userId } });
+          if (user && (user.role === 'CALON_WALI' || user.role === 'WALI_AKTIF')) {
+            await tx.user.delete({ where: { id: reg.userId } });
+          }
+        }
+      }
+    });
+
+    res.json({ success: true, message: "Data santri berhasil dihapus secara permanen." });
+  } catch (error) {
+    console.error("deleteSantri error:", error);
+    res.status(500).json({ success: false, message: "Terjadi kesalahan saat menghapus data santri." });
+  }
+};
+
+exports.generateMassNis = async (req, res) => {
+  try {
+    const { academicYear, program, overwriteExisting } = req.body;
+    
+    if (!academicYear || !program) {
+      return res.status(400).json({ success: false, message: "Tahun ajaran dan Program wajib diisi." });
+    }
+
+    // Parse Year Code: "2026/2027" -> "2627"
+    let yearCode = "";
+    if (academicYear.includes('/')) {
+      const parts = academicYear.split('/');
+      yearCode = parts[0].slice(-2) + parts[1].slice(-2);
+    } else {
+      yearCode = academicYear.slice(-4);
+    }
+
+    // Program Code
+    let programCode = "99";
+    const progUpper = program.toUpperCase();
+    if (progUpper.includes('SMP')) programCode = '07';
+    else if (progUpper.includes('SMA')) programCode = '03';
+    else if (progUpper.includes('ALY') || progUpper.includes('ALI')) programCode = '04';
+    else if (progUpper.includes('SD')) programCode = '02';
+    else if (progUpper.includes('TK')) programCode = '01';
+
+    const prefix = `${yearCode}${programCode}`;
+
+    // Fetch santris
+    const santris = await prisma.santri.findMany({
+      where: {
+        registration: {
+          academicYear,
+          program
+        }
+      },
+      include: {
+        registration: { select: { studentName: true } }
+      }
+    });
+
+    if (santris.length === 0) {
+      return res.status(404).json({ success: false, message: "Tidak ada santri aktif di tahun ajaran & program tersebut." });
+    }
+
+    // Filter santris based on overwriteExisting
+    let santrisToProcess = santris;
+    if (!overwriteExisting) {
+      santrisToProcess = santris.filter(s => !s.nis || s.nis.startsWith('NIS-') || s.nis.trim() === '');
+    }
+    
+    if (santrisToProcess.length === 0) {
+      return res.status(400).json({ success: false, message: "Semua santri sudah memiliki NIS permanen. Centang 'Timpa NIS Lama' jika ingin mengurutkan ulang semuanya." });
+    }
+
+    // If we are NOT overwriting existing, we need to find the MAX sequence currently used by the existing santris of this prefix
+    let startSequence = 1;
+    if (!overwriteExisting) {
+      const existingSantrisWithNis = santris.filter(s => s.nis && s.nis.startsWith(prefix) && s.nis.length >= prefix.length + 3);
+      for (const s of existingSantrisWithNis) {
+         const seqStr = s.nis.slice(prefix.length, prefix.length + 3);
+         const seq = parseInt(seqStr, 10);
+         if (!isNaN(seq) && seq >= startSequence) {
+            startSequence = seq + 1;
+         }
+      }
+    }
+
+    // Sort alphabetically
+    santrisToProcess.sort((a, b) => {
+      const nameA = (a.registration?.studentName || "").toLowerCase();
+      const nameB = (b.registration?.studentName || "").toLowerCase();
+      return nameA.localeCompare(nameB);
+    });
+
+    let successCount = 0;
+    await prisma.$transaction(async (tx) => {
+      let currentSeq = startSequence;
+      for (const s of santrisToProcess) {
+        const seqStr = String(currentSeq).padStart(3, '0');
+        const newNis = `${prefix}${seqStr}`;
+        
+        await tx.santri.update({
+          where: { id: s.id },
+          data: { nis: newNis }
+        });
+        
+        currentSeq++;
+        successCount++;
+      }
+    });
+
+    res.json({ 
+      success: true, 
+      message: `Berhasil men-generate ${successCount} NIS secara berurutan sesuai abjad.`,
+      prefix 
+    });
+
+  } catch (error) {
+    console.error("generateMassNis error:", error);
+    res.status(500).json({ success: false, message: "Terjadi kesalahan pada server." });
   }
 };

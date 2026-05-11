@@ -14,6 +14,7 @@ export default function AdminLayout({ children }) {
   
   const [loading, setLoading] = useState(true);
   const [permissions, setPermissions] = useState([]);
+  const [adminProfile, setAdminProfile] = useState({ name: "Admin", email: "admin@mqbs.com", initial: "AD" });
   const [expandedMenus, setExpandedMenus] = useState({});
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -26,6 +27,11 @@ export default function AdminLayout({ children }) {
       router.replace("/admin");
     } else {
       const perms = JSON.parse(localStorage.getItem("admin_permissions") || "[]");
+      const name = localStorage.getItem("admin_name") || "Administrator";
+      const email = localStorage.getItem("admin_email") || "admin@mqbs.com";
+      const initial = name.substring(0, 2).toUpperCase();
+      
+      setAdminProfile({ name, email, initial });
       setPermissions(perms);
       setLoading(false);
     }
@@ -51,6 +57,49 @@ export default function AdminLayout({ children }) {
 
   const allMenuItems = [
     { name: "Ruang Kerja Saya", path: "/admin/ruang-kerja", icon: "💼", permission: null },
+    { 
+      name: "Sekretariat", icon: "📁", permission: null,
+      subItems: [
+        { name: "Surat Menyurat", path: "/admin/sekretariat/surat", permission: "SEKRETARIAT_VIEW" },
+        { name: "Arsip Digital", path: "/admin/sekretariat/arsip", permission: "SEKRETARIAT_VIEW" }
+      ]
+    },
+    { 
+      name: "Manajemen SDM", icon: "👥", permission: null,
+      subItems: [
+        { name: "Data Pegawai", path: "/admin/sdm/pegawai", permission: "SDM_VIEW" },
+        { name: "Rekrutmen", path: "/admin/sdm/rekrutmen", permission: "SDM_VIEW" },
+        { name: "Penilaian Kinerja", path: "/admin/sdm/kinerja", permission: "SDM_VIEW" }
+      ]
+    },
+    { 
+      name: "Litbang & Budaya", icon: "🔬", permission: null,
+      subItems: [
+        { name: "Penelitian", path: "/admin/litbang/penelitian", permission: "LITBANG_VIEW" },
+        { name: "SOP & Panduan", path: "/admin/litbang/sop", permission: "LITBANG_VIEW" }
+      ]
+    },
+    { 
+      name: "Pengelolaan Keuangan", icon: "💰", permission: null,
+      subItems: [
+        { name: "Anggaran", path: "/admin/keuangan-baru/anggaran", permission: "KEUANGAN_ANGGARAN_VIEW" },
+        { name: "Penggajian", path: "/admin/keuangan-baru/penggajian", permission: "KEUANGAN_PENGGAJIAN_VIEW" }
+      ]
+    },
+    { 
+      name: "Administrasi Pembelajaran", icon: "📖", permission: null,
+      subItems: [
+        { name: "Kurikulum", path: "/admin/pembelajaran/kurikulum", permission: "AKADEMIK_ADMIN_VIEW" },
+        { name: "Jadwal Pelajaran", path: "/admin/pembelajaran/jadwal", permission: "AKADEMIK_ADMIN_VIEW" }
+      ]
+    },
+    { 
+      name: "Legal & Aset", icon: "⚖️", permission: null,
+      subItems: [
+        { name: "Inventaris", path: "/admin/legal/inventaris", permission: "LEGAL_VIEW" },
+        { name: "Perizinan Lembaga", path: "/admin/legal/perizinan", permission: "LEGAL_VIEW" }
+      ]
+    },
     { 
       name: "Dashboard", icon: "📊", permission: null,
       subItems: [
@@ -200,9 +249,9 @@ export default function AdminLayout({ children }) {
                     className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-200
                       ${isSubItemActive ? "bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white" : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-slate-200"}`}
                   >
-                    <div className="flex items-center gap-3">
-                      <span className="text-lg">{item.icon}</span>
-                      {item.name}
+                    <div className="flex items-center gap-3 text-left">
+                      <span className="text-lg shrink-0">{item.icon}</span>
+                      <span className="leading-snug">{item.name}</span>
                     </div>
                     <svg xmlns="http://www.w3.org/2000/svg" className={`h-4 w-4 transition-transform duration-200 ${isExpanded ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
                   </button>
@@ -212,8 +261,8 @@ export default function AdminLayout({ children }) {
                       ${active 
                         ? "bg-emerald-50 dark:bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20" 
                         : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-slate-200"}`}>
-                    <span className="text-lg">{item.icon}</span>
-                    {item.name}
+                    <span className="text-lg shrink-0">{item.icon}</span>
+                    <span className="text-left leading-snug">{item.name}</span>
                   </Link>
                 )}
 
@@ -287,11 +336,11 @@ export default function AdminLayout({ children }) {
             
             <div className="flex items-center gap-3">
               <div className="text-right hidden sm:block">
-                <p className="text-sm font-bold text-slate-700 dark:text-slate-200 leading-tight">Admin Pusat</p>
-                <p className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">Administrator</p>
+                <p className="text-sm font-bold text-slate-700 dark:text-slate-200 leading-tight">{adminProfile.name}</p>
+                <p className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">{adminProfile.email}</p>
               </div>
               <div className="w-9 h-9 bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 rounded-full flex items-center justify-center font-bold text-sm border border-emerald-200 dark:border-emerald-500/30">
-                AD
+                {adminProfile.initial}
               </div>
             </div>
           </div>

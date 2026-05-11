@@ -128,6 +128,71 @@ export const PERMISSIONS_SCHEMA = [
     ]
   },
   {
+    kategori: "Sekretariat",
+    icon: "📁",
+    menus: [
+      {
+        nama: "Surat Menyurat & Arsip",
+        actions: [
+          { id: "SEKRETARIAT_VIEW", label: "Lihat Arsip Surat" },
+          { id: "SEKRETARIAT_EDIT", label: "Kelola Surat/Arsip" }
+        ]
+      }
+    ]
+  },
+  {
+    kategori: "Manajemen SDM",
+    icon: "👥",
+    menus: [
+      {
+        nama: "Data Pegawai & Kinerja",
+        actions: [
+          { id: "SDM_VIEW", label: "Lihat Data Pegawai" },
+          { id: "SDM_EDIT", label: "Kelola Data SDM" }
+        ]
+      }
+    ]
+  },
+  {
+    kategori: "Litbang & Budaya",
+    icon: "🔬",
+    menus: [
+      {
+        nama: "Penelitian & SOP",
+        actions: [
+          { id: "LITBANG_VIEW", label: "Lihat Dokumen SOP" },
+          { id: "LITBANG_EDIT", label: "Kelola Litbang" }
+        ]
+      }
+    ]
+  },
+  {
+    kategori: "Administrasi Pembelajaran",
+    icon: "📖",
+    menus: [
+      {
+        nama: "Kurikulum & Jadwal",
+        actions: [
+          { id: "AKADEMIK_ADMIN_VIEW", label: "Lihat Jadwal/Kurikulum" },
+          { id: "AKADEMIK_ADMIN_EDIT", label: "Kelola Jadwal/Kurikulum" }
+        ]
+      }
+    ]
+  },
+  {
+    kategori: "Legal & Aset",
+    icon: "⚖️",
+    menus: [
+      {
+        nama: "Inventaris & Izin Lembaga",
+        actions: [
+          { id: "LEGAL_VIEW", label: "Lihat Data Aset" },
+          { id: "LEGAL_EDIT", label: "Kelola Aset/Legal" }
+        ]
+      }
+    ]
+  },
+  {
     kategori: "Keuangan",
     icon: "💳",
     menus: [
@@ -158,6 +223,14 @@ export const PERMISSIONS_SCHEMA = [
         actions: [
           { id: "KEUANGAN_DONASI_VIEW", label: "Lihat Donasi" },
           { id: "KEUANGAN_DONASI_EDIT", label: "Kelola Donasi" }
+        ]
+      },
+      {
+        nama: "Pengelolaan Internal (Anggaran & Gaji)",
+        actions: [
+          { id: "KEUANGAN_ANGGARAN_VIEW", label: "Lihat Anggaran" },
+          { id: "KEUANGAN_PENGGAJIAN_VIEW", label: "Lihat Penggajian" },
+          { id: "KEUANGAN_ANGGARAN_EDIT", label: "Kelola Anggaran" }
         ]
       }
     ]

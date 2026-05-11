@@ -18,6 +18,7 @@ const {
   updateInterviewerEvaluation,
   processKelulusan,
   getAdminList,
+  getAdminById,
   createAdmin,
   updateAdmin,
   deleteAdmin,
@@ -41,7 +42,7 @@ const {
   getSurveys, updateSurveyStatus
 } = require('../controllers/admin.ppdb.controller');
 
-const { getSantriAktif, importSantriCsv } = require('../controllers/admin.santri.controller');
+const { getSantriAktif, importSantriCsv, getSantriDetail, deleteSantri, generateMassNis } = require('../controllers/admin.santri.controller');
 
 const {
   getCatatan, createCatatan, updateCatatan, deleteCatatan
@@ -106,6 +107,9 @@ router.get('/markaz', getMarkazList);
 
 // Santri Management
 router.get('/santri', getSantriAktif);
+router.post('/santri/generate-nis', generateMassNis);
+router.get('/santri/:id', getSantriDetail);
+router.delete('/santri/:id', deleteSantri);
 router.post('/santri/import', upload.single('file'), importSantriCsv);
 
 // PPDB Management Core
@@ -165,6 +169,7 @@ router.delete('/ppdb-settings/interviewer-rubric/:id', deleteInterviewerRubric);
 
 // Admin Account Management
 router.get('/users', getAdminList);
+router.get('/users/:id', getAdminById);
 router.post('/users', createAdmin);
 router.put('/users/:id', updateAdmin);
 router.delete('/users/:id', deleteAdmin);
@@ -220,6 +225,23 @@ router.post('/informasi/broadcast', requireAdmin, broadcastController.createBroa
 router.put('/informasi/broadcast/:id', requireAdmin, broadcastController.updateBroadcast);
 router.delete('/informasi/broadcast/:id', requireAdmin, broadcastController.deleteBroadcast);
 
+const {
+  getPegawaiList,
+  getPegawaiById,
+  createPegawai,
+  updatePegawai,
+  deletePegawai,
+  linkAccount
+} = require('../controllers/admin.sdm.controller');
 
+// ==========================================
+// 14. MANAJEMEN SDM (PEGAWAI)
+// ==========================================
+router.get('/sdm/pegawai', requireAdmin, getPegawaiList);
+router.get('/sdm/pegawai/:id', requireAdmin, getPegawaiById);
+router.post('/sdm/pegawai', requireAdmin, createPegawai);
+router.put('/sdm/pegawai/:id', requireAdmin, updatePegawai);
+router.delete('/sdm/pegawai/:id', requireAdmin, deletePegawai);
+router.post('/sdm/pegawai/:id/link', requireAdmin, linkAccount);
 
 module.exports = router;

@@ -31,6 +31,12 @@ export default function AdminPPDBPage() {
   });
   const [offlineRegLoading, setOfflineRegLoading] = useState(false);
 
+  // Delete modal states
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [deleteSuccessModalOpen, setDeleteSuccessModalOpen] = useState(false);
+
   const fetchList = useCallback(async () => {
     try {
       setLoading(true);
@@ -118,16 +124,23 @@ export default function AdminPPDBPage() {
     }
   };
 
-  const handleDeleteRegistration = async (id, studentName) => {
-    if (!confirm(`PERINGATAN: Apakah Anda yakin ingin menghapus permanen data peserta ${studentName}? Tindakan ini tidak dapat dibatalkan dan akan menghapus seluruh data yang terkait.`)) return;
+  const handleDeleteRegistration = (id, studentName) => {
+    setDeleteTarget({ id, studentName });
+    setDeleteModalOpen(true);
+  };
+
+  const confirmDeleteRegistration = async () => {
+    if (!deleteTarget) return;
+    setDeleteLoading(true);
     try {
       const token = localStorage.getItem("admin_token");
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || `${process.env.NEXT_PUBLIC_API_URL || `${process.env.NEXT_PUBLIC_API_URL || `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"}`}`}`}/api/admin/ppdb/${id}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"}/api/admin/ppdb/${deleteTarget.id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.ok) {
-        alert("Data peserta berhasil dihapus");
+        setDeleteModalOpen(false);
+        setDeleteSuccessModalOpen(true);
         fetchList();
       } else {
         const data = await res.json();
@@ -135,6 +148,8 @@ export default function AdminPPDBPage() {
       }
     } catch (err) {
       alert("Kesalahan jaringan");
+    } finally {
+      setDeleteLoading(false);
     }
   };
 
@@ -656,6 +671,71 @@ export default function AdminPPDBPage() {
                 {offlineRegLoading ? "Memproses..." : "Tambahkan Pendaftar"}
               </button>
             </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Delete Confirmation Modal ── */}
+      {deleteModalOpen && deleteTarget && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl max-w-md w-full overflow-hidden border border-slate-200 dark:border-slate-800 animate-in zoom-in-95 duration-200">
+            <div className="p-8 text-center">
+              <div className="w-20 h-20 bg-red-50 dark:bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+              </div>
+              <h3 className="text-2xl font-black text-slate-800 dark:text-white mb-2">Hapus Data Peserta?</h3>
+              <p className="text-slate-500 dark:text-slate-400 mb-6 text-sm leading-relaxed">
+                Apakah Anda yakin ingin menghapus permanen data <strong>{deleteTarget.studentName}</strong>? Tindakan ini tidak dapat dibatalkan dan seluruh data (dokumen, ujian, riwayat pembayaran) akan ikut terhapus.
+              </p>
+              <div className="flex gap-3">
+                <button 
+                  onClick={() => setDeleteModalOpen(false)} 
+                  disabled={deleteLoading}
+                  className="flex-1 py-3 px-4 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-xl transition-colors disabled:opacity-50"
+                >
+                  Batal
+                </button>
+                <button 
+                  onClick={confirmDeleteRegistration}
+                  disabled={deleteLoading}
+                  className="flex-1 py-3 px-4 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl shadow-lg shadow-red-500/30 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                  {deleteLoading ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                      Menghapus...
+                    </>
+                  ) : "Ya, Hapus"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Delete Success Modal ── */}
+      {deleteSuccessModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl max-w-sm w-full overflow-hidden border border-slate-200 dark:border-slate-800 animate-in zoom-in-95 duration-200">
+            <div className="p-8 text-center">
+              <div className="w-20 h-20 bg-emerald-50 dark:bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <h3 className="text-2xl font-black text-slate-800 dark:text-white mb-2">Berhasil Dihapus</h3>
+              <p className="text-slate-500 dark:text-slate-400 mb-6 text-sm">
+                Data peserta dan seluruh riwayatnya telah dihapus dari sistem.
+              </p>
+              <button 
+                onClick={() => setDeleteSuccessModalOpen(false)}
+                className="w-full py-3 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-lg shadow-emerald-500/30 transition-colors"
+              >
+                Tutup
+              </button>
             </div>
           </div>
         </div>

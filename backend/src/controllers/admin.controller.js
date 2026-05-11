@@ -8,7 +8,9 @@ const getPpdbList = async (req, res) => {
     const skip = (page - 1) * limit;
     const { status, search, interviewerId, markazId } = req.query;
 
-    let whereClause = {};
+    let whereClause = {
+      source: { not: 'IMPORT_CSV' }
+    };
     if (status && status !== 'SEMUA') {
       whereClause.status = status;
     }
@@ -611,7 +613,7 @@ const processKelulusan = async (req, res) => {
         await prisma.santri.create({
           data: {
             id: reg.id,
-            nis: `NIS-${Date.now().toString().slice(-6)}`,
+            nis: null, // NIS di-generate secara massal nanti
             kelas: "10", // Default, admin bisa ubah nanti di modul Santri
             asrama: "Asrama Ibnu Abbas",
             tahunMasuk: new Date().getFullYear(),
@@ -790,10 +792,41 @@ const { logActivity } = require('../utils/logger');
 const getAdminList = async (req, res) => {
   try {
     const admins = await prisma.user.findMany({
-      where: { role: 'ADMIN_PUSAT' },
-      select: { id: true, email: true, namaLengkap: true, permissions: true, portalAppsAccess: true, markazAccess: true, createdAt: true, adminGroups: { select: { id: true, nama: true } } }
+      where: { 
+        role: { notIn: ['WALI_AKTIF', 'CALON_WALI'] }
+      },
+      select: { id: true, email: true, namaLengkap: true, role: true, permissions: true, portalAppsAccess: true, markazAccess: true, createdAt: true, adminGroups: { select: { id: true, nama: true } } }
     });
     res.status(200).json({ admins });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: error.message || 'Internal server error' });
+  }
+};
+
+const getAdminById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const admin = await prisma.user.findUnique({
+      where: { id },
+      select: { 
+        id: true, 
+        email: true, 
+        namaLengkap: true, 
+        phone: true,
+        permissions: true, 
+        portalAppsAccess: true, 
+        markazAccess: true, 
+        createdAt: true, 
+        adminGroups: { select: { id: true, nama: true, permissions: true } } 
+      }
+    });
+
+    if (!admin) {
+      return res.status(404).json({ message: 'Admin tidak ditemukan' });
+    }
+
+    res.status(200).json({ admin });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Internal server error' });
@@ -1159,6 +1192,7 @@ module.exports = {
   updateInterviewerEvaluation,
   processKelulusan,
   getAdminList,
+  getAdminById,
   createAdmin,
   updateAdmin,
   updateUangMasukDeadline,

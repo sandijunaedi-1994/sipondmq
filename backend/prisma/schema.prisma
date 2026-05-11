@@ -38,6 +38,7 @@ model User {
   assignedTasks UserTask[]      @relation("AssignedTasks")
   givenTasks    UserTask[]      @relation("GivenTasks")
   groupMessages GroupMessage[]
+  pegawai       Pegawai?
 
   @@index([role])
 }
@@ -417,6 +418,41 @@ model OnlineSchedule {
 // MY MQ CORE & FEATURES SCHEMA
 // ==========================================
 
+enum PenempatanPegawai {
+  MARKAZ
+  DIREKTORAT_PUSAT
+}
+
+enum StatusPegawai {
+  TETAP
+  KONTRAK
+  MAGANG
+  BERHENTI
+}
+
+model Pegawai {
+  id             String    @id @default(uuid())
+  userId         String?   @unique
+  user           User?     @relation(fields: [userId], references: [id])
+  nip            String    @unique
+  namaLengkap    String
+  jenisKelamin   Gender
+  tempatLahir    String?
+  tanggalLahir   DateTime?
+  nik            String?   @unique
+  noHp           String?
+  email          String?
+  alamat         String?   @db.Text
+  posisi         String
+  penempatan     PenempatanPegawai @default(DIREKTORAT_PUSAT)
+  markazId       Int?
+  markaz         Markaz?   @relation(fields: [markazId], references: [id])
+  tanggalMasuk   DateTime?
+  statusPegawai  StatusPegawai @default(KONTRAK)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+}
+
 model Markaz {
   id        Int      @id @default(autoincrement())
   kode      String   @unique @db.VarChar(20)
@@ -430,6 +466,7 @@ model Markaz {
   registrations Registration[]
   InfoDokumen   InfoDokumen[]
   Broadcast     Broadcast[]
+  pegawai       Pegawai[]
 }
 
 model Santri {
