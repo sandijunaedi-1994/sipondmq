@@ -1,12 +1,23 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { User, Briefcase, MapPin, Phone, Mail, Award, Users, BookOpen, Clock, Building } from "lucide-react";
+import { User, Briefcase, MapPin, Phone, Mail, Award, Users, BookOpen, Clock, Building, Wallet, Receipt, Landmark, X, FileText, CheckCircle2, ChevronRight } from "lucide-react";
 
 export default function ProfilPribadi() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [showSalaryModal, setShowSalaryModal] = useState(false);
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") setShowSalaryModal(false);
+    };
+    if (showSalaryModal) {
+      window.addEventListener("keydown", handleKeyDown);
+    }
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [showSalaryModal]);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -148,6 +159,90 @@ export default function ProfilPribadi() {
         </div>
       </div>
 
+      {/* Section Keuangan (Mockup) */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-6">
+        
+        {/* Card Gaji */}
+        <div className="bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 rounded-2xl shadow-sm border border-emerald-100 dark:border-emerald-800/30 p-5 relative overflow-hidden group">
+          <div className="absolute -right-4 -top-4 w-24 h-24 bg-emerald-500/10 dark:bg-emerald-500/5 rounded-full blur-2xl"></div>
+          
+          <div className="flex items-start justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-emerald-100 dark:bg-emerald-800/50 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
+                <Wallet size={16} strokeWidth={2.5} />
+              </div>
+              <h3 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Gaji Bulan Ini</h3>
+            </div>
+            <span className="text-[10px] font-bold bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300 px-2 py-0.5 rounded-full">April 2026</span>
+          </div>
+          
+          <div className="mt-3">
+            <p className="text-2xl lg:text-3xl font-black text-emerald-700 dark:text-emerald-400 tracking-tight">
+              <span className="text-lg opacity-70 mr-1">Rp</span>4.500.000
+            </p>
+          </div>
+          
+          <button 
+            onClick={() => setShowSalaryModal(true)}
+            className="mt-4 w-full flex items-center justify-between bg-white dark:bg-slate-800 hover:bg-emerald-50 dark:hover:bg-slate-700 border border-emerald-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-xs font-bold text-emerald-700 dark:text-emerald-400 transition-colors group-hover:border-emerald-300 dark:group-hover:border-emerald-600"
+          >
+            <span>Lihat Riwayat Lengkap</span>
+            <ChevronRight size={14} />
+          </button>
+        </div>
+
+        {/* Card Kasbon */}
+        <div className="bg-gradient-to-br from-rose-50 to-orange-50 dark:from-rose-900/20 dark:to-orange-900/20 rounded-2xl shadow-sm border border-rose-100 dark:border-rose-800/30 p-5 relative overflow-hidden group">
+          <div className="absolute -right-4 -top-4 w-24 h-24 bg-rose-500/10 dark:bg-rose-500/5 rounded-full blur-2xl"></div>
+          
+          <div className="flex items-start justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-rose-100 dark:bg-rose-800/50 flex items-center justify-center text-rose-600 dark:text-rose-400">
+                <Receipt size={16} strokeWidth={2.5} />
+              </div>
+              <h3 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Sisa Kasbon</h3>
+            </div>
+          </div>
+          
+          <div className="mt-3">
+            <p className="text-2xl lg:text-3xl font-black text-rose-700 dark:text-rose-400 tracking-tight">
+              <span className="text-lg opacity-70 mr-1">Rp</span>500.000
+            </p>
+          </div>
+          
+          <div className="mt-4 pt-4 border-t border-rose-200/50 dark:border-rose-800/30 flex justify-between items-center text-xs">
+            <span className="text-slate-500 dark:text-slate-400">Batas Maksimal</span>
+            <span className="font-bold text-slate-700 dark:text-slate-300">Rp 1.500.000</span>
+          </div>
+        </div>
+
+        {/* Card Koperasi */}
+        <div className="bg-gradient-to-br from-indigo-50 to-blue-50 dark:from-indigo-900/20 dark:to-blue-900/20 rounded-2xl shadow-sm border border-indigo-100 dark:border-indigo-800/30 p-5 relative overflow-hidden group">
+          <div className="absolute -right-4 -top-4 w-24 h-24 bg-indigo-500/10 dark:bg-indigo-500/5 rounded-full blur-2xl"></div>
+          
+          <div className="flex items-start justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-indigo-100 dark:bg-indigo-800/50 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
+                <Landmark size={16} strokeWidth={2.5} />
+              </div>
+              <h3 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Saldo Koperasi</h3>
+            </div>
+          </div>
+          
+          <div className="mt-3">
+            <p className="text-2xl lg:text-3xl font-black text-indigo-700 dark:text-indigo-400 tracking-tight">
+              <span className="text-lg opacity-70 mr-1">Rp</span>2.350.000
+            </p>
+          </div>
+          
+          <div className="mt-4 pt-4 border-t border-indigo-200/50 dark:border-indigo-800/30 flex justify-between items-center text-xs">
+            <span className="text-slate-500 dark:text-slate-400">Bagi Hasil YTD</span>
+            <span className="font-bold text-emerald-600 dark:text-emerald-400">+Rp 120.000</span>
+          </div>
+        </div>
+
+      </div>
+
       {/* Grid 2 Kolom untuk Hirarki & Fitur Akademik */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         
@@ -268,6 +363,76 @@ export default function ProfilPribadi() {
         </div>
         
       </div>
+
+      {/* Modal Riwayat Gaji */}
+      {showSalaryModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-300 border border-slate-200 dark:border-slate-800 flex flex-col max-h-[85vh]">
+            
+            <div className="p-5 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/10 dark:to-teal-900/10">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+                  <Wallet size={20} strokeWidth={2.5} />
+                </div>
+                <div>
+                  <h3 className="font-bold text-slate-800 dark:text-slate-100 text-base leading-tight">Riwayat Gaji</h3>
+                  <p className="text-xs text-slate-500 font-medium">Tahun 2026</p>
+                </div>
+              </div>
+              <button onClick={() => setShowSalaryModal(false)} className="p-2 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-full transition-colors text-slate-500 shadow-sm border border-slate-200 dark:border-slate-700">
+                <X size={18} strokeWidth={2.5} />
+              </button>
+            </div>
+
+            <div className="p-5 overflow-y-auto custom-scrollbar flex-1">
+              <div className="space-y-4">
+                {[
+                  { bulan: 'April', tahun: '2026', nominal: '4.500.000', status: 'Telah Ditransfer', date: '25 Apr 2026', isLatest: true },
+                  { bulan: 'Maret', tahun: '2026', nominal: '4.500.000', status: 'Telah Ditransfer', date: '25 Mar 2026', isLatest: false },
+                  { bulan: 'Februari', tahun: '2026', nominal: '4.200.000', status: 'Telah Ditransfer', date: '25 Feb 2026', isLatest: false },
+                  { bulan: 'Januari', tahun: '2026', nominal: '4.200.000', status: 'Telah Ditransfer', date: '25 Jan 2026', isLatest: false },
+                  { bulan: 'Desember', tahun: '2025', nominal: '4.200.000', status: 'Telah Ditransfer', date: '25 Des 2025', isLatest: false },
+                ].map((item, idx) => (
+                  <div key={idx} className={`p-4 rounded-2xl border ${item.isLatest ? 'bg-emerald-50/50 dark:bg-emerald-900/10 border-emerald-200 dark:border-emerald-800/50' : 'bg-white dark:bg-slate-800/50 border-slate-200 dark:border-slate-700'} relative overflow-hidden group transition-all hover:shadow-md`}>
+                    
+                    <div className="flex justify-between items-start mb-3">
+                      <div>
+                        <h4 className="font-bold text-slate-800 dark:text-slate-100">{item.bulan} {item.tahun}</h4>
+                        <p className="text-[10px] text-slate-500 mt-0.5">Diterima pada {item.date}</p>
+                      </div>
+                      <div className="flex items-center gap-1 bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400 px-2.5 py-1 rounded-full text-[10px] font-bold">
+                        <CheckCircle2 size={12} strokeWidth={3} />
+                        {item.status}
+                      </div>
+                    </div>
+                    
+                    <div className="flex justify-between items-end mt-4">
+                      <div className="text-xl font-black text-slate-800 dark:text-slate-100 tracking-tight">
+                        <span className="text-xs text-slate-400 font-bold mr-1">Rp</span>
+                        {item.nominal}
+                      </div>
+                      <button className="flex items-center gap-1 text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 transition-colors">
+                        <FileText size={14} /> Slip
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="p-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/30">
+              <button 
+                onClick={() => setShowSalaryModal(false)}
+                className="w-full py-3 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-100 font-bold rounded-xl transition-colors"
+              >
+                Tutup
+              </button>
+            </div>
+            
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

@@ -8,7 +8,7 @@ const getCatatan = async (req, res) => {
     }
 
     // Gunakan raw query untuk menghindari masalah Prisma Client belum di-generate di cPanel
-    const catatan = await prisma.$queryRaw`SELECT * FROM CatatanAdmin ORDER BY tanggal DESC`;
+    const catatan = await prisma.$queryRaw`SELECT * FROM CatatanAdmin WHERE userId = ${req.user.userId} ORDER BY tanggal DESC`;
     res.status(200).json(catatan);
   } catch (error) {
     console.error("Error getCatatan:", error);
@@ -39,9 +39,11 @@ const createCatatan = async (req, res) => {
     const lbls = labels ? JSON.stringify(labels) : null;
     const now = new Date();
 
+    const userId = req.user.userId;
+
     await prisma.$executeRaw`
-      INSERT INTO CatatanAdmin (id, tanggal, judul, tugas, warna, labels, status, createdAt, updatedAt)
-      VALUES (${id}, ${tgl}, ${jdl}, ${tugas}, ${wrn}, ${lbls}, ${stat}, ${now}, ${now})
+      INSERT INTO CatatanAdmin (id, userId, tanggal, judul, tugas, warna, labels, status, createdAt, updatedAt)
+      VALUES (${id}, ${userId}, ${tgl}, ${jdl}, ${tugas}, ${wrn}, ${lbls}, ${stat}, ${now}, ${now})
     `;
     
     const created = await prisma.$queryRaw`SELECT * FROM CatatanAdmin WHERE id = ${id}`;
@@ -68,10 +70,10 @@ const updateCatatan = async (req, res) => {
     // We update all fields assuming they are provided, or keep them if we use a targeted update.
     // To handle partial updates with $executeRaw properly without Prisma Client, we can just update what's given.
     // Or simpler: fetch existing first.
-    const existingArr = await prisma.$queryRaw`SELECT * FROM CatatanAdmin WHERE id = ${id}`;
+    const existingArr = await prisma.$queryRaw`SELECT * FROM CatatanAdmin WHERE id = ${id} AND userId = ${req.user.userId}`;
     const existing = existingArr[0];
     if (!existing) {
-       return res.status(404).json({ message: 'Catatan tidak ditemukan' });
+       return res.status(404).json({ message: 'Catatan tidak ditemukan atau Anda tidak memiliki akses' });
     }
 
     const newTanggal = tanggal ? new Date(tanggal) : existing.tanggal;
@@ -90,7 +92,7 @@ const updateCatatan = async (req, res) => {
            labels = ${newLabels}, 
            status = ${newStatus}, 
            updatedAt = ${now} 
-       WHERE id = ${id}
+       WHERE id = ${id} AND userId = ${req.user.userId}
     `;
 
     const updated = await prisma.$queryRaw`SELECT * FROM CatatanAdmin WHERE id = ${id}`;
@@ -110,7 +112,7 @@ const deleteCatatan = async (req, res) => {
     }
 
     const { id } = req.params;
-    await prisma.$executeRaw`DELETE FROM CatatanAdmin WHERE id = ${id}`;
+    await prisma.$executeRaw`DELETE FROM CatatanAdmin WHERE id = ${id} AND userId = ${req.user.userId}`;
     res.status(200).json({ message: 'Catatan berhasil dihapus' });
   } catch (error) {
     console.error("Error deleteCatatan:", error);

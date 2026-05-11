@@ -39,6 +39,7 @@ model User {
   givenTasks    UserTask[]      @relation("GivenTasks")
   groupMessages GroupMessage[]
   pegawai       Pegawai?
+  catatanAdmin  CatatanAdmin[]
 
   @@index([role])
 }
@@ -1080,6 +1081,8 @@ enum StatusCatatan {
 
 model CatatanAdmin {
   id        String        @id @default(uuid())
+  userId    String?
+  user      User?         @relation(fields: [userId], references: [id])
   tanggal   DateTime      @db.Date
   judul     String?       @db.VarChar(200)
   tugas     String        @db.Text
