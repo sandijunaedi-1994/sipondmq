@@ -82,8 +82,6 @@ export default function DetailPegawaiPage() {
         </div>
       </div>
 
-      </div>
-
       {/* Navigation Tabs */}
       <div className="flex overflow-x-auto gap-2 border-b border-slate-200 dark:border-slate-800 pb-px mb-6 custom-scrollbar">
         {['profil', 'payroll', 'kasbon', 'koperasi'].map((tab) => (
