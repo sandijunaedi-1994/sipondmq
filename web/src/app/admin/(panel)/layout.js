@@ -97,7 +97,8 @@ export default function AdminLayout({ children }) {
       name: "Legal & Aset", icon: "⚖️", permission: null,
       subItems: [
         { name: "Inventaris", path: "/admin/legal/inventaris", permission: "LEGAL_VIEW" },
-        { name: "Perizinan Lembaga", path: "/admin/legal/perizinan", permission: "LEGAL_VIEW" }
+        { name: "Perizinan Lembaga", path: "/admin/legal/perizinan", permission: "LEGAL_VIEW" },
+        { name: "Pembangunan & Maintenance", path: "/admin/legal/pembangunan", permission: "LEGAL_VIEW" }
       ]
     },
     { 

@@ -13,6 +13,7 @@ const adminRoutes = require('./routes/admin.routes');
 const midtransRoutes = require('./routes/midtrans.routes');
 const financeSettingsRoutes = require('./routes/finance.settings.routes');
 const portalAppsRoutes = require('./routes/portal-app.routes');
+const pembangunanRoutes = require('./routes/admin.pembangunan.routes');
 const prisma = require('./lib/prisma');
 
 dotenv.config();
@@ -43,6 +44,7 @@ app.use('/api/portal', portalRoutes);
 app.use('/api/portal-apps', portalAppsRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/admin/finance', financeSettingsRoutes);
+app.use('/api/admin/pembangunan', pembangunanRoutes);
 app.use('/api/midtrans', midtransRoutes);
 
 app.get('/api/health', (req, res) => {
