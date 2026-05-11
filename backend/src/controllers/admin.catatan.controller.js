@@ -3,8 +3,8 @@ const prisma = require('../lib/prisma');
 const getCatatan = async (req, res) => {
   try {
     const user = await prisma.user.findUnique({ where: { id: req.user.userId } });
-    if (!user?.permissions?.includes('MANAJEMEN_ADMIN')) {
-      return res.status(403).json({ message: 'Akses ditolak.' });
+    if (!user) {
+      return res.status(404).json({ message: 'User tidak ditemukan.' });
     }
 
     // Gunakan raw query untuk menghindari masalah Prisma Client belum di-generate di cPanel
@@ -21,8 +21,8 @@ const crypto = require('crypto');
 const createCatatan = async (req, res) => {
   try {
     const user = await prisma.user.findUnique({ where: { id: req.user.userId } });
-    if (!user?.permissions?.includes('MANAJEMEN_ADMIN')) {
-      return res.status(403).json({ message: 'Akses ditolak.' });
+    if (!user) {
+      return res.status(404).json({ message: 'User tidak ditemukan.' });
     }
 
     const { tanggal, judul, tugas, warna, labels, status } = req.body;
@@ -56,8 +56,8 @@ const createCatatan = async (req, res) => {
 const updateCatatan = async (req, res) => {
   try {
     const user = await prisma.user.findUnique({ where: { id: req.user.userId } });
-    if (!user?.permissions?.includes('MANAJEMEN_ADMIN')) {
-      return res.status(403).json({ message: 'Akses ditolak.' });
+    if (!user) {
+      return res.status(404).json({ message: 'User tidak ditemukan.' });
     }
 
     const { id } = req.params;
@@ -105,8 +105,8 @@ const updateCatatan = async (req, res) => {
 const deleteCatatan = async (req, res) => {
   try {
     const user = await prisma.user.findUnique({ where: { id: req.user.userId } });
-    if (!user?.permissions?.includes('MANAJEMEN_ADMIN')) {
-      return res.status(403).json({ message: 'Akses ditolak.' });
+    if (!user) {
+      return res.status(404).json({ message: 'User tidak ditemukan.' });
     }
 
     const { id } = req.params;

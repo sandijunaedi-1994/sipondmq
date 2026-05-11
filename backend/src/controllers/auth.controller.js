@@ -222,7 +222,7 @@ const forgotPassword = async (req, res) => {
     const htmlContent = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 10px;">
         <h2 style="color: #10b981; text-align: center;">Reset Password My MQ</h2>
-        <p>Halo,</p>
+        <p>Assalamu'alaikum,</p>
         <p>Anda menerima email ini karena ada permintaan untuk mengatur ulang password akun Anda.</p>
         <p>Silakan klik tombol di bawah ini untuk mengatur ulang password Anda. Link ini hanya berlaku selama 1 jam.</p>
         <div style="text-align: center; margin: 30px 0;">
