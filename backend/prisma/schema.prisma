@@ -452,6 +452,9 @@ model Pegawai {
   statusPegawai  StatusPegawai @default(KONTRAK)
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
+  kasbon         PegawaiKasbon[]
+  payroll        PegawaiPayroll[]
+  koperasi       PegawaiKoperasi?
 }
 
 model Markaz {
@@ -1399,5 +1402,42 @@ model ActivityLog {
   @@index([userId])
   @@index([action])
   @@index([entity])
+}
+
+// ==========================================
+// KEUANGAN PEGAWAI (INTEGRASI SDM & KEUANGAN)
+// ==========================================
+
+model PegawaiKasbon {
+  id          String   @id @default(uuid())
+  pegawaiId   String
+  pegawai     Pegawai  @relation(fields: [pegawaiId], references: [id])
+  nominal     Decimal  @db.Decimal(12, 0)
+  tanggal     DateTime @db.Date
+  keterangan  String?  @db.Text
+  status      String   @default("LUNAS") // LUNAS, BELUM_LUNAS
+  createdAt   DateTime @default(now())
+}
+
+model PegawaiPayroll {
+  id          String   @id @default(uuid())
+  pegawaiId   String
+  pegawai     Pegawai  @relation(fields: [pegawaiId], references: [id])
+  periode     String   @db.VarChar(50) // e.g. "April 2026"
+  gajiPokok   Decimal  @db.Decimal(12, 0)
+  tunjangan   Decimal  @db.Decimal(12, 0)
+  potongan    Decimal  @db.Decimal(12, 0)
+  totalBersih Decimal  @db.Decimal(12, 0)
+  tanggalCair DateTime @db.Date
+  status      String   @default("DITRANSFER")
+  createdAt   DateTime @default(now())
+}
+
+model PegawaiKoperasi {
+  id             String   @id @default(uuid())
+  pegawaiId      String   @unique
+  pegawai        Pegawai  @relation(fields: [pegawaiId], references: [id])
+  saldoUtama     Decimal  @db.Decimal(12, 0)
+  terakhirUpdate DateTime @default(now())
 }
 

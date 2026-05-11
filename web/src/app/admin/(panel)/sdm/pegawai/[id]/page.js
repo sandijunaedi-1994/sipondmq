@@ -3,6 +3,9 @@
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
+import TabPayroll from "./components/TabPayroll";
+import TabKasbon from "./components/TabKasbon";
+import TabKoperasi from "./components/TabKoperasi";
 
 export default function DetailPegawaiPage() {
   const { id } = useParams();
@@ -10,6 +13,7 @@ export default function DetailPegawaiPage() {
   const [pegawai, setPegawai] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [activeTab, setActiveTab] = useState("profil");
 
   useEffect(() => {
     fetchPegawaiDetail();
@@ -78,9 +82,34 @@ export default function DetailPegawaiPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      </div>
+
+      {/* Navigation Tabs */}
+      <div className="flex overflow-x-auto gap-2 border-b border-slate-200 dark:border-slate-800 pb-px mb-6 custom-scrollbar">
+        {['profil', 'payroll', 'kasbon', 'koperasi'].map((tab) => (
+          <button
+            key={tab}
+            onClick={() => setActiveTab(tab)}
+            className={`px-5 py-3 text-sm font-bold border-b-2 whitespace-nowrap transition-colors ${
+              activeTab === tab 
+                ? 'border-emerald-500 text-emerald-600 dark:text-emerald-400' 
+                : 'border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300'
+            }`}
+          >
+            {tab === 'profil' ? 'Profil & Biodata' : 
+             tab === 'payroll' ? 'Gaji & Payroll' : 
+             tab === 'kasbon' ? 'Data Kasbon' : 'Simpanan Koperasi'}
+          </button>
+        ))}
+      </div>
+
+      {/* Konten Tab Aktif */}
+      <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
         
-        {/* Kolom Kiri: Profil Singkat & Status */}
+        {activeTab === 'profil' && (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            {/* Kolom Kiri: Profil Singkat & Status */}
         <div className="lg:col-span-1 space-y-6">
           <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 p-6 overflow-hidden relative transition-colors">
             <div className="absolute top-0 left-0 w-full h-24 bg-gradient-to-r from-emerald-600 to-teal-500 opacity-90"></div>
@@ -198,6 +227,13 @@ export default function DetailPegawaiPage() {
           </div>
         </div>
 
+          </div>
+        )}
+
+        {activeTab === 'payroll' && <TabPayroll />}
+        {activeTab === 'kasbon' && <TabKasbon />}
+        {activeTab === 'koperasi' && <TabKoperasi />}
+        
       </div>
     </div>
   );

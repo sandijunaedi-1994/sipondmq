@@ -360,29 +360,8 @@ export default function RegisterPage() {
             )}
 
         <form onSubmit={handleRegister} className="space-y-6">
-          {!isLoggedIn && (
-            <div className="space-y-4">
-              <h2 className="text-lg font-bold text-text-primary border-b pb-2">1. Data Akun Wali (Login)</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-text-secondary mb-1">Nomor WhatsApp *</label>
-                  <input required={!isLoggedIn} type="tel" name="phone" value={formData.phone} onChange={handleChange} className="w-full px-4 py-3 rounded-lg border border-slate-300 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none" placeholder="08..." />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-text-secondary mb-1">Email (Opsional)</label>
-                  <input type="email" name="email" value={formData.email} onChange={handleChange} className="w-full px-4 py-3 rounded-lg border border-slate-300 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none" />
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-text-secondary mb-1">Buat Password *</label>
-                <input required={!isLoggedIn} type="password" name="password" value={formData.password} onChange={handleChange} className="w-full px-4 py-3 rounded-lg border border-slate-300 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none" />
-                <p className="text-xs text-blue-500 mt-2 font-medium">Nomor Hp jangan sampai salah dan password harap diingat</p>
-              </div>
-            </div>
-          )}
-
-          <div className="space-y-4 pt-4">
-            <h2 className="text-lg font-bold text-text-primary border-b pb-2">{isLoggedIn ? "Data Calon Santri Baru" : "2. Data Calon Santri"}</h2>
+          <div className="space-y-4">
+            <h2 className="text-lg font-bold text-text-primary border-b pb-2">{isLoggedIn ? "Data Calon Santri Baru" : "1. Data Calon Santri"}</h2>
             <div>
               <label className="block text-sm font-medium text-text-secondary mb-1">Nama Lengkap Calon Santri *</label>
               <input required type="text" name="studentName" value={formData.studentName} onChange={handleChange} className="w-full px-4 py-3 rounded-lg border border-slate-300 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none" />
@@ -455,6 +434,26 @@ export default function RegisterPage() {
               <textarea required rows={3} name="motivation" value={formData.motivation} onChange={handleChange} className="w-full px-4 py-3 rounded-lg border border-slate-300 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none"></textarea>
             </div>
           </div>
+
+          {!isLoggedIn && (
+            <div className="space-y-4 pt-4">
+              <h2 className="text-lg font-bold text-text-primary border-b pb-2">2. Data Akun Wali (Login)</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-text-secondary mb-1">Nomor WhatsApp *</label>
+                  <input required={!isLoggedIn} type="tel" name="phone" value={formData.phone} onChange={handleChange} className="w-full px-4 py-3 rounded-lg border border-slate-300 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none" placeholder="08..." />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-text-secondary mb-1">Email (Opsional)</label>
+                  <input type="email" name="email" value={formData.email} onChange={handleChange} className="w-full px-4 py-3 rounded-lg border border-slate-300 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none" />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-text-secondary mb-1">Buat Password *</label>
+                <input required={!isLoggedIn} type="password" name="password" value={formData.password} onChange={handleChange} className="w-full px-4 py-3 rounded-lg border border-slate-300 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none" />
+              </div>
+            </div>
+          )}
           
           <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 text-sm text-blue-800 flex items-start gap-3 my-6">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
