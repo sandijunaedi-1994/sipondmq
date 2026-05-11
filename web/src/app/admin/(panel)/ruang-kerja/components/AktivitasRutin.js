@@ -182,22 +182,22 @@ export default function AktivitasRutin() {
   );
 
   return (
-    <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 transition-colors">
+    <div className="bg-white dark:bg-slate-900 p-4 md:p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 transition-colors w-full max-w-full overflow-hidden">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
         <div>
           <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100 transition-colors">Aktivitas Rutin</h2>
           <p className="text-slate-500 dark:text-slate-400 text-sm transition-colors">Kelola template tugas rutin harian atau mingguan Anda.</p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
           <button 
             onClick={() => setShowGenerateModal(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400 font-bold rounded-xl text-sm border border-blue-200 dark:border-blue-500/20 hover:bg-blue-100 transition-colors"
+            className="flex items-center justify-center gap-2 px-4 py-2 bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400 font-bold rounded-xl text-sm border border-blue-200 dark:border-blue-500/20 hover:bg-blue-100 transition-colors w-full sm:w-auto"
           >
-            <span>⚙️</span> Generate Jadwal Bulan Ini
+            <span>⚙️</span> Generate Jadwal
           </button>
           <button 
             onClick={() => handleOpenModal()}
-            className="flex items-center gap-2 px-4 py-2 bg-emerald-500 text-white font-bold rounded-xl text-sm hover:bg-emerald-600 shadow-md shadow-emerald-500/20 transition-all"
+            className="flex items-center justify-center gap-2 px-4 py-2 bg-emerald-500 text-white font-bold rounded-xl text-sm hover:bg-emerald-600 shadow-md shadow-emerald-500/20 transition-all w-full sm:w-auto"
           >
             <Plus size={16} /> Tambah Aktivitas
           </button>
@@ -217,8 +217,8 @@ export default function AktivitasRutin() {
       </div>
 
       {/* Table */}
-      <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden transition-colors">
-        <div className="overflow-x-auto">
+      <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 transition-colors w-full overflow-hidden">
+        <div className="overflow-x-auto w-full max-w-full">
           <table className="w-full text-left text-sm whitespace-nowrap">
             <thead className="bg-slate-50 dark:bg-slate-950 text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider text-[10px] transition-colors">
               <tr>

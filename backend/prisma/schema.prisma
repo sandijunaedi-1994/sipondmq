@@ -1081,7 +1081,10 @@ enum StatusCatatan {
 model CatatanAdmin {
   id        String        @id @default(uuid())
   tanggal   DateTime      @db.Date
+  judul     String?       @db.VarChar(200)
   tugas     String        @db.Text
+  warna     String?       @db.VarChar(50)
+  labels    Json?
   status    StatusCatatan @default(PENDING)
   createdAt DateTime      @default(now())
   updatedAt DateTime      @updatedAt

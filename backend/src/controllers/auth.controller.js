@@ -240,7 +240,7 @@ const forgotPassword = async (req, res) => {
     res.status(200).json({ message: 'Jika email terdaftar, link reset telah dikirim.' });
   } catch (error) {
     console.error('Error in forgotPassword:', error);
-    res.status(500).json({ message: 'Terjadi kesalahan internal' });
+    res.status(500).json({ message: 'Gagal mengirim email: ' + error.message });
   }
 };
 

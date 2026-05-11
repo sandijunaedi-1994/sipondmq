@@ -6,10 +6,11 @@ import LogAktivitas from "./components/LogAktivitas";
 import AktivitasRutin from "./components/AktivitasRutin";
 import MasterTime from "./components/MasterTime";
 import CatatanPribadi from "./components/CatatanPribadi";
-import { Clock, Calendar, MapPin } from "lucide-react";
+import { Clock, Calendar, MapPin, BarChart2, ClipboardList, CalendarDays, Edit3, History, Sun, Moon, Sunrise, Sunset } from "lucide-react";
 
 export default function DashboardPribadiPage() {
   const [activeTab, setActiveTab] = useState("ringkasan");
+  const [showAllMenu, setShowAllMenu] = useState(false);
   
   const [adminName, setAdminName] = useState("");
   const [greeting, setGreeting] = useState("");
@@ -18,6 +19,7 @@ export default function DashboardPribadiPage() {
   const [hijriDate, setHijriDate] = useState("");
   const [prayerTimes, setPrayerTimes] = useState(null);
   const [locationName, setLocationName] = useState("Mendeteksi...");
+  const [greetingIcon, setGreetingIcon] = useState(<Sun className="w-4 h-4 text-amber-400" />);
 
   useEffect(() => {
     // Nama Admin
@@ -37,16 +39,20 @@ export default function DashboardPribadiPage() {
       const hour = now.getHours();
       
       if (hour >= 3 && hour < 10) {
-        setGreeting("Selamat Pagi 🌅");
+        setGreeting("Selamat Pagi");
+        setGreetingIcon(<Sunrise className="w-4 h-4 text-amber-500" />);
         setGreetingMsg("Selamat Beraktivitas, Jangan Lupa meniatkan pekerjaan hari ini untuk meraih ridha Allah.");
-      } else if (hour >= 10 && hour < 14) {
-        setGreeting("Selamat Siang ☀️");
+      } else if (hour >= 10 && hour < 15) {
+        setGreeting("Selamat Siang");
+        setGreetingIcon(<Sun className="w-4 h-4 text-amber-400" />);
         setGreetingMsg("Tetap semangat dan jaga fokus dalam menyelesaikan pekerjaan hari ini. Semoga berkah.");
-      } else if (hour >= 14 && hour < 18) {
-        setGreeting("Selamat Sore 🌇");
+      } else if (hour >= 15 && hour < 18) {
+        setGreeting("Selamat Sore");
+        setGreetingIcon(<Sunset className="w-4 h-4 text-amber-500" />);
         setGreetingMsg("Pekerjaan hari ini hampir usai, semoga lelah Anda bernilai ibadah.");
       } else {
-        setGreeting("Selamat Malam 🌙");
+        setGreeting("Selamat Malam");
+        setGreetingIcon(<Moon className="w-4 h-4 text-amber-300" />);
         setGreetingMsg("Waktunya beristirahat untuk mengumpulkan energi bagi esok hari.");
       }
     };
@@ -97,96 +103,186 @@ export default function DashboardPribadiPage() {
   }, []);
 
   const tabs = [
-    { id: "ringkasan", name: "Ringkasan", icon: "📊" },
-    { id: "aktivitas_rutin", name: "Aktivitas Rutin", icon: "📋" },
-    { id: "master_time", name: "Master Time", icon: "📅" },
-    { id: "catatan_pribadi", name: "Catatan Pribadi", icon: "📝" },
-    { id: "log_aktivitas", name: "Log Aktivitas", icon: "🕒" }
+    { id: "ringkasan", name: "Ringkasan", icon: <BarChart2 size={22} strokeWidth={2.5} />, color: "text-blue-500", bg: "bg-blue-50 dark:bg-blue-500/10 border-blue-100 dark:border-blue-500/20" },
+    { id: "aktivitas_rutin", name: "Aktivitas Rutin", icon: <ClipboardList size={22} strokeWidth={2.5} />, color: "text-orange-500", bg: "bg-orange-50 dark:bg-orange-500/10 border-orange-100 dark:border-orange-500/20" },
+    { id: "master_time", name: "Master Time", icon: <CalendarDays size={22} strokeWidth={2.5} />, color: "text-rose-500", bg: "bg-rose-50 dark:bg-rose-500/10 border-rose-100 dark:border-rose-500/20" },
+    { id: "catatan_pribadi", name: "Catatan Pribadi", icon: <Edit3 size={22} strokeWidth={2.5} />, color: "text-amber-500", bg: "bg-amber-50 dark:bg-amber-500/10 border-amber-100 dark:border-amber-500/20" },
+    { id: "log_aktivitas", name: "Log Aktivitas", icon: <History size={22} strokeWidth={2.5} />, color: "text-purple-500", bg: "bg-purple-50 dark:bg-purple-500/10 border-purple-100 dark:border-purple-500/20" }
   ];
 
-  return (
-    <div className="space-y-6">
-      <div className="bg-gradient-to-br from-emerald-600 to-teal-800 dark:from-emerald-800 dark:to-teal-950 px-5 md:px-6 py-4 rounded-2xl shadow-lg border border-emerald-500/30 dark:border-teal-700/50 transition-colors -mx-2 sm:mx-0 flex flex-col gap-4 text-white">
-        
-        {/* ── Header Information ── */}
-        <div className="flex flex-col xl:flex-row justify-between gap-4">
-          
-          {/* Kiri: Sapaan */}
-          <div className="flex flex-col gap-1">
-            <h1 className="text-xl md:text-2xl font-bold flex items-center gap-2">
-              Assalamu'alaikum, {adminName} <span className="font-medium text-base px-2 py-0.5 bg-white/20 rounded-lg backdrop-blur-sm">{greeting}</span>
-            </h1>
-            <p className="text-sm text-emerald-100 font-medium leading-relaxed max-w-xl mt-1">
-              {greetingMsg}
-            </p>
-          </div>
+  const getActiveTabTitle = () => {
+    switch(activeTab) {
+      case "ringkasan": return "Ringkasan Harian";
+      case "aktivitas_rutin": return "Aktivitas Rutin";
+      case "master_time": return "Master Time: Calendar";
+      case "catatan_pribadi": return "Catatan Pribadi";
+      case "log_aktivitas": return "Log Aktivitas";
+      default: return "";
+    }
+  };
 
-          {/* Kanan: Jam Live & Tanggal & Jadwal Sholat */}
-          <div className="flex flex-col xl:items-end gap-3">
-            
-            <div className="flex flex-wrap items-center gap-3 xl:justify-end">
-              <div className="flex flex-wrap items-center gap-2 text-xs md:text-sm text-emerald-50 font-medium">
-                <span className="flex items-center gap-1.5 bg-white/10 backdrop-blur-sm px-2.5 py-1.5 rounded-lg border border-white/20">
-                  <Calendar size={14} className="text-emerald-300" />
-                  {currentTime ? currentTime.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) : "Memuat..."}
-                </span>
-                {hijriDate && (
-                  <span className="flex items-center gap-1.5 bg-white/10 backdrop-blur-sm px-2.5 py-1.5 rounded-lg border border-white/20">
-                    🌙 {hijriDate}
-                  </span>
-                )}
-              </div>
-              <div className="flex items-center gap-2 bg-white text-emerald-800 px-3 py-1.5 rounded-lg shadow-inner font-mono text-lg font-bold w-fit">
-                <Clock size={18} className={currentTime ? "animate-pulse text-emerald-500" : ""} />
-                {currentTime ? currentTime.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) : "--:--:--"}
-                <span className="text-xs font-medium ml-1 opacity-70">WIB</span>
-              </div>
-            </div>
-            
-            <div className="flex flex-wrap items-center gap-1.5 xl:justify-end">
-              <span className="text-[10px] md:text-xs font-bold text-emerald-200 uppercase tracking-widest mr-1 flex items-center gap-1">
-                <MapPin size={12} /> {locationName}
-              </span>
-              {['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'].map(prayer => {
-                const label = prayer === 'Fajr' ? 'Subuh' : prayer === 'Dhuhr' ? 'Dzuhur' : prayer === 'Asr' ? 'Ashar' : prayer === 'Isha' ? 'Isya' : prayer;
-                return (
-                  <div key={prayer} className="text-[10px] md:text-xs font-semibold px-2 py-1 rounded bg-white/10 backdrop-blur-sm text-emerald-50">
-                    <span className="opacity-70 mr-1.5">{label}</span>
-                    <span className="text-white">{prayerTimes ? prayerTimes[prayer] : '--:--'}</span>
-                  </div>
-                );
-              })}
-            </div>
+  return (
+    <div className="space-y-4 md:space-y-6 pb-20 md:pb-0 font-sans w-full min-w-0">
+      
+      {/* ── Header Information (Latar Terang) ── */}
+      <div className="flex justify-between items-start pt-2 px-2 md:px-0">
+        <div className="flex flex-col gap-1.5 z-10 pr-4">
+          <h1 className="text-2xl md:text-3xl font-black text-emerald-900 dark:text-emerald-100 leading-tight">
+            Assalamu'alaikum,<br />{adminName}
+          </h1>
+          <p className="text-[11px] md:text-xs text-slate-500 dark:text-slate-400 font-medium leading-relaxed max-w-[250px] md:max-w-sm mt-1">
+            {greetingMsg}
+          </p>
+        </div>
+        
+        <div className="relative flex-shrink-0 z-10 mt-1">
+          <div className="absolute -inset-1 bg-gradient-to-r from-emerald-500 to-teal-400 rounded-xl blur opacity-30"></div>
+          <div className="relative bg-emerald-600 shadow-lg px-3 py-1.5 md:px-4 md:py-2 rounded-xl text-xs font-bold text-white flex items-center gap-1.5 border border-emerald-500/50">
+            {greeting} {greetingIcon}
           </div>
         </div>
+      </div>
 
-        {/* ── Tabs ── */}
-        <div className="flex flex-wrap gap-1.5 md:gap-2 pt-3 border-t border-white/20 transition-colors">
+      {/* ── Kartu Waktu & Jadwal Sholat (Hijau Tua) ── */}
+      <div className="relative overflow-hidden bg-gradient-to-br from-emerald-700 to-emerald-900 rounded-[28px] shadow-xl border border-emerald-600/30 text-white p-5 md:p-6 mx-2 md:mx-0">
+        {/* Dekorasi Ornamen Islami di latar */}
+        <div className="absolute right-[-10%] top-[-10%] w-64 h-64 opacity-5 pointer-events-none">
+          <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" className="w-full h-full fill-white">
+            <path d="M50 0L57 43L100 50L57 57L50 100L43 57L0 50L43 43L50 0Z" />
+            <circle cx="50" cy="50" r="20" fill="none" stroke="white" strokeWidth="2" />
+          </svg>
+        </div>
+
+        <div className="relative z-10 flex flex-col gap-5">
+          {/* Tanggal Masehi & Hijriah */}
+          <div className="flex flex-row flex-wrap items-center gap-2">
+            <div className="inline-flex items-center gap-2 bg-emerald-800/60 backdrop-blur-md px-3.5 py-1.5 rounded-lg border border-emerald-600/40 w-fit shadow-inner">
+              <Calendar size={14} className="text-emerald-300" />
+              <span className="text-xs font-bold tracking-wide">
+                {currentTime ? currentTime.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) : "Memuat..."}
+              </span>
+            </div>
+            {hijriDate && (
+              <div className="inline-flex items-center gap-2 bg-emerald-800/40 backdrop-blur-md px-3.5 py-1.5 rounded-lg border border-emerald-600/20 w-fit">
+                <span className="text-xs">🌙</span>
+                <span className="text-[11px] font-semibold text-emerald-100 tracking-wide">
+                  {hijriDate}
+                </span>
+              </div>
+            )}
+          </div>
+
+          {/* Jam Digital Besar */}
+          <div className="flex items-center mt-1 bg-white px-3.5 py-2 rounded-2xl w-fit shadow-lg text-emerald-800 border border-emerald-100">
+            <Clock size={18} className={currentTime ? "animate-pulse text-emerald-500 mr-2" : "mr-2"} />
+            <span className="text-xl md:text-2xl font-black font-mono tracking-wider">
+              {currentTime ? currentTime.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) : "--:--:--"}
+            </span>
+            <span className="text-xs font-bold ml-2 opacity-60">WIB</span>
+          </div>
+
+          {/* Lokasi & Jadwal Sholat */}
+          <div className="mt-2 pt-4 border-t border-emerald-600/50 flex flex-wrap items-center gap-x-4 gap-y-2.5">
+            <div className="flex items-center gap-1.5 text-emerald-100 text-[10px] font-bold uppercase tracking-widest mr-2 bg-emerald-900/40 px-2 py-1 rounded-md">
+              <MapPin size={12} className="text-emerald-400" /> 
+              {locationName}
+            </div>
+            {['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'].map(prayer => {
+              const label = prayer === 'Fajr' ? 'Subuh' : prayer === 'Dhuhr' ? 'Dzuhur' : prayer === 'Asr' ? 'Ashar' : prayer === 'Isha' ? 'Isya' : prayer;
+              return (
+                <div key={prayer} className="flex flex-col">
+                  <span className="text-[9px] font-bold text-emerald-300 uppercase tracking-widest">{label}</span>
+                  <span className="text-xs font-bold text-white">{prayerTimes ? prayerTimes[prayer] : '--:--'}</span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      {/* ── Menu Cepat (Quick Menu) ── */}
+      <div className="px-2 md:px-0 mt-6">
+        <div className="flex justify-between items-center mb-4 px-2">
+          <h3 className="font-bold text-slate-800 dark:text-slate-100 text-sm">Menu Cepat</h3>
+          <button onClick={() => setShowAllMenu(true)} className="text-emerald-600 dark:text-emerald-400 text-xs font-bold cursor-pointer hover:underline">Lihat semua &gt;</button>
+        </div>
+        
+        {/* Horizontal Scroll Area */}
+        <div className="flex overflow-x-auto gap-3 pb-6 pt-4 px-2 custom-scrollbar snap-x snap-mandatory hide-scrollbar" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+          <style dangerouslySetInnerHTML={{__html: `
+            .hide-scrollbar::-webkit-scrollbar { display: none; }
+          `}} />
+          
           {tabs.map(tab => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-1.5 md:gap-2 px-3 py-1.5 md:px-5 md:py-2.5 rounded-lg md:rounded-xl font-bold text-xs md:text-sm transition-all duration-300 ${
-                activeTab === tab.id
-                  ? "bg-white text-emerald-700 shadow-md"
-                  : "bg-white/10 text-emerald-50 hover:bg-white/20 border border-white/10"
-              }`}
+              className={`snap-center shrink-0 flex flex-col items-center gap-3 w-[76px] md:w-24 group transition-all`}
             >
-              <span className="text-base md:text-lg">{tab.icon}</span>
-              {tab.name}
+              <div className={`w-12 h-12 md:w-14 md:h-14 flex items-center justify-center rounded-2xl border shadow-sm transition-transform duration-300 ${tab.bg} ${tab.color} ${activeTab === tab.id ? 'ring-2 ring-offset-2 ring-emerald-500 dark:ring-offset-slate-900 scale-105' : 'group-hover:scale-105'}`}>
+                {tab.icon}
+              </div>
+              <span className={`text-[10px] md:text-xs font-bold text-center leading-tight transition-colors ${activeTab === tab.id ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-600 dark:text-slate-400'}`}>
+                {tab.name}
+              </span>
             </button>
           ))}
         </div>
       </div>
 
       {/* ── Content Area ── */}
-      <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-        {activeTab === "ringkasan" && <RingkasanPribadi />}
-        {activeTab === "aktivitas_rutin" && <AktivitasRutin />}
-        {activeTab === "master_time" && <MasterTime />}
-        {activeTab === "catatan_pribadi" && <CatatanPribadi />}
-        {activeTab === "log_aktivitas" && <LogAktivitas />}
+      <div className="px-2 md:px-0 w-full min-w-0">
+        <div className="flex justify-between items-center mb-4 px-2">
+          <h3 className="font-bold text-slate-800 dark:text-slate-100 text-base">{getActiveTabTitle()}</h3>
+          {activeTab === 'master_time' && (
+            <span className="text-emerald-600 dark:text-emerald-400 text-[11px] font-bold cursor-pointer border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/30 px-2.5 py-1 rounded-lg flex items-center gap-1">
+              <Calendar size={12} /> Lihat kalender &gt;
+            </span>
+          )}
+        </div>
+        
+        <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 w-full min-w-0">
+          {activeTab === "ringkasan" && <RingkasanPribadi />}
+          {activeTab === "aktivitas_rutin" && <AktivitasRutin />}
+          {activeTab === "master_time" && <MasterTime />}
+          {activeTab === "catatan_pribadi" && <CatatanPribadi />}
+          {activeTab === "log_aktivitas" && <LogAktivitas />}
+        </div>
       </div>
+
+      {/* ── Modal Semua Menu ── */}
+      {showAllMenu && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-300 border border-slate-200 dark:border-slate-800">
+            <div className="p-5 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
+              <h3 className="font-bold text-slate-800 dark:text-slate-100 text-lg">Semua Menu Cepat</h3>
+              <button onClick={() => setShowAllMenu(false)} className="p-2 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-full transition-colors text-slate-500">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" /></svg>
+              </button>
+            </div>
+            <div className="p-6 grid grid-cols-3 gap-y-6 gap-x-4">
+              {tabs.map(tab => (
+                <button
+                  key={tab.id}
+                  onClick={() => { setActiveTab(tab.id); setShowAllMenu(false); }}
+                  className="flex flex-col items-center gap-3 group"
+                >
+                  <div className={`w-14 h-14 flex items-center justify-center rounded-2xl border shadow-sm transition-transform duration-300 ${tab.bg} ${tab.color} group-hover:scale-110`}>
+                    {tab.icon}
+                  </div>
+                  <span className="text-[10px] font-bold text-center leading-tight text-slate-600 dark:text-slate-400 group-hover:text-emerald-600">
+                    {tab.name}
+                  </span>
+                </button>
+              ))}
+            </div>
+            <div className="p-4 bg-slate-50 dark:bg-slate-800/50 text-center text-xs text-slate-500 font-medium border-t border-slate-100 dark:border-slate-800">
+              Silakan pilih menu untuk menampilkannya di beranda.
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

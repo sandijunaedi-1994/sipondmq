@@ -166,7 +166,13 @@ export default function MasterTime() {
       );
     }
     
-    return <div className="grid grid-cols-7 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden bg-white dark:bg-slate-900">{days}</div>;
+    return (
+      <div className="border border-slate-200 dark:border-slate-800 rounded-xl overflow-x-auto custom-scrollbar bg-white dark:bg-slate-900">
+        <div className="grid grid-cols-7 min-w-[800px]">
+          {days}
+        </div>
+      </div>
+    );
   };
 
   // Rendering Monthly View
@@ -268,17 +274,19 @@ export default function MasterTime() {
 
     return (
       <div className="space-y-4">
-        <div className="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden">
-          <div className="grid grid-cols-7 bg-slate-50 dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800">
-            {['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'].map(d => (
-              <div key={d} className="p-3 text-center text-xs font-bold text-slate-500 uppercase border-r border-slate-200 dark:border-slate-800 last:border-0">{d}</div>
+        <div className="border border-slate-200 dark:border-slate-800 rounded-xl overflow-x-auto custom-scrollbar">
+          <div className="min-w-[800px]">
+            <div className="grid grid-cols-7 bg-slate-50 dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800">
+              {['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'].map(d => (
+                <div key={d} className="p-3 text-center text-xs font-bold text-slate-500 uppercase border-r border-slate-200 dark:border-slate-800 last:border-0">{d}</div>
+              ))}
+            </div>
+            {rows.map((row, i) => i > 0 && (
+              <div key={`row-${i}`} className="grid grid-cols-7">
+                {row}
+              </div>
             ))}
           </div>
-          {rows.map((row, i) => i > 0 && (
-            <div key={`row-${i}`} className="grid grid-cols-7">
-              {row}
-            </div>
-          ))}
         </div>
         
         {groupedMonthlyEvents.length > 0 && (
@@ -375,7 +383,7 @@ export default function MasterTime() {
   };
 
   return (
-    <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 transition-colors relative">
+    <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 transition-colors relative w-full max-w-full overflow-hidden">
       
       {/* Header & Controls */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
@@ -384,16 +392,16 @@ export default function MasterTime() {
           <p className="text-slate-500 dark:text-slate-400 text-sm transition-colors">Pantau dan kelola jadwal rutinitas serta agenda global.</p>
         </div>
         
-        <div className="flex flex-col sm:flex-row items-center gap-4">
-          <button onClick={() => { setAddModalDate(new Date()); setShowAddModal(true); }} className="px-4 py-2 bg-emerald-600 text-white font-bold text-sm rounded-xl hover:bg-emerald-700 transition shadow-sm shadow-emerald-500/20 flex items-center gap-2">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
+          <button onClick={() => { setAddModalDate(new Date()); setShowAddModal(true); }} className="px-4 py-2 bg-emerald-600 text-white font-bold text-sm rounded-xl hover:bg-emerald-700 transition shadow-sm shadow-emerald-500/20 flex items-center justify-center gap-2 w-full sm:w-auto">
             <span>➕</span> Tambah Aktivitas
           </button>
-          <div className="flex items-center bg-slate-100 dark:bg-slate-800 rounded-xl p-1">
+          <div className="flex items-center justify-center bg-slate-100 dark:bg-slate-800 rounded-xl p-1 w-full sm:w-auto overflow-x-auto hide-scrollbar">
             {['daily', 'weekly', 'monthly'].map(mode => (
               <button
                 key={mode}
                 onClick={() => setViewMode(mode)}
-                className={`px-4 py-1.5 rounded-lg text-xs font-bold capitalize transition-colors ${
+                className={`flex-1 sm:flex-none px-4 py-1.5 rounded-lg text-xs font-bold capitalize transition-colors ${
                   viewMode === mode 
                     ? 'bg-white dark:bg-slate-600 text-emerald-600 dark:text-white shadow-sm' 
                     : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
@@ -404,7 +412,7 @@ export default function MasterTime() {
             ))}
           </div>
           
-          <div className="flex items-center gap-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-1">
+          <div className="flex items-center justify-between sm:justify-center gap-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-1 w-full sm:w-auto">
             <button onClick={prevPeriod} className="p-1.5 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800">
               <ChevronLeft size={20} />
             </button>

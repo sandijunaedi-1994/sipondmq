@@ -17,7 +17,7 @@ export default function LogAktivitas() {
       setLoading(true);
       setError("");
       const token = localStorage.getItem("admin_token");
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"}/api/admin/activity-logs?page=${page}&limit=50&filterUserId=me`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"}/api/admin/activity-logs?page=${page}&limit=20`, {
         headers: { Authorization: `Bearer ${token}` }
       });
 
@@ -27,7 +27,7 @@ export default function LogAktivitas() {
 
       const data = await res.json();
       setLogs(data.logs || []);
-      setPagination(data.pagination || { page: 1, limit: 50, totalPages: 1 });
+      setPagination(data.pagination || { page: 1, limit: 20, totalPages: 1 });
     } catch (err) {
       console.error(err);
       setError(err.message);
@@ -55,7 +55,7 @@ export default function LogAktivitas() {
   };
 
   return (
-    <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 transition-colors">
+    <div className="bg-white dark:bg-slate-900 p-4 md:p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 transition-colors w-full max-w-full overflow-hidden">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <div>
           <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100 transition-colors">Log Aktivitas Sistem</h2>
@@ -135,7 +135,7 @@ export default function LogAktivitas() {
 
       {/* Pagination Controls */}
       {pagination.totalPages > 1 && (
-        <div className="mt-6 flex justify-between items-center text-sm">
+        <div className="mt-6 flex flex-col sm:flex-row justify-between items-center gap-4 text-sm">
           <span className="text-slate-500 dark:text-slate-400">
             Halaman {pagination.page} dari {pagination.totalPages}
           </span>
