@@ -4,7 +4,7 @@ const controller = require('../controllers/admin.pembangunan.controller');
 const authMiddleware = require('../middleware/auth.middleware');
 
 // Apply middleware to require admin access (LEGAL_VIEW or admin token)
-router.use(authMiddleware);
+router.use(authMiddleware.requireAuth);
 
 // -- Workers --
 router.get('/workers', controller.getWorkers);
