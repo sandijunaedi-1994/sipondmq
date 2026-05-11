@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const controller = require('../controllers/admin.pembangunan.controller');
 const authMiddleware = require('../middleware/auth.middleware');
-const roleMiddleware = require('../middleware/role.middleware');
 
 // Apply middleware to require admin access (LEGAL_VIEW or admin token)
 router.use(authMiddleware);
