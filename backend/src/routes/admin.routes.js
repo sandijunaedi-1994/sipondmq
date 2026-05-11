@@ -231,12 +231,14 @@ const {
   createPegawai,
   updatePegawai,
   deletePegawai,
-  linkAccount
+  linkAccount,
+  getMyProfile
 } = require('../controllers/admin.sdm.controller');
 
 // ==========================================
 // 14. MANAJEMEN SDM (PEGAWAI)
 // ==========================================
+router.get('/sdm/pegawai/me', requireAdmin, getMyProfile);
 router.get('/sdm/pegawai', requireAdmin, getPegawaiList);
 router.get('/sdm/pegawai/:id', requireAdmin, getPegawaiById);
 router.post('/sdm/pegawai', requireAdmin, createPegawai);

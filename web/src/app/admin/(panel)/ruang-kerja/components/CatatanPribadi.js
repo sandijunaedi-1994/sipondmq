@@ -134,7 +134,10 @@ export default function CatatanPribadi() {
         body: JSON.stringify(payload)
       });
       
-      if (!res.ok) throw new Error("Gagal menyimpan catatan");
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.message || "Gagal menyimpan catatan");
+      }
       
       await loadCatatan();
       setIsModalOpen(false);

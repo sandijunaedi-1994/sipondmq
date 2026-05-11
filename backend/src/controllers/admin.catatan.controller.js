@@ -48,7 +48,7 @@ const createCatatan = async (req, res) => {
     res.status(201).json(created[0] || {});
   } catch (error) {
     console.error("Error createCatatan:", error);
-    res.status(500).json({ message: 'Internal server error' });
+    res.status(500).json({ message: 'Internal server error: ' + error.message });
   }
 };
 
@@ -97,7 +97,7 @@ const updateCatatan = async (req, res) => {
     res.status(200).json(updated[0] || {});
   } catch (error) {
     console.error("Error updateCatatan:", error);
-    res.status(500).json({ message: 'Internal server error' });
+    res.status(500).json({ message: 'Internal server error: ' + error.message });
   }
 };
 

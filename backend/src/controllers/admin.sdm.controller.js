@@ -256,11 +256,47 @@ const linkAccount = async (req, res) => {
   }
 };
 
+// Mendapatkan profil sdm diri sendiri
+const getMyProfile = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    
+    // 1. Data Pegawai
+    const pegawai = await prisma.pegawai.findUnique({
+      where: { userId },
+      include: { markaz: true }
+    });
+
+    // 2. Data Hierarchy (Atasan & Bawahan)
+    const hierarchy = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        supervisors: {
+          include: {
+            supervisor: { select: { namaLengkap: true, role: true } }
+          }
+        },
+        subordinates: {
+          include: {
+            subordinate: { select: { namaLengkap: true, role: true } }
+          }
+        }
+      }
+    });
+
+    res.status(200).json({ pegawai, hierarchy });
+  } catch (error) {
+    console.error("Error getMyProfile:", error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
 module.exports = {
   getPegawaiList,
   getPegawaiById,
   createPegawai,
   updatePegawai,
   deletePegawai,
-  linkAccount
+  linkAccount,
+  getMyProfile
 };

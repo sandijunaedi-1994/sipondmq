@@ -257,8 +257,12 @@ const generateSchedules = async (req, res) => {
       where: whereClause
     });
     
-    const startDate = new Date(y, m, 1);
-    const endDate = new Date(y, m + 1, 0); // last day of month
+    // Generate untuk 1 pekan ke depan saja, mulai dari hari ini
+    const startDate = new Date();
+    startDate.setHours(0, 0, 0, 0);
+    
+    const endDate = new Date(startDate);
+    endDate.setDate(startDate.getDate() + 7);
     
     let createdCount = 0;
 
