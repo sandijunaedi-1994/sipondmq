@@ -27,7 +27,9 @@ const {
   updateUangMasukNominal,
   recordManualPayment,
   getMarkazList,
-  resetUserPassword
+  resetUserPassword,
+  deleteRegistration,
+  sendResetLink
 } = require('../controllers/admin.controller');
 
 const {
@@ -126,9 +128,10 @@ router.put('/ppdb/:id/schedule', updateSchedule);
 router.put('/ppdb/:id/evaluation', updateInterviewerEvaluation);
 router.put('/ppdb/:id/action', processKelulusan);
 router.put('/ppdb/:id/uang-masuk-deadline', updateUangMasukDeadline);
-router.put('/ppdb/:id/uang-masuk-nominal', updateUangMasukNominal);
+  router.put('/ppdb/:id/uang-masuk-nominal', updateUangMasukNominal);
 router.post('/ppdb/:id/manual-payment', recordManualPayment);
 router.post('/ppdb/:id/reset-password', resetUserPassword);
+router.delete('/ppdb/:id', deleteRegistration);
 
 // PPDB Setting: CBT Questions
 router.get('/ppdb-settings/cbt', getCbtQuestions);
@@ -165,6 +168,7 @@ router.get('/users', getAdminList);
 router.post('/users', createAdmin);
 router.put('/users/:id', updateAdmin);
 router.delete('/users/:id', deleteAdmin);
+router.post('/users/:id/send-reset-link', sendResetLink);
 
 const {
   getGroupList, createGroup, updateGroup, deleteGroup

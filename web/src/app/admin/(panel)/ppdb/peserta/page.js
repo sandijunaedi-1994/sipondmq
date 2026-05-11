@@ -118,6 +118,26 @@ export default function AdminPPDBPage() {
     }
   };
 
+  const handleDeleteRegistration = async (id, studentName) => {
+    if (!confirm(`PERINGATAN: Apakah Anda yakin ingin menghapus permanen data peserta ${studentName}? Tindakan ini tidak dapat dibatalkan dan akan menghapus seluruh data yang terkait.`)) return;
+    try {
+      const token = localStorage.getItem("admin_token");
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || `${process.env.NEXT_PUBLIC_API_URL || `${process.env.NEXT_PUBLIC_API_URL || `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"}`}`}`}/api/admin/ppdb/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.ok) {
+        alert("Data peserta berhasil dihapus");
+        fetchList();
+      } else {
+        const data = await res.json();
+        alert(`Gagal: ${data.message || 'Terjadi kesalahan'}`);
+      }
+    } catch (err) {
+      alert("Kesalahan jaringan");
+    }
+  };
+
   const handleCheckIn = async (e) => {
     e.preventDefault();
     if (!offlineCode.trim()) return;
@@ -355,6 +375,11 @@ export default function AdminPPDBPage() {
                       <button onClick={() => handleResetPassword(reg.id, reg.studentName || 'Peserta')} className="inline-flex items-center justify-center bg-slate-100 dark:bg-slate-800 hover:bg-amber-500 text-slate-600 dark:text-slate-300 hover:text-white transition-colors p-2 rounded-lg" title="Reset Password">
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4v-5.257A4.01 4.01 0 014.743 14l5.514-5.514A6 6 0 0115 5z" /></svg>
                       </button>
+                      {permissions.includes("MANAJEMEN_ADMIN") && (
+                        <button onClick={() => handleDeleteRegistration(reg.id, reg.studentName || 'Peserta')} className="inline-flex items-center justify-center bg-slate-100 dark:bg-slate-800 hover:bg-red-500 text-slate-600 dark:text-slate-300 hover:text-white transition-colors p-2 rounded-lg" title="Hapus Permanen">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>

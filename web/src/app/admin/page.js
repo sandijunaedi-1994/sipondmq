@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 function SpiderWebEffect() {
   useEffect(() => {
@@ -223,6 +224,11 @@ export default function AdminLoginPage() {
                   className="w-full pl-11 pr-4 py-3.5 bg-slate-50 dark:bg-slate-950/50 rounded-xl border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/50 outline-none transition-all placeholder-slate-400 dark:placeholder-slate-600"
                   placeholder="••••••••"
                 />
+              </div>
+              <div className="flex justify-end mt-2">
+                <Link href="/admin/forgot-password" className="text-sm font-semibold text-emerald-600 hover:text-emerald-500 transition-colors">
+                  Lupa Password?
+                </Link>
               </div>
             </div>
             

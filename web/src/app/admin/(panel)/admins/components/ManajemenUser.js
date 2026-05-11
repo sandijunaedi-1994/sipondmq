@@ -192,6 +192,23 @@ export default function ManajemenUser() {
     }
   };
 
+  const handleSendResetLink = async (id, namaLengkap) => {
+    if (!confirm(`Kirim link reset password ke email ${namaLengkap || 'Admin ini'}?`)) return;
+    try {
+      const token = localStorage.getItem("admin_token");
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"}/api/admin/users/${id}/send-reset-link`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Gagal mengirim link reset password");
+      
+      setSuccess("Link reset password berhasil dikirim ke email admin.");
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
   if (loading) return <div className="animate-pulse space-y-4"><div className="h-64 bg-slate-200 dark:bg-slate-800 rounded-2xl w-full"></div></div>;
 
   return (
@@ -263,6 +280,9 @@ export default function ManajemenUser() {
                       </button>
                       <button onClick={() => handleDelete(admin.id)} className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition" title="Hapus Admin">
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" /></svg>
+                      </button>
+                      <button onClick={() => handleSendResetLink(admin.id, admin.namaLengkap)} className="p-2 text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-500/10 rounded-lg transition" title="Kirim Link Reset Password">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" /><path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" /></svg>
                       </button>
                     </div>
                   </td>

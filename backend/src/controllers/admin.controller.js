@@ -1017,6 +1017,137 @@ const resetUserPassword = async (req, res) => {
   }
 };
 
+const jwt = require('jsonwebtoken');
+const { sendMail } = require('../utils/mailer');
+
+const sendResetLink = async (req, res) => {
+  try {
+    const { id } = req.params; // ini user ID (admin ID)
+    const user = await prisma.user.findUnique({
+      where: { id }
+    });
+
+    if (!user || !user.email) {
+      return res.status(400).json({ message: 'Admin tidak ditemukan atau tidak memiliki email' });
+    }
+
+    const secret = (process.env.JWT_SECRET || 'fallback_secret_123') + user.password;
+    const token = jwt.sign({ id: user.id, email: user.email }, secret, { expiresIn: '1h' });
+
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+    const resetLink = `${frontendUrl}/admin/reset-password?token=${token}&id=${user.id}`;
+
+    const htmlContent = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 10px;">
+        <h2 style="color: #10b981; text-align: center;">Reset Password Admin My MQ</h2>
+        <p>Halo ${user.namaLengkap || 'Admin'},</p>
+        <p>Superadmin telah mengirimkan link untuk mengatur ulang password akun Anda.</p>
+        <p>Silakan klik tombol di bawah ini untuk mengatur ulang password Anda. Link ini hanya berlaku selama 1 jam.</p>
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="${resetLink}" style="background-color: #10b981; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">Reset Password</a>
+        </div>
+        <p>Atau copy paste link berikut di browser Anda:</p>
+        <p style="word-break: break-all; color: #6b7280; font-size: 14px;">${resetLink}</p>
+        <p>Jika Anda tidak merasa perlu melakukan ini, Anda dapat mengabaikan email ini atau menghubungi superadmin.</p>
+      </div>
+    `;
+
+    await sendMail(user.email, 'Reset Password Admin My MQ', htmlContent);
+
+    res.status(200).json({ message: 'Link reset password berhasil dikirim ke email admin' });
+  } catch (error) {
+    console.error('Error in sendResetLink:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+const deleteRegistration = async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    const reg = await prisma.registration.findUnique({
+      where: { id },
+      include: {
+        registrationData: true,
+        examAttempts: {
+          include: { answers: true, logs: true }
+        },
+        pembayaran: {
+          include: { items: true, uangSakuMutasi: true, donasi: true }
+        }
+      }
+    });
+
+    if (!reg) return res.status(404).json({ message: 'Data tidak ditemukan' });
+
+    await prisma.$transaction(async (tx) => {
+      // 1. Exam attempts
+      if (reg.examAttempts && reg.examAttempts.length > 0) {
+        for (const attempt of reg.examAttempts) {
+          await tx.answer.deleteMany({ where: { attemptId: attempt.id } });
+          await tx.proctoringLog.deleteMany({ where: { attemptId: attempt.id } });
+        }
+        await tx.examAttempt.deleteMany({ where: { registrationId: id } });
+      }
+
+      // 2. Pembayaran
+      if (reg.pembayaran && reg.pembayaran.length > 0) {
+        for (const p of reg.pembayaran) {
+          await tx.pembayaranItem.deleteMany({ where: { pembayaranId: p.id } });
+          await tx.uangSakuMutasi.deleteMany({ where: { pembayaranId: p.id } });
+          await tx.donasi.deleteMany({ where: { pembayaranId: p.id } });
+        }
+        await tx.pembayaran.deleteMany({ where: { registrationId: id } });
+      }
+
+      // 3. RegistrationData
+      if (reg.registrationData) {
+        await tx.sibling.deleteMany({ where: { registrationDataId: reg.registrationData.id } });
+        await tx.mqSibling.deleteMany({ where: { registrationDataId: reg.registrationData.id } });
+        await tx.registrationData.delete({ where: { registrationId: id } });
+      }
+
+      // 4. Other relations
+      await tx.document.deleteMany({ where: { registrationId: id } });
+      await tx.parentInterview.deleteMany({ where: { registrationId: id } });
+      await tx.interviewerEvaluation.deleteMany({ where: { registrationId: id } });
+      
+      // Delete surveyKunjungan if it exists (using deleteMany to not throw error if it doesn't exist)
+      try {
+        await tx.surveyKunjungan.deleteMany({ where: { registrationId: id } });
+      } catch (e) {
+        // Ignore if model doesn't exist or other relation issue
+      }
+
+      // Santri record if exists
+      const santriExists = await tx.santri.findUnique({ where: { id } });
+      if (santriExists) {
+        throw new Error('Peserta sudah menjadi Santri aktif. Tidak dapat dihapus.');
+      }
+
+      // 5. Delete Registration
+      await tx.registration.delete({ where: { id } });
+      
+      // 6. Delete User if CALON_WALI and no other registrations
+      const otherRegs = await tx.registration.count({ where: { userId: reg.userId } });
+      if (otherRegs === 0) {
+        const user = await tx.user.findUnique({ where: { id: reg.userId } });
+        if (user && user.role === 'CALON_WALI') {
+          await tx.user.delete({ where: { id: reg.userId } });
+        }
+      }
+    });
+
+    res.status(200).json({ message: 'Pendaftar berhasil dihapus' });
+  } catch (error) {
+    console.error(error);
+    if (error.message === 'Peserta sudah menjadi Santri aktif. Tidak dapat dihapus.') {
+      return res.status(400).json({ message: error.message });
+    }
+    res.status(500).json({ message: 'Internal server error', error: error.message });
+  }
+};
+
 module.exports = {
   getDashboardStats,
   offlineRegister,
@@ -1037,5 +1168,7 @@ module.exports = {
   getPengujiList,
   checkInOffline,
   getMarkazList,
-  resetUserPassword
+  resetUserPassword,
+  deleteRegistration,
+  sendResetLink
 };

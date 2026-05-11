@@ -196,4 +196,86 @@ const updatePassword = async (req, res) => {
   }
 }
 
-module.exports = { register, login, getProfile, updatePassword };
+const { sendMail } = require('../utils/mailer');
+
+const forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ message: 'Email harus diisi' });
+
+    const user = await prisma.user.findFirst({
+      where: { email }
+    });
+
+    if (!user) {
+      // Return 200 even if not found to prevent email enumeration
+      return res.status(200).json({ message: 'Jika email terdaftar, link reset telah dikirim.' });
+    }
+
+    // Create stateless JWT
+    const secret = (process.env.JWT_SECRET || 'fallback_secret_123') + user.password;
+    const token = jwt.sign({ id: user.id, email: user.email }, secret, { expiresIn: '1h' });
+
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+    const resetLink = `${frontendUrl}/admin/reset-password?token=${token}&id=${user.id}`;
+
+    const htmlContent = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 10px;">
+        <h2 style="color: #10b981; text-align: center;">Reset Password My MQ</h2>
+        <p>Halo,</p>
+        <p>Anda menerima email ini karena ada permintaan untuk mengatur ulang password akun Anda.</p>
+        <p>Silakan klik tombol di bawah ini untuk mengatur ulang password Anda. Link ini hanya berlaku selama 1 jam.</p>
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="${resetLink}" style="background-color: #10b981; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">Reset Password</a>
+        </div>
+        <p>Atau copy paste link berikut di browser Anda:</p>
+        <p style="word-break: break-all; color: #6b7280; font-size: 14px;">${resetLink}</p>
+        <p>Jika Anda tidak meminta reset password, abaikan email ini.</p>
+        <p style="margin-top: 40px; color: #9ca3af; font-size: 12px; text-align: center;">© ${new Date().getFullYear()} My MQ. All rights reserved.</p>
+      </div>
+    `;
+
+    await sendMail(user.email, 'Reset Password My MQ', htmlContent);
+
+    res.status(200).json({ message: 'Jika email terdaftar, link reset telah dikirim.' });
+  } catch (error) {
+    console.error('Error in forgotPassword:', error);
+    res.status(500).json({ message: 'Terjadi kesalahan internal' });
+  }
+};
+
+const resetPassword = async (req, res) => {
+  try {
+    const { id, token, newPassword } = req.body;
+
+    if (!id || !token || !newPassword) {
+      return res.status(400).json({ message: 'Data tidak lengkap' });
+    }
+
+    const user = await prisma.user.findUnique({ where: { id } });
+    if (!user) {
+      return res.status(400).json({ message: 'Token tidak valid atau sudah kadaluarsa' });
+    }
+
+    const secret = (process.env.JWT_SECRET || 'fallback_secret_123') + user.password;
+    
+    try {
+      jwt.verify(token, secret);
+    } catch (err) {
+      return res.status(400).json({ message: 'Token tidak valid atau sudah kadaluarsa' });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    await prisma.user.update({
+      where: { id },
+      data: { password: hashedPassword }
+    });
+
+    res.status(200).json({ message: 'Password berhasil direset' });
+  } catch (error) {
+    console.error('Error in resetPassword:', error);
+    res.status(500).json({ message: 'Terjadi kesalahan internal' });
+  }
+};
+
+module.exports = { register, login, getProfile, updatePassword, forgotPassword, resetPassword };
