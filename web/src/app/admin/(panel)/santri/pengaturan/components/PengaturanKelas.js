@@ -39,8 +39,8 @@ export default function PengaturanKelas() {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (resPegawai.ok) {
-        const data = await resPegawai.json();
-        setPegawaiList(data.pegawai);
+        const json = await resPegawai.json();
+        setPegawaiList(json.data || []);
       }
 
       // Fetch Kelas

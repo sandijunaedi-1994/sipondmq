@@ -39,8 +39,8 @@ export default function PengaturanAsrama() {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (resPegawai.ok) {
-        const data = await resPegawai.json();
-        setPegawaiList(data.pegawai);
+        const json = await resPegawai.json();
+        setPegawaiList(json.data || []);
       }
 
       // Fetch Asrama
