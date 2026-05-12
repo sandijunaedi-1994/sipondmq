@@ -122,8 +122,10 @@ exports.importSantriCsv = async (req, res) => {
         // Pre-fetch Markaz mapping
         const markazList = await prisma.markaz.findMany();
         const markazMap = {};
+        const markazNameMap = {};
         markazList.forEach(m => {
-          markazMap[m.kode.toUpperCase()] = m.id;
+          if (m.kode) markazMap[m.kode.toUpperCase().trim()] = m.id;
+          if (m.nama) markazNameMap[m.nama.toUpperCase().trim()] = m.id;
         });
 
         for (const [index, row] of results.entries()) {
@@ -135,7 +137,7 @@ exports.importSantriCsv = async (req, res) => {
             const jenisKelaminRaw = (row['Jenis Kelamin'] || row['Jenis Kelamin (L/P)'])?.trim().toUpperCase();
             const program = row['Program']?.trim() || 'SMP';
             const tahunAjaran = row['Tahun Ajaran']?.trim() || '2024/2025';
-            const kodeMarkaz = row['Kode Markaz']?.trim();
+            const kodeMarkaz = (row['Kode Markaz'] || row['Markaz'])?.trim();
             const kelas = row['Kelas']?.trim();
             const asrama = row['Asrama']?.trim();
             const tahunMasukRaw = parseInt(row['Tahun Masuk']);
@@ -155,7 +157,11 @@ exports.importSantriCsv = async (req, res) => {
             const hubunganWali = ['AYAH', 'IBU', 'WALI'].includes(hubunganWaliRaw) ? hubunganWaliRaw : 'WALI';
             const noHpWali = noHpWaliRaw.replace(/[^0-9+]/g, '');
 
-            const markazId = kodeMarkaz ? (markazMap[kodeMarkaz.toUpperCase()] || null) : null;
+            let markazId = null;
+            if (kodeMarkaz) {
+              const cleanedKode = kodeMarkaz.toUpperCase().trim();
+              markazId = markazMap[cleanedKode] || markazNameMap[cleanedKode] || null;
+            }
 
             await prisma.$transaction(async (tx) => {
               // 1. Cari atau buat User Wali

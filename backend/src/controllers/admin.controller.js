@@ -281,7 +281,9 @@ const updateRegistrationData = async (req, res) => {
 const getDashboardStats = async (req, res) => {
   try {
     const { markazId, program, startDate, endDate } = req.query;
-    let whereClause = {};
+    let whereClause = {
+      source: { not: 'IMPORT_CSV' }
+    };
 
     const currentUser = await prisma.user.findUnique({ where: { id: req.user.userId || req.user.id } });
     const markazAccess = Array.isArray(currentUser?.markazAccess) ? currentUser.markazAccess : [];
