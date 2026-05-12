@@ -241,7 +241,7 @@ export default function PengaturanKelas() {
                 <select 
                   required
                   value={formData.markazId}
-                  onChange={(e) => setFormData({...formData, markazId: parseInt(e.target.value)})}
+                  onChange={(e) => setFormData({...formData, markazId: e.target.value ? parseInt(e.target.value) : ""})}
                   className="w-full px-4 py-3 border border-slate-200 dark:border-slate-700 bg-slate-50 hover:bg-white dark:bg-slate-800/50 dark:hover:bg-slate-800 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 outline-none transition-all appearance-none"
                 >
                   <option value="">Pilih Markaz...</option>
