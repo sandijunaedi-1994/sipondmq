@@ -11,6 +11,18 @@ export default function SantriDetailPage() {
   const [santri, setSantri] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  
+  const [canEdit, setCanEdit] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [editForm, setEditForm] = useState({});
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    try {
+      const perms = JSON.parse(localStorage.getItem("admin_permissions") || "[]");
+      setCanEdit(perms.includes("MANAJEMEN_ADMIN") || perms.includes("SANTRI_VIEW"));
+    } catch (e) {}
+  }, []);
 
   useEffect(() => {
     const fetchDetail = async () => {
@@ -23,6 +35,19 @@ export default function SantriDetailPage() {
         
         if (res.ok && data.success) {
           setSantri(data.santri);
+          setEditForm({
+            studentName: data.santri.registration?.studentName || "",
+            nis: data.santri.nis || "",
+            program: data.santri.registration?.program || "SMP",
+            gender: data.santri.registration?.gender || "LAKI_LAKI",
+            kelas: data.santri.kelas || "",
+            asrama: data.santri.asrama || "",
+            status: data.santri.status || "AKTIF",
+            nik: data.santri.registration?.registrationData?.nik || "",
+            nisn: data.santri.registration?.registrationData?.nisn || "",
+            birthPlace: data.santri.registration?.registrationData?.birthPlace || "",
+            birthDate: data.santri.registration?.registrationData?.birthDate ? data.santri.registration.registrationData.birthDate.split('T')[0] : ""
+          });
         } else {
           setError(data.message || "Data tidak ditemukan");
         }
@@ -34,7 +59,31 @@ export default function SantriDetailPage() {
     };
     
     fetchDetail();
-  }, [id]);
+  }, [id, editModalOpen]);
+
+  const handleSaveEdit = async (e) => {
+    e.preventDefault();
+    setSaving(true);
+    try {
+      const token = localStorage.getItem("admin_token");
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"}/api/admin/santri/${id}`, {
+        method: "PUT",
+        headers: { "Authorization": `Bearer ${token}`, "Content-Type": "application/json" },
+        body: JSON.stringify(editForm)
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setEditModalOpen(false);
+        // data will be re-fetched because we added editModalOpen to useEffect dependencies
+      } else {
+        alert(data.message || "Gagal menyimpan data.");
+      }
+    } catch (err) {
+      alert("Kesalahan jaringan.");
+    } finally {
+      setSaving(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -71,14 +120,23 @@ export default function SantriDetailPage() {
     <div className="space-y-4 w-full pb-8">
       
       {/* ── HEADER NAVIGATION ── */}
-      <div className="flex items-center gap-3">
-        <button onClick={() => router.back()} className="p-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors shadow-sm">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" /></svg>
-        </button>
-        <div>
-          <h1 className="text-lg font-black text-slate-800 dark:text-slate-100">{registration?.studentName || "Detail Santri"}</h1>
-          <p className="text-xs text-slate-500 dark:text-slate-400">Profil lengkap, rekam jejak, dan administrasi.</p>
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <button onClick={() => router.back()} className="p-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors shadow-sm">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" /></svg>
+          </button>
+          <div>
+            <h1 className="text-lg font-black text-slate-800 dark:text-slate-100">{registration?.studentName || "Detail Santri"}</h1>
+            <p className="text-xs text-slate-500 dark:text-slate-400">Profil lengkap, rekam jejak, dan administrasi.</p>
+          </div>
         </div>
+        
+        {canEdit && (
+          <button onClick={() => setEditModalOpen(true)} className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-sm transition shadow-sm flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+            Edit Data
+          </button>
+        )}
       </div>
 
       {/* ── PROFIL UTAMA CARD ── */}
@@ -279,6 +337,102 @@ export default function SantriDetailPage() {
         </div>
 
       </div>
+
+      {/* ── EDIT MODAL ── */}
+      {editModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm overflow-y-auto">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl w-full max-w-2xl my-8">
+            <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50 dark:bg-slate-950/50 rounded-t-2xl">
+              <h3 className="text-lg font-black text-slate-800 dark:text-slate-100">Edit Data Santri</h3>
+              <button onClick={() => !saving && setEditModalOpen(false)} className="text-slate-400 hover:text-slate-600 dark:text-slate-300">
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+              </button>
+            </div>
+            
+            <div className="p-6">
+              <form onSubmit={handleSaveEdit} className="space-y-4">
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Nama Santri</label>
+                    <input type="text" required value={editForm.studentName} onChange={(e) => setEditForm({...editForm, studentName: e.target.value})} className="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-950 focus:ring-2 focus:ring-emerald-500 outline-none" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">NIS</label>
+                    <input type="text" value={editForm.nis} onChange={(e) => setEditForm({...editForm, nis: e.target.value})} className="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-950 focus:ring-2 focus:ring-emerald-500 outline-none" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Jenis Kelamin</label>
+                    <select value={editForm.gender} onChange={(e) => setEditForm({...editForm, gender: e.target.value})} className="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-950 focus:ring-2 focus:ring-emerald-500 outline-none">
+                      <option value="LAKI_LAKI">Laki-laki</option>
+                      <option value="PEREMPUAN">Perempuan</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Program</label>
+                    <select value={editForm.program} onChange={(e) => setEditForm({...editForm, program: e.target.value})} className="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-950 focus:ring-2 focus:ring-emerald-500 outline-none">
+                      <option value="SMP">SMP</option>
+                      <option value="SMA">SMA</option>
+                      <option value="MAHAD_ALY">Mahad Aly</option>
+                      <option value="SD">SD</option>
+                      <option value="TK">TK</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Kelas</label>
+                    <input type="text" value={editForm.kelas} onChange={(e) => setEditForm({...editForm, kelas: e.target.value})} placeholder="Contoh: 7A, 10 MIPA 1" className="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-950 focus:ring-2 focus:ring-emerald-500 outline-none" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Asrama</label>
+                    <input type="text" value={editForm.asrama} onChange={(e) => setEditForm({...editForm, asrama: e.target.value})} className="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-950 focus:ring-2 focus:ring-emerald-500 outline-none" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Status Aktif</label>
+                    <select value={editForm.status} onChange={(e) => setEditForm({...editForm, status: e.target.value})} className="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-950 focus:ring-2 focus:ring-emerald-500 outline-none">
+                      <option value="AKTIF">Aktif</option>
+                      <option value="LULUS">Lulus</option>
+                      <option value="KELUAR">Keluar</option>
+                      <option value="CUTI">Cuti</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="pt-4 border-t border-slate-100 dark:border-slate-800 mt-4">
+                  <h4 className="text-sm font-bold text-slate-800 dark:text-white mb-3">Biodata Pribadi</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">NIK</label>
+                      <input type="text" value={editForm.nik} onChange={(e) => setEditForm({...editForm, nik: e.target.value})} className="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-950 focus:ring-2 focus:ring-emerald-500 outline-none" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">NISN</label>
+                      <input type="text" value={editForm.nisn} onChange={(e) => setEditForm({...editForm, nisn: e.target.value})} className="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-950 focus:ring-2 focus:ring-emerald-500 outline-none" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Tempat Lahir</label>
+                      <input type="text" value={editForm.birthPlace} onChange={(e) => setEditForm({...editForm, birthPlace: e.target.value})} className="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-950 focus:ring-2 focus:ring-emerald-500 outline-none" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Tanggal Lahir</label>
+                      <input type="date" value={editForm.birthDate} onChange={(e) => setEditForm({...editForm, birthDate: e.target.value})} className="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-950 focus:ring-2 focus:ring-emerald-500 outline-none" />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex justify-end gap-3 pt-6 mt-2">
+                  <button type="button" onClick={() => setEditModalOpen(false)} disabled={saving} className="px-4 py-2 text-sm font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 rounded-xl transition disabled:opacity-50">
+                    Batal
+                  </button>
+                  <button type="submit" disabled={saving} className="px-6 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-sm transition shadow-sm disabled:opacity-50 flex items-center gap-2">
+                    {saving ? "Menyimpan..." : "Simpan Perubahan"}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

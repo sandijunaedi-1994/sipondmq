@@ -562,3 +562,74 @@ exports.getSantriWaliKelas = async (req, res) => {
     res.status(500).json({ success: false, message: "Server Error" });
   }
 };
+
+exports.updateSantriDetail = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { studentName, nis, program, gender, kelas, asrama, nik, nisn, birthPlace, birthDate, status } = req.body;
+
+    // Permissions check - only those with SANTRI_VIEW or MANAJEMEN_ADMIN can edit
+    const userPermissions = req.user.permissions || [];
+    const isSuperAdmin = userPermissions.includes('MANAJEMEN_ADMIN');
+    const canEdit = isSuperAdmin || userPermissions.includes('SANTRI_VIEW');
+
+    if (!canEdit) {
+      return res.status(403).json({ success: false, message: 'Akses ditolak. Anda tidak memiliki izin untuk mengedit data santri.' });
+    }
+
+    const santri = await prisma.santri.findUnique({
+      where: { id: parseInt(id) },
+      include: { registration: { include: { registrationData: true } } }
+    });
+
+    if (!santri) {
+      return res.status(404).json({ success: false, message: 'Data santri tidak ditemukan.' });
+    }
+
+    const regId = santri.registrationId;
+    const regDataId = santri.registration?.registrationData?.id;
+
+    await prisma.$transaction(async (tx) => {
+      // Update Santri Table
+      await tx.santri.update({
+        where: { id: parseInt(id) },
+        data: {
+          nis: nis || santri.nis,
+          kelas: kelas || santri.kelas,
+          asrama: asrama || santri.asrama,
+          status: status || santri.status
+        }
+      });
+
+      // Update Registration Table
+      if (regId) {
+        await tx.registration.update({
+          where: { id: regId },
+          data: {
+            studentName: studentName || santri.registration.studentName,
+            program: program || santri.registration.program,
+            gender: gender || santri.registration.gender
+          }
+        });
+      }
+
+      // Update RegistrationData Table
+      if (regDataId) {
+        await tx.registrationData.update({
+          where: { id: regDataId },
+          data: {
+            nik: nik || santri.registration.registrationData.nik,
+            nisn: nisn || santri.registration.registrationData.nisn,
+            birthPlace: birthPlace || santri.registration.registrationData.birthPlace,
+            birthDate: birthDate ? new Date(birthDate) : santri.registration.registrationData.birthDate
+          }
+        });
+      }
+    });
+
+    res.json({ success: true, message: 'Data santri berhasil diperbarui.' });
+  } catch (error) {
+    console.error("updateSantriDetail error:", error);
+    res.status(500).json({ success: false, message: "Server Error saat memperbarui data." });
+  }
+};

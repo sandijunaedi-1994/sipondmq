@@ -1,7 +1,8 @@
 "use strict";
 
 import React, { useState, useEffect } from "react";
-import { Users, Search, BookOpen, MapPin, BadgeInfo } from "lucide-react";
+import Link from "next/link";
+import { Users, Search, BookOpen, MapPin, BadgeInfo, Eye } from "lucide-react";
 
 export default function RuangWaliKelas() {
   const [santriList, setSantriList] = useState([]);
@@ -103,6 +104,7 @@ export default function RuangWaliKelas() {
                   <th className="px-6 py-4">Program / Gender</th>
                   <th className="px-6 py-4">Kelas & Asrama</th>
                   <th className="px-6 py-4">Status</th>
+                  <th className="px-6 py-4 text-center">Aksi</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
@@ -139,6 +141,15 @@ export default function RuangWaliKelas() {
                       <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold tracking-wide uppercase bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400">
                         {santri.status}
                       </span>
+                    </td>
+                    <td className="px-6 py-4 text-center">
+                      <Link 
+                        href={`/admin/santri/data/${santri.id}`}
+                        className="inline-flex items-center justify-center p-2 bg-blue-50 hover:bg-blue-100 text-blue-600 dark:bg-blue-500/10 dark:hover:bg-blue-500/20 dark:text-blue-400 rounded-lg transition-colors"
+                        title="Lihat Detail"
+                      >
+                        <Eye size={16} />
+                      </Link>
                     </td>
                   </tr>
                 ))}

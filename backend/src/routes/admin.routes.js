@@ -55,7 +55,7 @@ const {
   getSurveys, updateSurveyStatus
 } = require('../controllers/admin.ppdb.controller');
 
-const { getSantriAktif, importSantriCsv, getSantriDetail, deleteSantri, generateMassNis, getSantriWaliKelas } = require('../controllers/admin.santri.controller');
+const { getSantriAktif, importSantriCsv, getSantriDetail, deleteSantri, generateMassNis, getSantriWaliKelas, updateSantriDetail } = require('../controllers/admin.santri.controller');
 
 const {
   getCatatan, createCatatan, updateCatatan, deleteCatatan
@@ -126,6 +126,7 @@ router.get('/santri', getSantriAktif);
 router.get('/santri/wali-kelas', getSantriWaliKelas);
 router.post('/santri/generate-nis', generateMassNis);
 router.get('/santri/:id', getSantriDetail);
+router.put('/santri/:id', updateSantriDetail);
 router.delete('/santri/:id', deleteSantri);
 router.post('/santri/import', upload.single('file'), importSantriCsv);
 
