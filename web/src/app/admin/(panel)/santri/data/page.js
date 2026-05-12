@@ -35,7 +35,7 @@ export default function SantriAktifPage() {
     setLoading(true);
     try {
       const token = localStorage.getItem("admin_token");
-      const url = new URL(`${process.env.NEXT_PUBLIC_API_URL || `${process.env.NEXT_PUBLIC_API_URL || `${process.env.NEXT_PUBLIC_API_URL || `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"}`}`}`}/api/admin/santri`);
+      const url = new URL(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"}/api/admin/santri`);
       if (filterMarkaz !== "SEMUA") url.searchParams.append("markazId", filterMarkaz);
       if (searchQuery) url.searchParams.append("search", searchQuery);
       
@@ -57,7 +57,7 @@ export default function SantriAktifPage() {
     const fetchMarkaz = async () => {
       try {
         const token = localStorage.getItem("admin_token");
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || `${process.env.NEXT_PUBLIC_API_URL || `${process.env.NEXT_PUBLIC_API_URL || `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"}`}`}`}/api/admin/markaz`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"}/api/admin/markaz`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (res.ok) {
@@ -87,7 +87,7 @@ export default function SantriAktifPage() {
 
     try {
       const token = localStorage.getItem('admin_token');
-      const res = await fetch('${process.env.NEXT_PUBLIC_API_URL || `${process.env.NEXT_PUBLIC_API_URL || `${process.env.NEXT_PUBLIC_API_URL || `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"}`}`}`}/api/admin/santri/import', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"}/api/admin/santri/import`, {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}` },
         body: formData
