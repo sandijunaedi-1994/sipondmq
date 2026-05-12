@@ -85,7 +85,10 @@ export default function RingkasanPribadi() {
 
   const toggleTaskStatus = async (taskId, currentStatus, isUserTask) => {
     // Optimistic UI
-    const newStatus = currentStatus === "SELESAI" ? "PENDING" : "SELESAI";
+    const newStatus = isUserTask 
+      ? (currentStatus === "SELESAI" ? "PENDING" : "SELESAI")
+      : (currentStatus === "COMPLETED" || currentStatus === "SELESAI" ? "PENDING" : "COMPLETED");
+      
     setTasks(tasks.map(t => t.id === taskId ? { ...t, status: newStatus } : t));
 
     try {
@@ -149,7 +152,7 @@ export default function RingkasanPribadi() {
               </div>
             ) : (
               tasks.map(task => {
-                const isDone = task.status === 'SELESAI';
+                const isDone = task.status === 'SELESAI' || task.status === 'COMPLETED';
                 // Gunakan date lokal (timezone WIB) untuk menghindari bug UTC shift
                 const getLocalDateString = (d) => {
                   const date = new Date(d);

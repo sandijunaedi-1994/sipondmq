@@ -223,8 +223,11 @@ const getRoutineSchedules = async (req, res) => {
 const updateRoutineScheduleStatus = async (req, res) => {
   try {
     const { id } = req.params;
-    const { status } = req.body;
+    let { status } = req.body;
     
+    // Backwards compatibility for frontend sending SELESAI instead of COMPLETED
+    if (status === 'SELESAI') status = 'COMPLETED';
+
     const schedule = await prisma.mcRoutineSchedule.update({
       where: { id },
       data: {
@@ -512,7 +515,7 @@ const getDashboardTasks = async (req, res) => {
     const allTasks = [...schedules, ...userTasksMapped].filter(t => {
       const taskDate = new Date(t.taskDate);
       if (taskDate < startOfToday) {
-        return t.status !== 'SELESAI'; // Tampilkan overdue hanya yang belum selesai
+        return t.status !== 'SELESAI' && t.status !== 'COMPLETED'; // Tampilkan overdue hanya yang belum selesai
       }
       return true; // Tampilkan semua yang hari ini
     }).sort((a, b) => new Date(a.taskDate) - new Date(b.taskDate));
