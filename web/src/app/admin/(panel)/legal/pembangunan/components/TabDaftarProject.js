@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { Edit2, Trash2, Plus, X, Calendar, DollarSign, Tag, CheckCircle, Search, Filter, Eye, Users, Hammer } from "lucide-react";
+import { Edit2, Trash2, Plus, X, Calendar, DollarSign, Tag, CheckCircle, Search, Filter, Eye, Users, Hammer, Printer } from "lucide-react";
 
 // Generate 10 years of academic years
 const generateTahunAjaran = () => {
@@ -23,6 +23,7 @@ export default function TabDaftarProject() {
   const [materials, setMaterials] = useState([]);
   const [workers, setWorkers] = useState([]);
   const [vendors, setVendors] = useState([]);
+  const [bawahans, setBawahans] = useState([]);
 
   // Filters
   const [search, setSearch] = useState("");
@@ -86,17 +87,20 @@ export default function TabDaftarProject() {
   const fetchMasterData = async () => {
     try {
       const token = localStorage.getItem("admin_token");
-      const [resMat, resWork, resVen] = await Promise.all([
+      const [resMat, resWork, resVen, resBaw] = await Promise.all([
         fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"}/api/admin/pembangunan/materials`, { headers: { Authorization: `Bearer ${token}` } }),
         fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"}/api/admin/pembangunan/workers`, { headers: { Authorization: `Bearer ${token}` } }),
-        fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"}/api/admin/pembangunan/vendors`, { headers: { Authorization: `Bearer ${token}` } })
+        fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"}/api/admin/pembangunan/vendors`, { headers: { Authorization: `Bearer ${token}` } }),
+        fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"}/api/admin/hierarchy/subordinates`, { headers: { Authorization: `Bearer ${token}` } })
       ]);
       const mat = await resMat.json();
       const work = await resWork.json();
       const ven = await resVen.json();
+      const baw = await resBaw.json();
       if(mat.success) setMaterials(mat.data);
       if(work.success) setWorkers(work.data);
       if(ven.success) setVendors(ven.data);
+      if(Array.isArray(baw)) setBawahans(baw);
     } catch (e) {
       console.error(e);
     }
@@ -852,33 +856,47 @@ export default function TabDaftarProject() {
 
       {/* MODAL PROJECT DETAIL PASSPORT */}
       {isDetailModalOpen && selectedProject && (
-        <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm overflow-y-auto">
-          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-3xl border border-slate-200 dark:border-slate-800 my-8 flex flex-col">
+        <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm overflow-y-auto print:p-0 print:bg-transparent">
+          <style dangerouslySetInnerHTML={{__html: `
+            @media print {
+              body * { visibility: hidden; }
+              #printable-modal, #printable-modal * { visibility: visible; }
+              #printable-modal {
+                position: absolute; left: 0; top: 0; width: 100%;
+                margin: 0; padding: 0; border: none; box-shadow: none;
+              }
+              .no-print { display: none !important; }
+            }
+          `}} />
+          <div id="printable-modal" className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-3xl border border-slate-200 dark:border-slate-800 my-8 flex flex-col print:border-none print:shadow-none print:m-0 print:w-full">
             
             {/* Header */}
-            <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-start bg-indigo-600 rounded-t-2xl">
-              <div className="text-white">
+            <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-start bg-indigo-600 rounded-t-2xl print:bg-white print:border-b-2 print:border-slate-800">
+              <div className="text-white print:text-slate-900">
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="px-2 py-0.5 bg-white/20 rounded text-[10px] uppercase font-bold tracking-wider">{selectedProject.kategori?.replace('_', ' ')}</span>
+                  <span className="px-2 py-0.5 bg-white/20 print:bg-slate-100 print:text-slate-800 rounded text-[10px] uppercase font-bold tracking-wider">{selectedProject.kategori?.replace('_', ' ')}</span>
                   <span className={`px-2 py-0.5 rounded text-[10px] uppercase font-bold tracking-wider ${
-                    selectedProject.status === 'COMPLETED' ? 'bg-emerald-500 text-white' : 
-                    selectedProject.status === 'ON_PROGRESS' ? 'bg-blue-500 text-white' : 
-                    'bg-slate-800 text-white'
+                    selectedProject.status === 'COMPLETED' ? 'bg-emerald-500 text-white print:bg-slate-100 print:text-slate-800' : 
+                    selectedProject.status === 'ON_PROGRESS' ? 'bg-blue-500 text-white print:bg-slate-100 print:text-slate-800' : 
+                    'bg-slate-800 text-white print:bg-slate-100 print:text-slate-800'
                   }`}>
                     {selectedProject.status?.replace('_', ' ')}
                   </span>
                 </div>
                 <h2 className="text-2xl font-black">{selectedProject.rencanaPekerjaan}</h2>
-                <div className="flex items-center gap-4 mt-2 text-indigo-100 text-sm">
+                <div className="flex items-center gap-4 mt-2 text-indigo-100 print:text-slate-600 text-sm font-medium">
                   {selectedProject.markaz ? <span>📍 Markaz: {selectedProject.markaz}</span> : <span>📍 Global</span>}
                   <span>|</span>
                   <span>📁 Sumber: {selectedProject.sumberTugas}</span>
                 </div>
               </div>
-              <button onClick={() => setIsDetailModalOpen(false)} className="text-white/60 hover:text-white bg-black/10 hover:bg-black/20 p-2 rounded-xl transition-colors"><X size={20} /></button>
+              <div className="flex items-center gap-2 no-print">
+                <button onClick={() => window.print()} className="text-white/80 hover:text-white bg-black/10 hover:bg-black/20 p-2 rounded-xl transition-colors"><Printer size={20} /></button>
+                <button onClick={() => setIsDetailModalOpen(false)} className="text-white/80 hover:text-white bg-black/10 hover:bg-black/20 p-2 rounded-xl transition-colors"><X size={20} /></button>
+              </div>
             </div>
             
-            <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-6 bg-slate-50 dark:bg-slate-950/50">
+            <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-6 bg-slate-50 dark:bg-slate-950/50 print:bg-white print:block">
               
               {/* Left Column - Info */}
               <div className="col-span-1 space-y-4">
@@ -912,9 +930,9 @@ export default function TabDaftarProject() {
                 </div>
               </div>
 
-              {/* Right Column - RAB Summary */}
-              <div className="col-span-1 md:col-span-2">
-                <div className="bg-white dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm h-full">
+              {/* Right Column - RAB Summary & Pembagian Tugas */}
+              <div className="col-span-1 md:col-span-2 space-y-6">
+                <div className="bg-white dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm print:border-slate-300 print:shadow-none">
                   <div className="flex items-center justify-between mb-4">
                     <h4 className="font-bold text-sm text-slate-800 dark:text-slate-200 flex items-center gap-2">
                       <DollarSign size={18} className="text-emerald-500" /> Ringkasan RAB
@@ -932,12 +950,12 @@ export default function TabDaftarProject() {
                     <div>
                       <h5 className="font-bold text-xs text-indigo-600 flex items-center gap-1.5 mb-2"><Hammer size={14} /> Daftar Material</h5>
                       {(!selectedProject.McBudget || !selectedProject.McBudget.some(b => b.tipe === 'MATERIAL')) ? (
-                        <div className="text-xs text-slate-400 italic bg-slate-50 p-2 rounded-lg">Belum ada material.</div>
+                        <div className="text-xs text-slate-400 italic bg-slate-50 p-2 rounded-lg print:bg-transparent">Belum ada material.</div>
                       ) : (
-                        <div className="border border-slate-100 rounded-lg overflow-hidden">
+                        <div className="border border-slate-100 rounded-lg overflow-hidden print:border-slate-300">
                           {selectedProject.McBudget.filter(b => b.tipe === 'MATERIAL').map(b => (
-                            <div key={b.id} className="flex justify-between items-center p-2 text-xs border-b last:border-0 border-slate-100 hover:bg-slate-50">
-                              <span className="font-medium">{b.category} <span className="text-slate-400">x{b.qty}</span></span>
+                            <div key={b.id} className="flex justify-between items-center p-2 text-xs border-b last:border-0 border-slate-100 hover:bg-slate-50 print:border-slate-300">
+                              <span className="font-medium text-slate-800">{b.category} <span className="text-slate-400">x{b.qty}</span></span>
                               <span className="font-bold text-slate-600">Rp {Number(b.estimatedCost).toLocaleString('id-ID')}</span>
                             </div>
                           ))}
@@ -949,12 +967,12 @@ export default function TabDaftarProject() {
                     <div>
                       <h5 className="font-bold text-xs text-amber-600 flex items-center gap-1.5 mb-2"><Users size={14} /> Daftar Pekerja</h5>
                       {(!selectedProject.McBudget || !selectedProject.McBudget.some(b => b.tipe === 'PEKERJA')) ? (
-                        <div className="text-xs text-slate-400 italic bg-slate-50 p-2 rounded-lg">Belum ada pekerja.</div>
+                        <div className="text-xs text-slate-400 italic bg-slate-50 p-2 rounded-lg print:bg-transparent">Belum ada pekerja.</div>
                       ) : (
-                        <div className="border border-slate-100 rounded-lg overflow-hidden">
+                        <div className="border border-slate-100 rounded-lg overflow-hidden print:border-slate-300">
                           {selectedProject.McBudget.filter(b => b.tipe === 'PEKERJA').map(b => (
-                            <div key={b.id} className="flex justify-between items-center p-2 text-xs border-b last:border-0 border-slate-100 hover:bg-slate-50">
-                              <span className="font-medium">{b.category} <span className="text-slate-400">({b.qty} Hari)</span></span>
+                            <div key={b.id} className="flex justify-between items-center p-2 text-xs border-b last:border-0 border-slate-100 hover:bg-slate-50 print:border-slate-300">
+                              <span className="font-medium text-slate-800">{b.category} <span className="text-slate-400">({b.qty} Hari)</span></span>
                               <span className="font-bold text-slate-600">Rp {Number(b.estimatedCost).toLocaleString('id-ID')}</span>
                             </div>
                           ))}
@@ -962,7 +980,68 @@ export default function TabDaftarProject() {
                       )}
                     </div>
                   </div>
+                </div>
 
+                <div className="bg-white dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm print:border-slate-300 print:shadow-none print:mt-6">
+                  <h4 className="font-bold text-sm text-slate-800 dark:text-slate-200 flex items-center gap-2 mb-4">
+                    <CheckCircle size={18} className="text-blue-500" /> Pembagian Sub Pekerjaan
+                  </h4>
+                  {(!selectedProject.McSubTugas || selectedProject.McSubTugas.length === 0) ? (
+                    <div className="text-xs text-slate-400 italic bg-slate-50 p-2 rounded-lg print:bg-transparent">Belum ada pembagian tugas.</div>
+                  ) : (
+                    <div className="overflow-hidden border border-slate-100 dark:border-slate-800 rounded-lg print:border-slate-300">
+                      <table className="w-full text-left">
+                        <thead className="bg-slate-50 dark:bg-slate-950 text-slate-500 text-[10px] uppercase font-bold print:bg-transparent print:border-b print:border-slate-300">
+                          <tr>
+                            <th className="px-3 py-2">Pekerjaan</th>
+                            <th className="px-3 py-2">Target</th>
+                            <th className="px-3 py-2">Status</th>
+                            <th className="px-3 py-2">Dikerjakan Oleh</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100 dark:divide-slate-800 print:divide-slate-300">
+                          {selectedProject.McSubTugas.map(task => {
+                            let pekerjaLabels = [];
+                            if (task.vendorId) {
+                              const v = vendors.find(ven => ven.id === task.vendorId);
+                              pekerjaLabels = v ? [{ name: v.nama, type: 'vendor' }] : [{ name: 'Vendor', type: 'vendor' }];
+                            } else if (task.pekerjaIds) {
+                              try {
+                                const ids = JSON.parse(task.pekerjaIds);
+                                pekerjaLabels = ids.map(id => {
+                                  const w = workers.find(work => work.id === id);
+                                  if (w) return { name: w.nama, type: 'pekerja' };
+                                  const b = bawahans.find(baw => baw.id === id);
+                                  if (b) return { name: b.namaLengkap, type: 'bawahan' };
+                                  return null;
+                                }).filter(Boolean);
+                              } catch(e){}
+                            }
+                            return (
+                              <tr key={task.id} className="text-xs print:text-slate-800">
+                                <td className="px-3 py-2 font-bold text-slate-800 dark:text-slate-200 print:text-slate-900">{task.namaPekerjaan}</td>
+                                <td className="px-3 py-2 text-slate-500">{task.targetSelesai ? new Date(task.targetSelesai).toLocaleDateString('id-ID') : '-'}</td>
+                                <td className="px-3 py-2 text-slate-500 font-bold">{task.status?.replace('_', ' ')}</td>
+                                <td className="px-3 py-2">
+                                  {pekerjaLabels.length > 0 ? (
+                                    <div className="flex flex-wrap gap-1">
+                                      {pekerjaLabels.map((p, idx) => (
+                                        <span key={idx} className="inline-block px-1.5 py-0.5 rounded text-[10px] bg-slate-100 text-slate-700 font-medium print:bg-transparent print:border print:border-slate-300">
+                                          {p.name}
+                                        </span>
+                                      ))}
+                                    </div>
+                                  ) : (
+                                    <span className="text-slate-400 italic">-</span>
+                                  )}
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
                 </div>
               </div>
               
