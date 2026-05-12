@@ -150,11 +150,18 @@ export default function RingkasanPribadi() {
             ) : (
               tasks.map(task => {
                 const isDone = task.status === 'SELESAI';
+                // Gunakan date lokal (timezone WIB) untuk menghindari bug UTC shift
                 const getLocalDateString = (d) => {
                   const date = new Date(d);
-                  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+                  // Ambil tanggal berdasarkan local time (bukan UTC) supaya tidak geser 1 hari
+                  const y = date.getFullYear();
+                  const m = String(date.getMonth() + 1).padStart(2, '0');
+                  const day = String(date.getDate()).padStart(2, '0');
+                  return `${y}-${m}-${day}`;
                 };
-                const isOverdue = getLocalDateString(task.taskDate) < getLocalDateString(new Date());
+                const todayStr = getLocalDateString(new Date());
+                const taskDateStr = getLocalDateString(task.taskDate);
+                const isOverdue = taskDateStr < todayStr;
                 
                 return (
                   <div 

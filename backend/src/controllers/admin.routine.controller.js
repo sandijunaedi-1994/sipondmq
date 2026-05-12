@@ -67,15 +67,26 @@ const updateRoutineTask = async (req, res) => {
     const { id } = req.params;
     const { aktivitas, frekuensi, jamMulai, jamSelesai, petugas, deskripsi } = req.body;
     
+    // Cek apakah task ada
+    const existing = await prisma.mcRoutineTask.findUnique({ where: { id } });
+    if (!existing) return res.status(404).json({ message: 'Aktivitas rutin tidak ditemukan' });
+
+    // Cek izin: hanya creator atau superadmin yang boleh edit
+    const currentUser = await prisma.user.findUnique({ where: { id: req.user.userId } });
+    const isSuperAdmin = currentUser?.permissions?.includes('MANAJEMEN_ADMIN');
+    if (!isSuperAdmin && existing.creatorId !== req.user.userId) {
+      return res.status(403).json({ message: 'Anda tidak memiliki izin untuk mengedit aktivitas ini' });
+    }
+
     const task = await prisma.mcRoutineTask.update({
       where: { id },
       data: {
         aktivitas,
         frekuensi,
-        jamMulai,
-        jamSelesai,
+        jamMulai: jamMulai || null,
+        jamSelesai: jamSelesai || null,
         petugas,
-        deskripsi,
+        deskripsi: deskripsi || null,
         updatedAt: new Date()
       }
     });

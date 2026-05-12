@@ -7,6 +7,8 @@ export default function AktivitasRutin() {
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [currentUserId, setCurrentUserId] = useState("");
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
   
   const [showModal, setShowModal] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -24,6 +26,18 @@ export default function AktivitasRutin() {
   const [hariPekanan, setHariPekanan] = useState("TIDAK TERTENTU");
 
   useEffect(() => {
+    // Ambil info user dari token dan permissions
+    const token = localStorage.getItem("admin_token");
+    if (token) {
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        setCurrentUserId(payload.userId || payload.id || "");
+      } catch (e) {}
+    }
+    try {
+      const perms = JSON.parse(localStorage.getItem("admin_permissions") || "[]");
+      setIsSuperAdmin(perms.includes("MANAJEMEN_ADMIN"));
+    } catch (e) {}
     fetchTasks();
   }, []);
 
@@ -122,7 +136,8 @@ export default function AktivitasRutin() {
         setShowModal(false);
         fetchTasks();
       } else {
-        alert("Gagal menyimpan tugas rutin");
+        const errData = await res.json().catch(() => ({}));
+        alert(errData.message || "Gagal menyimpan tugas rutin");
       }
     } catch (error) {
       console.error(error);
@@ -259,12 +274,19 @@ export default function AktivitasRutin() {
                   </td>
                   <td className="px-6 py-4 text-right">
                     <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button onClick={() => handleOpenModal(task)} className="p-2 text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-500/10 rounded-lg transition-colors">
-                        <Edit2 size={16} />
-                      </button>
-                      <button onClick={() => handleDelete(task.id)} className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors">
-                        <Trash2 size={16} />
-                      </button>
+                      {/* Tampilkan tombol edit/hapus hanya untuk pemilik task atau superadmin */}
+                      {(isSuperAdmin || task.creatorId === currentUserId) ? (
+                        <>
+                          <button onClick={() => handleOpenModal(task)} className="p-2 text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-500/10 rounded-lg transition-colors">
+                            <Edit2 size={16} />
+                          </button>
+                          <button onClick={() => handleDelete(task.id)} className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors">
+                            <Trash2 size={16} />
+                          </button>
+                        </>
+                      ) : (
+                        <span className="text-[10px] text-slate-400 font-medium px-2">Milik orang lain</span>
+                      )}
                     </div>
                   </td>
                 </tr>
