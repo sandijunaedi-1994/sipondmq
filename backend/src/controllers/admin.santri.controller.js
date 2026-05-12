@@ -568,8 +568,19 @@ exports.updateSantriDetail = async (req, res) => {
     const { id } = req.params;
     const { studentName, nis, program, gender, kelas, asrama, nik, nisn, birthPlace, birthDate, status } = req.body;
 
-    // Permissions check - only those with SANTRI_VIEW or MANAJEMEN_ADMIN can edit
-    const userPermissions = req.user.permissions || [];
+    const { mergePermissions } = require('../utils/permission');
+    
+    // Fetch the user to get real permissions
+    const currentUser = await prisma.user.findUnique({
+      where: { id: req.user.userId || req.user.id },
+      include: { adminGroups: true }
+    });
+
+    if (!currentUser) {
+      return res.status(401).json({ success: false, message: 'User tidak ditemukan.' });
+    }
+
+    const userPermissions = mergePermissions(currentUser.permissions, currentUser.adminGroups);
     const isSuperAdmin = userPermissions.includes('MANAJEMEN_ADMIN');
     const canEdit = isSuperAdmin || userPermissions.includes('SANTRI_VIEW');
 
