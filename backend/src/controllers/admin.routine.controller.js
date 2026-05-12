@@ -555,6 +555,58 @@ const updateUserTaskStatus = async (req, res) => {
   }
 };
 
+const deleteUserTask = async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    const task = await prisma.userTask.findUnique({ where: { id } });
+    if (!task) return res.status(404).json({ message: 'Aktivitas tidak ditemukan' });
+
+    await prisma.userTask.delete({ where: { id } });
+
+    await logActivity({
+      userId: req.user.userId,
+      action: 'DELETE',
+      entity: 'UserTask',
+      details: `Menghapus inisiatif "${task.title}"`,
+      req
+    });
+
+    res.status(200).json({ message: 'Tugas berhasil dihapus' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+const deleteRoutineSchedule = async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    const schedule = await prisma.routineSchedule.findUnique({ 
+      where: { id },
+      include: { McRoutineTask: true }
+    });
+    
+    if (!schedule) return res.status(404).json({ message: 'Jadwal rutinitas tidak ditemukan' });
+
+    await prisma.routineSchedule.delete({ where: { id } });
+
+    await logActivity({
+      userId: req.user.userId,
+      action: 'DELETE',
+      entity: 'RoutineSchedule',
+      details: `Menghapus rutinitas harian "${schedule.McRoutineTask?.aktivitas}"`,
+      req
+    });
+
+    res.status(200).json({ message: 'Rutinitas berhasil dihapus' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
 module.exports = {
   getRoutineTasks,
   createRoutineTask,
@@ -566,5 +618,7 @@ module.exports = {
   addAdhocRoutine,
   addInitiativeTask,
   getDashboardTasks,
-  updateUserTaskStatus
+  updateUserTaskStatus,
+  deleteUserTask,
+  deleteRoutineSchedule
 };

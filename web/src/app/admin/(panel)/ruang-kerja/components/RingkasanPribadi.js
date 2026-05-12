@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import { Clock, CheckCircle2, Circle, Plus, Sparkles } from "lucide-react";
+import { Clock, CheckCircle2, Circle, Plus, Sparkles, Trash2 } from "lucide-react";
 import AddActivityModal from "./AddActivityModal";
 
 export default function RingkasanPribadi() {
@@ -117,6 +117,36 @@ export default function RingkasanPribadi() {
     }
   };
 
+  const deleteTask = async (taskId, isUserTask, e) => {
+    e.stopPropagation(); // Prevent toggling the task
+    
+    if (!confirm("Apakah Anda yakin ingin menghapus aktivitas ini?")) return;
+
+    try {
+      const token = localStorage.getItem("admin_token");
+      let url = `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"}/api/admin/routines/schedules/${taskId}`;
+      
+      if (isUserTask) {
+        url = `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"}/api/admin/routines/initiative/${taskId}`;
+      }
+
+      const res = await fetch(url, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.message || "Failed to delete task");
+      }
+
+      setTasks(tasks.filter(t => t.id !== taskId));
+    } catch (error) {
+      console.error(error);
+      alert("Gagal menghapus tugas: " + error.message);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -195,7 +225,7 @@ export default function RingkasanPribadi() {
                     </div>
                     <div className="flex-1">
                       <h4 className={`text-sm font-bold transition-colors ${isDone ? 'text-slate-500 line-through' : isOverdue ? 'text-red-700 dark:text-red-400' : 'text-slate-800 dark:text-slate-100'}`}>
-                        {task.McRoutineTask?.aktivitas}
+                        {task.McRoutineTask?.aktivitas || task.title}
                       </h4>
                       <div className="flex items-center gap-2 mt-1.5">
                         <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md border ${
@@ -214,6 +244,15 @@ export default function RingkasanPribadi() {
                         )}
                       </div>
                     </div>
+                    {!isOverdue && (
+                      <button 
+                        onClick={(e) => deleteTask(task.id, task.isUserTask, e)}
+                        className="opacity-0 group-hover:opacity-100 p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all"
+                        title="Hapus Tugas"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    )}
                   </div>
                 );
               })

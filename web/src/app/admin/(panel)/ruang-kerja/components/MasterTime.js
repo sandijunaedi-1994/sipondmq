@@ -273,45 +273,60 @@ export default function MasterTime() {
     });
 
     return (
-      <div className="space-y-4">
-        <div className="border border-slate-200 dark:border-slate-800 rounded-xl overflow-x-auto custom-scrollbar">
-          <div className="min-w-[800px]">
-            <div className="grid grid-cols-7 bg-slate-50 dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800">
-              {['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'].map(d => (
-                <div key={d} className="p-3 text-center text-xs font-bold text-slate-500 uppercase border-r border-slate-200 dark:border-slate-800 last:border-0">{d}</div>
-              ))}
-            </div>
-            {rows.map((row, i) => i > 0 && (
-              <div key={`row-${i}`} className="grid grid-cols-7">
-                {row}
+      <div className="flex flex-col lg:flex-row gap-6">
+        {/* Kalender 2/3 */}
+        <div className="lg:w-2/3">
+          <div className="border border-slate-200 dark:border-slate-800 rounded-xl overflow-x-auto custom-scrollbar bg-white dark:bg-slate-900 shadow-sm">
+            <div className="min-w-[800px]">
+              <div className="grid grid-cols-7 bg-slate-50 dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800">
+                {['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'].map(d => (
+                  <div key={d} className="p-3 text-center text-xs font-bold text-slate-500 uppercase border-r border-slate-200 dark:border-slate-800 last:border-0">{d}</div>
+                ))}
               </div>
-            ))}
-          </div>
-        </div>
-        
-        {groupedMonthlyEvents.length > 0 && (
-          <div className="bg-blue-50/50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/30 rounded-xl p-4">
-            <h4 className="text-sm font-bold text-blue-800 dark:text-blue-300 mb-3 flex items-center gap-2">
-              <CalendarDays size={16} />
-              Ringkasan Agenda Global Bulan Ini
-            </h4>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {groupedMonthlyEvents.map((ev, idx) => (
-                <div key={idx} className="flex items-start gap-3 bg-white dark:bg-slate-900 p-3 rounded-lg border border-slate-100 dark:border-slate-800 shadow-sm">
-                  <div className="w-2 h-2 rounded-full bg-blue-500 mt-1.5 shrink-0"></div>
-                  <div>
-                    <p className="text-sm font-bold text-slate-800 dark:text-slate-100">{ev.judul}</p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                      {new Date(ev.tanggal).toLocaleDateString('id-ID', { day: 'numeric', month: 'long' })}
-                      {ev.tanggalSelesai && ` - ${new Date(ev.tanggalSelesai).toLocaleDateString('id-ID', { day: 'numeric', month: 'long' })}`}
-                    </p>
-                    {ev.markaz && <p className="text-[10px] font-semibold text-blue-600 mt-1 bg-blue-50 inline-block px-1.5 py-0.5 rounded">{ev.markaz.kode || ev.markaz.nama}</p>}
-                  </div>
+              {rows.map((row, i) => i > 0 && (
+                <div key={`row-${i}`} className="grid grid-cols-7">
+                  {row}
                 </div>
               ))}
             </div>
           </div>
-        )}
+        </div>
+        
+        {/* Agenda Global 1/3 */}
+        <div className="lg:w-1/3 flex flex-col">
+          {groupedMonthlyEvents.length > 0 ? (
+            <div className="bg-gradient-to-br from-blue-50/80 to-indigo-50/80 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-100 dark:border-blue-900/30 rounded-2xl p-5 shadow-sm flex-1">
+              <h4 className="text-sm font-extrabold text-blue-800 dark:text-blue-300 mb-4 flex items-center gap-2">
+                <CalendarDays size={18} className="text-blue-500" />
+                Ringkasan Agenda Global
+              </h4>
+              <div className="flex flex-col gap-3">
+                {groupedMonthlyEvents.map((ev, idx) => (
+                  <div key={idx} className="flex items-start gap-3 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm p-4 rounded-xl border border-white dark:border-slate-800 shadow-sm transition-transform hover:-translate-y-0.5">
+                    <div className="w-2.5 h-2.5 rounded-full bg-blue-500 mt-1 shrink-0 shadow-sm shadow-blue-500/50"></div>
+                    <div>
+                      <p className="text-sm font-bold text-slate-800 dark:text-slate-100 leading-snug">{ev.judul}</p>
+                      <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mt-1">
+                        {new Date(ev.tanggal).toLocaleDateString('id-ID', { day: 'numeric', month: 'long' })}
+                        {ev.tanggalSelesai && ` - ${new Date(ev.tanggalSelesai).toLocaleDateString('id-ID', { day: 'numeric', month: 'long' })}`}
+                      </p>
+                      {ev.markaz && (
+                        <span className="text-[10px] font-bold text-blue-700 dark:text-blue-300 mt-2 bg-blue-100 dark:bg-blue-900/50 inline-block px-2 py-0.5 rounded-full border border-blue-200 dark:border-blue-800">
+                          {ev.markaz.kode || ev.markaz.nama}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div className="bg-slate-50 dark:bg-slate-800/30 border border-dashed border-slate-200 dark:border-slate-700 rounded-2xl p-6 flex flex-col items-center justify-center flex-1 text-center">
+              <CalendarDays size={32} className="text-slate-300 dark:text-slate-600 mb-3" />
+              <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Tidak ada agenda global di bulan ini.</p>
+            </div>
+          )}
+        </div>
       </div>
     );
   };

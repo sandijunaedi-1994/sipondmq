@@ -54,8 +54,8 @@ const {
 
 const {
   getRoutineTasks, createRoutineTask, updateRoutineTask, deleteRoutineTask,
-  getRoutineSchedules, updateRoutineScheduleStatus, generateSchedules,
-  addAdhocRoutine, addInitiativeTask, getDashboardTasks, updateUserTaskStatus
+  getRoutineSchedules, updateRoutineScheduleStatus, generateSchedules, deleteRoutineSchedule,
+  addAdhocRoutine, addInitiativeTask, getDashboardTasks, updateUserTaskStatus, deleteUserTask
 } = require('../controllers/admin.routine.controller');
 
 const { getTodayChat, sendChatMessage } = require('../controllers/admin.chat.controller');
@@ -87,6 +87,8 @@ router.post('/routines/schedules/generate', generateSchedules);
 router.post('/routines/adhoc', addAdhocRoutine);
 router.post('/routines/initiative', addInitiativeTask);
 router.put('/routines/initiative/:id/status', updateUserTaskStatus);
+router.delete('/routines/initiative/:id', deleteUserTask);
+router.delete('/routines/schedules/:id', deleteRoutineSchedule);
 
 // Dashboard Tasks
 router.get('/dashboard/tasks', getDashboardTasks);

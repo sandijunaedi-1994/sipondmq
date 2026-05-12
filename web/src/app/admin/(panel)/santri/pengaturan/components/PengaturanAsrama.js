@@ -157,9 +157,9 @@ export default function PengaturanAsrama() {
         </div>
         <button 
           onClick={() => handleOpenModal()}
-          className="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl font-medium transition-colors text-sm"
+          className="px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white rounded-xl font-bold transition-all shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/40 text-sm flex items-center gap-2"
         >
-          + Tambah Asrama
+          <span className="text-lg leading-none">+</span> Tambah Asrama
         </button>
       </div>
       
@@ -223,21 +223,30 @@ export default function PengaturanAsrama() {
       </div>
 
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
-            <div className="p-6 border-b border-slate-100 dark:border-slate-800">
-              <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">
-                {editingAsrama ? 'Edit Asrama' : 'Tambah Asrama Baru'}
-              </h3>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-slate-900 rounded-[2rem] shadow-2xl border border-white/20 dark:border-slate-700/50 w-full max-w-md overflow-hidden transform animate-in zoom-in-95 duration-200">
+            <div className="p-6 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
+              <div>
+                <h3 className="text-xl font-extrabold text-slate-800 dark:text-slate-100">
+                  {editingAsrama ? 'Edit Asrama' : 'Tambah Asrama Baru'}
+                </h3>
+                <p className="text-sm text-slate-500 mt-1 font-medium">Lengkapi detail informasi asrama di bawah ini.</p>
+              </div>
+              <button 
+                onClick={() => setIsModalOpen(false)} 
+                className="w-8 h-8 flex items-center justify-center rounded-full bg-white dark:bg-slate-800 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 shadow-sm border border-slate-200 dark:border-slate-700 transition-colors"
+              >
+                ✕
+              </button>
             </div>
             <form onSubmit={handleSave} className="p-6 space-y-4">
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Markaz <span className="text-red-500">*</span></label>
+                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Markaz <span className="text-red-500">*</span></label>
                 <select 
                   required
                   value={formData.markazId}
                   onChange={(e) => setFormData({...formData, markazId: parseInt(e.target.value)})}
-                  className="w-full px-4 py-2 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 outline-none"
+                  className="w-full px-4 py-3 border border-slate-200 dark:border-slate-700 bg-slate-50 hover:bg-white dark:bg-slate-800/50 dark:hover:bg-slate-800 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 outline-none transition-all appearance-none"
                 >
                   <option value="">Pilih Markaz...</option>
                   {markazList.map(m => (
@@ -254,16 +263,16 @@ export default function PengaturanAsrama() {
                   placeholder="Misal: Asrama Abu Bakar"
                   value={formData.nama}
                   onChange={(e) => setFormData({...formData, nama: e.target.value})}
-                  className="w-full px-4 py-2 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 outline-none"
+                  className="w-full px-4 py-3 border border-slate-200 dark:border-slate-700 bg-slate-50 hover:bg-white dark:bg-slate-800/50 dark:hover:bg-slate-800 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 outline-none transition-all"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Musyrif / Pembina</label>
+                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Musyrif / Pembina</label>
                 <select 
                   value={formData.musyrifId}
                   onChange={(e) => setFormData({...formData, musyrifId: e.target.value})}
-                  className="w-full px-4 py-2 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 outline-none"
+                  className="w-full px-4 py-3 border border-slate-200 dark:border-slate-700 bg-slate-50 hover:bg-white dark:bg-slate-800/50 dark:hover:bg-slate-800 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 outline-none transition-all appearance-none"
                 >
                   <option value="">Pilih Musyrif (Opsional)...</option>
                   {pegawaiList.map(p => (
@@ -274,18 +283,18 @@ export default function PengaturanAsrama() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Kapasitas</label>
+                  <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Kapasitas</label>
                   <input 
                     type="number" 
-                    placeholder="Kosongkan jika tak terbatas"
+                    placeholder="Tak terbatas jika kosong"
                     value={formData.kapasitas}
                     onChange={(e) => setFormData({...formData, kapasitas: e.target.value})}
-                    className="w-full px-4 py-2 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 outline-none"
+                    className="w-full px-4 py-3 border border-slate-200 dark:border-slate-700 bg-slate-50 hover:bg-white dark:bg-slate-800/50 dark:hover:bg-slate-800 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 outline-none transition-all"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Status Aktif</label>
-                  <div className="flex items-center h-10">
+                  <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Status Aktif</label>
+                  <div className="flex items-center h-12">
                     <label className="relative inline-flex items-center cursor-pointer">
                       <input 
                         type="checkbox" 
@@ -299,20 +308,20 @@ export default function PengaturanAsrama() {
                 </div>
               </div>
 
-              <div className="pt-4 flex justify-end gap-2">
+              <div className="pt-6 pb-2 flex justify-end gap-3">
                 <button 
                   type="button" 
                   onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors font-medium text-sm"
+                  className="px-5 py-2.5 text-slate-600 dark:text-slate-400 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-xl transition-colors font-bold text-sm"
                 >
                   Batal
                 </button>
                 <button 
                   type="submit" 
                   disabled={saving}
-                  className="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl transition-colors font-medium text-sm disabled:opacity-50"
+                  className="px-6 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white rounded-xl transition-all font-bold text-sm shadow-lg shadow-emerald-500/30 disabled:opacity-50 disabled:shadow-none"
                 >
-                  {saving ? 'Menyimpan...' : 'Simpan'}
+                  {saving ? 'Menyimpan...' : 'Simpan Asrama'}
                 </button>
               </div>
             </form>

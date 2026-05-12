@@ -301,46 +301,61 @@ export default function PengaturanKartu() {
 
       {/* MODAL INPUT KARTU BARU */}
       {activeModal === 'INPUT' && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
-            <div className="p-6 border-b border-slate-100 dark:border-slate-800">
-              <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">
-                Daftarkan Kartu Santri
-              </h3>
-              <p className="text-sm text-slate-500 mt-1">Santri: {selectedSantri?.registration?.studentName}</p>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-slate-900 rounded-[2rem] shadow-2xl border border-white/20 dark:border-slate-700/50 w-full max-w-md overflow-hidden transform animate-in zoom-in-95 duration-200">
+            <div className="p-6 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
+              <div>
+                <h3 className="text-xl font-extrabold text-slate-800 dark:text-slate-100">
+                  Daftarkan Kartu Santri
+                </h3>
+                <p className="text-sm text-slate-500 mt-1 font-medium">Santri: <span className="text-emerald-600 dark:text-emerald-400 font-bold">{selectedSantri?.registration?.studentName}</span></p>
+              </div>
+              <button 
+                onClick={() => setActiveModal(null)} 
+                className="w-8 h-8 flex items-center justify-center rounded-full bg-white dark:bg-slate-800 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 shadow-sm border border-slate-200 dark:border-slate-700 transition-colors"
+              >
+                ✕
+              </button>
             </div>
             <form onSubmit={handleInputSubmit} className="p-6 space-y-4">
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                  Scan Kartu Menggunakan Mesin <span className="text-red-500">*</span>
+                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3 text-center">
+                  Tunggu Kursor & Scan Kartu Menggunakan Mesin
                 </label>
-                <input 
-                  type="password" 
-                  required
-                  ref={inputRef}
-                  placeholder="Scan kartu disini..."
-                  value={formData.nomorKartu}
-                  onChange={(e) => setFormData({...formData, nomorKartu: e.target.value})}
-                  className="w-full px-4 py-3 border-2 border-emerald-500/50 bg-white dark:bg-slate-800 rounded-xl text-center tracking-[1em] text-lg focus:ring-4 focus:ring-emerald-500/20 outline-none transition-all"
-                  autoComplete="off"
-                />
-                <p className="text-xs text-slate-500 text-center mt-2">Pastikan kursor berada di kolom teks, lalu tap kartu ke mesin pemindai.</p>
+                <div className="relative">
+                  <input 
+                    type="password" 
+                    required
+                    ref={inputRef}
+                    placeholder="Scan kartu disini..."
+                    value={formData.nomorKartu}
+                    onChange={(e) => setFormData({...formData, nomorKartu: e.target.value})}
+                    className="w-full px-4 py-4 border-2 border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 rounded-2xl text-center tracking-[1em] text-lg focus:border-emerald-500 focus:bg-white dark:focus:bg-slate-900 focus:ring-4 focus:ring-emerald-500/20 outline-none transition-all"
+                    autoComplete="off"
+                  />
+                  <div className="absolute top-1/2 -translate-y-1/2 right-4 text-emerald-500 animate-pulse">
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm14 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path></svg>
+                  </div>
+                </div>
+                <p className="text-xs text-slate-500 text-center mt-3 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 p-2 rounded-lg">
+                  Pastikan kursor berada di kolom teks, lalu tap kartu ke mesin pemindai.
+                </p>
               </div>
 
-              <div className="pt-4 flex justify-end gap-2">
+              <div className="pt-6 pb-2 flex justify-end gap-3">
                 <button 
                   type="button" 
                   onClick={() => setActiveModal(null)}
-                  className="px-4 py-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors font-medium text-sm"
+                  className="px-5 py-2.5 text-slate-600 dark:text-slate-400 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-xl transition-colors font-bold text-sm"
                 >
                   Batal
                 </button>
                 <button 
                   type="submit" 
                   disabled={saving || !formData.nomorKartu}
-                  className="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl transition-colors font-medium text-sm disabled:opacity-50"
+                  className="px-6 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white rounded-xl transition-all font-bold text-sm shadow-lg shadow-emerald-500/30 disabled:opacity-50 disabled:shadow-none"
                 >
-                  {saving ? 'Menyimpan...' : 'Simpan'}
+                  {saving ? 'Menyimpan...' : 'Simpan Kartu'}
                 </button>
               </div>
             </form>
@@ -350,25 +365,33 @@ export default function PengaturanKartu() {
 
       {/* MODAL GANTI KARTU */}
       {activeModal === 'REPLACE' && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
-            <div className="p-6 border-b border-slate-100 dark:border-slate-800">
-              <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">
-                Penggantian Kartu Hilang / Rusak
-              </h3>
-              <p className="text-sm text-slate-500 mt-1">Santri: {selectedSantri?.registration?.studentName}</p>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-slate-900 rounded-[2rem] shadow-2xl border border-white/20 dark:border-slate-700/50 w-full max-w-md overflow-hidden transform animate-in zoom-in-95 duration-200">
+            <div className="p-6 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
+              <div>
+                <h3 className="text-xl font-extrabold text-slate-800 dark:text-slate-100">
+                  Penggantian Kartu
+                </h3>
+                <p className="text-sm text-slate-500 mt-1 font-medium">Santri: <span className="text-blue-600 dark:text-blue-400 font-bold">{selectedSantri?.registration?.studentName}</span></p>
+              </div>
+              <button 
+                onClick={() => setActiveModal(null)} 
+                className="w-8 h-8 flex items-center justify-center rounded-full bg-white dark:bg-slate-800 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 shadow-sm border border-slate-200 dark:border-slate-700 transition-colors"
+              >
+                ✕
+              </button>
             </div>
             <form onSubmit={handleReplaceSubmit} className="p-6 space-y-4">
               
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">
                   Alasan Penggantian <span className="text-red-500">*</span>
                 </label>
                 <select 
                   required
                   value={formData.alasan}
                   onChange={(e) => setFormData({...formData, alasan: e.target.value})}
-                  className="w-full px-4 py-2 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 outline-none"
+                  className="w-full px-4 py-3 border border-slate-200 dark:border-slate-700 bg-slate-50 hover:bg-white dark:bg-slate-800/50 dark:hover:bg-slate-800 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 outline-none transition-all appearance-none"
                 >
                   <option value="">Pilih alasan...</option>
                   <option value="Hilang">Hilang</option>
@@ -379,35 +402,40 @@ export default function PengaturanKartu() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2 mt-4">
+                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2 mt-4 text-center">
                   Scan Kartu BARU <span className="text-red-500">*</span>
                 </label>
-                <input 
-                  type="password" 
-                  required
-                  ref={inputRef}
-                  placeholder="Scan kartu pengganti..."
-                  value={formData.nomorKartuBaru}
-                  onChange={(e) => setFormData({...formData, nomorKartuBaru: e.target.value})}
-                  className="w-full px-4 py-3 border-2 border-emerald-500/50 bg-white dark:bg-slate-800 rounded-xl text-center tracking-[1em] text-lg focus:ring-4 focus:ring-emerald-500/20 outline-none transition-all"
-                  autoComplete="off"
-                />
+                <div className="relative">
+                  <input 
+                    type="password" 
+                    required
+                    ref={inputRef}
+                    placeholder="Scan kartu pengganti..."
+                    value={formData.nomorKartuBaru}
+                    onChange={(e) => setFormData({...formData, nomorKartuBaru: e.target.value})}
+                    className="w-full px-4 py-4 border-2 border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 rounded-2xl text-center tracking-[1em] text-lg focus:border-blue-500 focus:bg-white dark:focus:bg-slate-900 focus:ring-4 focus:ring-blue-500/20 outline-none transition-all"
+                    autoComplete="off"
+                  />
+                  <div className="absolute top-1/2 -translate-y-1/2 right-4 text-blue-500 animate-pulse">
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm14 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path></svg>
+                  </div>
+                </div>
               </div>
 
-              <div className="pt-4 flex justify-end gap-2">
+              <div className="pt-6 pb-2 flex justify-end gap-3">
                 <button 
                   type="button" 
                   onClick={() => setActiveModal(null)}
-                  className="px-4 py-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors font-medium text-sm"
+                  className="px-5 py-2.5 text-slate-600 dark:text-slate-400 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-xl transition-colors font-bold text-sm"
                 >
                   Batal
                 </button>
                 <button 
                   type="submit" 
                   disabled={saving || !formData.nomorKartuBaru || !formData.alasan}
-                  className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-xl transition-colors font-medium text-sm disabled:opacity-50"
+                  className="px-6 py-2.5 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white rounded-xl transition-all font-bold text-sm shadow-lg shadow-blue-500/30 disabled:opacity-50 disabled:shadow-none"
                 >
-                  {saving ? 'Memproses...' : 'Proses Ganti Kartu'}
+                  {saving ? 'Memproses...' : 'Ganti Kartu Sekarang'}
                 </button>
               </div>
             </form>
@@ -417,16 +445,21 @@ export default function PengaturanKartu() {
 
       {/* MODAL RIWAYAT */}
       {activeModal === 'HISTORY' && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl w-full max-w-lg overflow-hidden">
-            <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-slate-900 rounded-[2rem] shadow-2xl border border-white/20 dark:border-slate-700/50 w-full max-w-lg overflow-hidden transform animate-in zoom-in-95 duration-200">
+            <div className="p-6 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
               <div>
-                <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">
+                <h3 className="text-xl font-extrabold text-slate-800 dark:text-slate-100">
                   Riwayat Penggantian Kartu
                 </h3>
-                <p className="text-sm text-slate-500 mt-1">{selectedSantri?.registration?.studentName}</p>
+                <p className="text-sm text-slate-500 mt-1 font-medium">Santri: <span className="font-bold">{selectedSantri?.registration?.studentName}</span></p>
               </div>
-              <button onClick={() => setActiveModal(null)} className="text-slate-400 hover:text-slate-600 text-2xl">&times;</button>
+              <button 
+                onClick={() => setActiveModal(null)} 
+                className="w-8 h-8 flex items-center justify-center rounded-full bg-white dark:bg-slate-800 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 shadow-sm border border-slate-200 dark:border-slate-700 transition-colors"
+              >
+                ✕
+              </button>
             </div>
             <div className="p-6 max-h-96 overflow-y-auto custom-scrollbar">
               {riwayat.length === 0 ? (
@@ -459,10 +492,10 @@ export default function PengaturanKartu() {
                 </div>
               )}
             </div>
-            <div className="p-4 border-t border-slate-100 dark:border-slate-800 flex justify-end">
+            <div className="p-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 flex justify-end">
               <button 
                 onClick={() => setActiveModal(null)}
-                className="px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl transition-colors font-medium text-sm"
+                className="px-5 py-2.5 bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 rounded-xl transition-colors font-bold text-sm"
               >
                 Tutup
               </button>
