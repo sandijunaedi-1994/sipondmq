@@ -1,5 +1,6 @@
 const express = require('express');
 const http = require('http');
+const path = require('path');
 const { Server } = require('socket.io');
 const cors = require('cors');
 const dotenv = require('dotenv');
@@ -27,6 +28,9 @@ const io = new Server(server, {
 app.use(cors());
 app.use(express.json());
 app.set('trust proxy', 1);
+
+// Serve static files from public directory
+app.use('/uploads', express.static(path.join(__dirname, '../public/uploads')));
 
 // Attach io to req for use in controllers
 app.use((req, res, next) => {

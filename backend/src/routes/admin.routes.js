@@ -2,6 +2,19 @@ const express = require('express');
 const router = express.Router();
 const multer = require('multer');
 const upload = multer({ storage: multer.memoryStorage() });
+
+const path = require('path');
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, path.join(__dirname, '../../public/uploads/avatars/'));
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, 'avatar-' + uniqueSuffix + path.extname(file.originalname));
+  }
+});
+const uploadDisk = multer({ storage: storage });
+
 const { requireAdmin } = require('../middleware/auth.middleware');
 
 const dokumenController = require('../controllers/admin.dokumen.controller');
@@ -260,13 +273,15 @@ const {
   updatePegawai,
   deletePegawai,
   linkAccount,
-  getMyProfile
+  getMyProfile,
+  uploadFotoProfil
 } = require('../controllers/admin.sdm.controller');
 
 // ==========================================
 // 14. MANAJEMEN SDM (PEGAWAI)
 // ==========================================
 router.get('/sdm/pegawai/me', requireAdmin, getMyProfile);
+router.post('/sdm/pegawai/me/foto', requireAdmin, uploadDisk.single('file'), uploadFotoProfil);
 router.get('/sdm/pegawai', requireAdmin, getPegawaiList);
 router.get('/sdm/pegawai/:id', requireAdmin, getPegawaiById);
 router.post('/sdm/pegawai', requireAdmin, createPegawai);

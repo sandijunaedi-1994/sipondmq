@@ -291,6 +291,31 @@ const getMyProfile = async (req, res) => {
   }
 };
 
+const uploadFotoProfil = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: 'Tidak ada file yang diunggah' });
+    }
+
+    const userId = req.user.id;
+    const fileUrl = `/uploads/avatars/${req.file.filename}`;
+
+    // Update Pegawai
+    const pegawai = await prisma.pegawai.update({
+      where: { userId },
+      data: { fotoUrl: fileUrl }
+    });
+
+    res.status(200).json({ 
+      message: 'Foto profil berhasil diunggah',
+      fotoUrl: fileUrl
+    });
+  } catch (error) {
+    console.error("Error uploadFotoProfil:", error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
 module.exports = {
   getPegawaiList,
   getPegawaiById,
@@ -298,5 +323,6 @@ module.exports = {
   updatePegawai,
   deletePegawai,
   linkAccount,
-  getMyProfile
+  getMyProfile,
+  uploadFotoProfil
 };

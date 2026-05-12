@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { User, Briefcase, MapPin, Phone, Mail, Award, Users, BookOpen, Clock, Building, Wallet, Receipt, Landmark, X, FileText, CheckCircle2, ChevronRight, Eye, EyeOff } from "lucide-react";
 
 export default function ProfilPribadi() {
@@ -9,6 +9,54 @@ export default function ProfilPribadi() {
   const [error, setError] = useState("");
   const [showSalaryModal, setShowSalaryModal] = useState(false);
   const [showMoney, setShowMoney] = useState(false);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+  const fileInputRef = useRef(null);
+
+  const handleAvatarClick = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
+
+  const handleFileChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setIsUploadingAvatar(true);
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const token = localStorage.getItem("admin_token");
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"}/api/admin/sdm/pegawai/me/foto`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData
+      });
+
+      if (!res.ok) {
+        throw new Error("Gagal mengunggah foto profil");
+      }
+
+      const result = await res.json();
+      // Update local state directly so image shows without full refresh
+      setData(prev => {
+        if (!prev || !prev.pegawai) return prev;
+        return {
+          ...prev,
+          pegawai: {
+            ...prev.pegawai,
+            fotoUrl: result.fotoUrl
+          }
+        };
+      });
+      alert("Foto profil berhasil diunggah!");
+    } catch (err) {
+      alert(err.message);
+    } finally {
+      setIsUploadingAvatar(false);
+    }
+  };
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -84,14 +132,36 @@ export default function ProfilPribadi() {
         <div className="px-6 pb-6 relative">
           {/* Avatar Area */}
           <div className="flex flex-col sm:flex-row gap-5 items-center sm:items-end -mt-12 sm:-mt-16 mb-4">
-            <div className="w-24 h-24 sm:w-32 sm:h-32 bg-slate-100 dark:bg-slate-800 rounded-full border-4 border-white dark:border-slate-900 shadow-md flex items-center justify-center text-emerald-600 dark:text-emerald-400 flex-shrink-0 z-10 overflow-hidden relative">
-              {/* Initials or Icon */}
-              {pegawai ? (
+            <div 
+              onClick={handleAvatarClick}
+              className="w-24 h-24 sm:w-32 sm:h-32 bg-slate-100 dark:bg-slate-800 rounded-full border-4 border-white dark:border-slate-900 shadow-md flex items-center justify-center text-emerald-600 dark:text-emerald-400 flex-shrink-0 z-10 overflow-hidden relative cursor-pointer hover:opacity-90 transition-opacity group"
+            >
+              {/* Overlay on hover */}
+              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center z-20">
+                <span className="text-white text-xs font-bold">Ubah Foto</span>
+              </div>
+              
+              {isUploadingAvatar ? (
+                <div className="w-8 h-8 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin z-10"></div>
+              ) : pegawai?.fotoUrl ? (
+                <img 
+                  src={`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"}${pegawai.fotoUrl}`} 
+                  alt={pegawai.namaLengkap} 
+                  className="w-full h-full object-cover"
+                />
+              ) : pegawai ? (
                 <span className="text-3xl sm:text-4xl font-black">{pegawai.namaLengkap.charAt(0).toUpperCase()}</span>
               ) : (
                 <User size={48} strokeWidth={1.5} />
               )}
             </div>
+            <input 
+              type="file" 
+              ref={fileInputRef} 
+              onChange={handleFileChange} 
+              accept="image/jpeg, image/png, image/jpg" 
+              className="hidden" 
+            />
             
             <div className="flex-1 text-center sm:text-left pt-2 sm:pt-0">
               <h2 className="text-2xl font-black text-slate-800 dark:text-slate-100 leading-tight">
