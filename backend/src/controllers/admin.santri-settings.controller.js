@@ -39,7 +39,7 @@ exports.createKelas = async (req, res) => {
       data: {
         markazId: parseInt(markazId),
         nama,
-        waliKelasId: waliKelasId ? parseInt(waliKelasId) : null,
+        waliKelasId: waliKelasId || null,
         tahunAjaran,
         aktif: aktif !== undefined ? aktif : true
       }
@@ -62,7 +62,7 @@ exports.updateKelas = async (req, res) => {
       data: {
         markazId: markazId ? parseInt(markazId) : undefined,
         nama,
-        waliKelasId: waliKelasId === "" ? null : (waliKelasId ? parseInt(waliKelasId) : undefined),
+        waliKelasId: waliKelasId === "" ? null : (waliKelasId || undefined),
         tahunAjaran,
         aktif
       }
@@ -138,7 +138,7 @@ exports.createAsrama = async (req, res) => {
       data: {
         markazId: parseInt(markazId),
         nama,
-        musyrifId: musyrifId ? parseInt(musyrifId) : null,
+        musyrifId: musyrifId || null,
         kapasitas: kapasitas ? parseInt(kapasitas) : null,
         aktif: aktif !== undefined ? aktif : true
       }
@@ -161,7 +161,7 @@ exports.updateAsrama = async (req, res) => {
       data: {
         markazId: markazId ? parseInt(markazId) : undefined,
         nama,
-        musyrifId: musyrifId === "" ? null : (musyrifId ? parseInt(musyrifId) : undefined),
+        musyrifId: musyrifId === "" ? null : (musyrifId || undefined),
         kapasitas: kapasitas === "" ? null : (kapasitas ? parseInt(kapasitas) : undefined),
         aktif
       }
