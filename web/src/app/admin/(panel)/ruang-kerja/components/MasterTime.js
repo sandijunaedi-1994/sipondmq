@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ChevronLeft, ChevronRight, CheckCircle2, Circle, CalendarDays, X, Trash2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, CheckCircle2, Circle, CalendarDays, X, Trash2, AlertTriangle, Loader2 } from "lucide-react";
 import AddActivityModal from "./AddActivityModal";
 
 export default function MasterTime() {
@@ -15,6 +15,7 @@ export default function MasterTime() {
   const [selectedDate, setSelectedDate] = useState(null); // For Detail Modal
   const [showAddModal, setShowAddModal] = useState(false);
   const [addModalDate, setAddModalDate] = useState(new Date());
+  const [deleteConfirm, setDeleteConfirm] = useState({ show: false, taskId: null, isUserTask: false, isDeleting: false });
 
   useEffect(() => {
     fetchData();
@@ -87,11 +88,15 @@ export default function MasterTime() {
     }
   };
 
-  const deleteTask = async (taskId, isUserTask, e) => {
+  const confirmDelete = (taskId, isUserTask, e) => {
     e.stopPropagation();
-    
-    if (!confirm("Apakah Anda yakin ingin menghapus aktivitas ini?")) return;
+    setDeleteConfirm({ show: true, taskId, isUserTask, isDeleting: false });
+  };
 
+  const executeDelete = async () => {
+    const { taskId, isUserTask } = deleteConfirm;
+    setDeleteConfirm(prev => ({ ...prev, isDeleting: true }));
+    
     try {
       const token = localStorage.getItem("admin_token");
       let url = `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"}/api/admin/routines/schedules/${taskId}`;
@@ -111,9 +116,11 @@ export default function MasterTime() {
       }
 
       setSchedules(schedules.filter(s => s.id !== taskId));
+      setDeleteConfirm({ show: false, taskId: null, isUserTask: false, isDeleting: false });
     } catch (error) {
       console.error(error);
       alert("Gagal menghapus tugas: " + error.message);
+      setDeleteConfirm(prev => ({ ...prev, isDeleting: false }));
     }
   };
 
@@ -406,7 +413,7 @@ export default function MasterTime() {
                 </h3>
                 <div className="space-y-3">
                   {daySchedules.map(sch => (
-                    <ScheduleCard key={sch.id} schedule={sch} onToggle={toggleStatus} onDelete={deleteTask} size="lg" />
+                    <ScheduleCard key={sch.id} schedule={sch} onToggle={toggleStatus} onDelete={confirmDelete} size="lg" />
                   ))}
                 </div>
               </div>
@@ -497,7 +504,7 @@ export default function MasterTime() {
           schedules={schedules.filter(s => new Date(s.taskDate).toDateString() === selectedDate.toDateString())}
           events={events.filter(e => new Date(e.tanggal).toDateString() === selectedDate.toDateString())}
           onToggle={toggleStatus}
-          onDelete={deleteTask}
+          onDelete={confirmDelete}
           onAddActivity={() => { setAddModalDate(selectedDate); setShowAddModal(true); }}
         />
       )}
@@ -509,6 +516,41 @@ export default function MasterTime() {
           onClose={() => setShowAddModal(false)} 
           onSuccess={() => { setShowAddModal(false); fetchData(); }} 
         />
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {deleteConfirm.show && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-slate-900 w-full max-w-sm rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col p-6 text-center animate-in zoom-in-95 duration-200">
+            <div className="mx-auto w-16 h-16 bg-red-100 dark:bg-red-500/20 text-red-600 dark:text-red-400 rounded-full flex items-center justify-center mb-4">
+              <AlertTriangle size={32} />
+            </div>
+            <h3 className="font-bold text-lg text-slate-800 dark:text-white mb-2">Hapus Aktivitas?</h3>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">
+              Apakah Anda yakin ingin menghapus aktivitas ini? Tindakan ini tidak dapat dibatalkan.
+            </p>
+            <div className="flex gap-3 w-full">
+              <button 
+                onClick={() => setDeleteConfirm({ show: false, taskId: null, isUserTask: false, isDeleting: false })}
+                disabled={deleteConfirm.isDeleting}
+                className="flex-1 py-2.5 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-300 rounded-xl font-bold transition-colors disabled:opacity-50"
+              >
+                Batal
+              </button>
+              <button 
+                onClick={executeDelete}
+                disabled={deleteConfirm.isDeleting}
+                className="flex-1 py-2.5 px-4 bg-red-500 hover:bg-red-600 text-white rounded-xl font-bold transition-colors shadow-lg shadow-red-500/20 flex items-center justify-center gap-2 disabled:opacity-70"
+              >
+                {deleteConfirm.isDeleting ? (
+                  <><Loader2 size={16} className="animate-spin" /> Menghapus</>
+                ) : (
+                  <><Trash2 size={16} /> Hapus</>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
