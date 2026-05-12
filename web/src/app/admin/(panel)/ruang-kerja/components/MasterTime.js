@@ -166,6 +166,14 @@ export default function MasterTime() {
             </div>
           </div>
           <div className="p-2 flex-1 space-y-1">
+            {/* Render Holidays */}
+            {dayEvents.filter(ev => ev.isLibur).length > 0 && (
+              <div className="flex gap-1 flex-wrap mb-2 px-1">
+                {dayEvents.filter(ev => ev.isLibur).map(ev => (
+                  <div key={`ev-${ev.id}`} className="w-2 h-2 rounded-full bg-red-500 shadow-sm shadow-red-500/50" title={`${ev.judul} (Libur)`}></div>
+                ))}
+              </div>
+            )}
             {/* Render Schedules */}
             {daySchedules.map(sch => (
               <div 
@@ -230,6 +238,13 @@ export default function MasterTime() {
             )}
           </div>
           <div className="flex-1 space-y-1 overflow-hidden">
+            {dayEvents.filter(ev => ev.isLibur).length > 0 && (
+              <div className="flex gap-1 flex-wrap mb-1 px-1">
+                {dayEvents.filter(ev => ev.isLibur).map(ev => (
+                  <div key={`ev-${ev.id}`} className="w-1.5 h-1.5 rounded-full bg-red-500 shadow-sm shadow-red-500/50" title={`${ev.judul} (Libur)`}></div>
+                ))}
+              </div>
+            )}
             {daySchedules.slice(0, 3).map(sch => (
               <div key={sch.id} className={`text-[10px] px-1.5 py-1 rounded border truncate flex items-center gap-1 ${
                   sch.status === 'SELESAI' 
@@ -275,17 +290,21 @@ export default function MasterTime() {
 
     const groupedMonthlyEvents = [];
     monthlyEvents.sort((a,b) => new Date(a.tanggal) - new Date(b.tanggal)).forEach(e => {
-      const last = groupedMonthlyEvents[groupedMonthlyEvents.length - 1];
-      if (last && last.judul === e.judul && last.tipe === e.tipe && last.markazId === e.markazId) {
-        const lastDate = new Date(last.tanggalSelesai || last.tanggal);
+      const matchingGroupIndex = groupedMonthlyEvents.findIndex(g => {
+        if (g.judul !== e.judul || g.tipe !== e.tipe || g.markazId !== e.markazId) return false;
+        const lastDate = new Date(g.tanggalSelesai || g.tanggal);
         const currDate = new Date(e.tanggal);
+        lastDate.setHours(0,0,0,0);
+        currDate.setHours(0,0,0,0);
         const diffDays = Math.round((currDate - lastDate) / (1000 * 60 * 60 * 24));
-        if (diffDays === 1) {
-          last.tanggalSelesai = e.tanggal;
-          return;
-        }
+        return diffDays === 1;
+      });
+
+      if (matchingGroupIndex >= 0) {
+        groupedMonthlyEvents[matchingGroupIndex].tanggalSelesai = e.tanggal;
+      } else {
+        groupedMonthlyEvents.push({ ...e, tanggalSelesai: null });
       }
-      groupedMonthlyEvents.push({ ...e, tanggalSelesai: null });
     });
 
     return (
