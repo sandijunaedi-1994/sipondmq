@@ -605,10 +605,10 @@ exports.updateSantriDetail = async (req, res) => {
       await tx.santri.update({
         where: { id: parseInt(id) },
         data: {
-          nis: nis || santri.nis,
-          kelas: kelas || santri.kelas,
-          asrama: asrama || santri.asrama,
-          status: status || santri.status
+          nis: nis !== undefined ? nis : santri.nis,
+          kelas: kelas !== undefined ? kelas : santri.kelas,
+          asrama: asrama !== undefined ? asrama : santri.asrama,
+          status: status !== undefined ? status : santri.status
         }
       });
 
@@ -617,9 +617,9 @@ exports.updateSantriDetail = async (req, res) => {
         await tx.registration.update({
           where: { id: regId },
           data: {
-            studentName: studentName || santri.registration.studentName,
-            program: program || santri.registration.program,
-            gender: gender || santri.registration.gender
+            studentName: studentName !== undefined ? studentName : santri.registration?.studentName,
+            program: program !== undefined ? program : santri.registration?.program,
+            gender: gender !== undefined ? gender : santri.registration?.gender
           }
         });
       }
@@ -629,10 +629,10 @@ exports.updateSantriDetail = async (req, res) => {
         await tx.registrationData.update({
           where: { id: regDataId },
           data: {
-            nik: nik || santri.registration.registrationData.nik,
-            nisn: nisn || santri.registration.registrationData.nisn,
-            birthPlace: birthPlace || santri.registration.registrationData.birthPlace,
-            birthDate: birthDate ? new Date(birthDate) : santri.registration.registrationData.birthDate
+            nik: nik !== undefined ? nik : santri.registration?.registrationData?.nik,
+            nisn: nisn !== undefined ? nisn : santri.registration?.registrationData?.nisn,
+            birthPlace: birthPlace !== undefined ? birthPlace : santri.registration?.registrationData?.birthPlace,
+            birthDate: birthDate ? new Date(birthDate) : santri.registration?.registrationData?.birthDate
           }
         });
       }
