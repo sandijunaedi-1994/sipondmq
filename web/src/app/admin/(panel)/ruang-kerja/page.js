@@ -149,7 +149,7 @@ export default function DashboardPribadiPage() {
       
       {/* ── Header Information (Latar Terang) ── */}
       <div className="flex justify-between items-start pt-2 px-2 md:px-0">
-        <div className="flex flex-col gap-1.5 z-10 pr-4">
+        <div className="flex flex-col gap-1.5 pr-4">
           <h1 className="text-2xl md:text-3xl font-black text-emerald-900 dark:text-emerald-100 leading-tight">
             Assalamu'alaikum,<br />{adminName}
           </h1>
@@ -158,7 +158,7 @@ export default function DashboardPribadiPage() {
           </p>
         </div>
         
-        <div className="relative flex-shrink-0 z-10 mt-1">
+        <div className="relative flex-shrink-0 mt-1">
           <div className="absolute -inset-1 bg-gradient-to-r from-emerald-500 to-teal-400 rounded-xl blur opacity-30"></div>
           <div className="relative bg-emerald-600 shadow-lg px-3 py-1.5 md:px-4 md:py-2 rounded-xl text-xs font-bold text-white flex items-center gap-1.5 border border-emerald-500/50">
             {greeting} {greetingIcon}

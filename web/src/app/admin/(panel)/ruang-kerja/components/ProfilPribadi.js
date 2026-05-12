@@ -1,13 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { User, Briefcase, MapPin, Phone, Mail, Award, Users, BookOpen, Clock, Building, Wallet, Receipt, Landmark, X, FileText, CheckCircle2, ChevronRight } from "lucide-react";
+import { User, Briefcase, MapPin, Phone, Mail, Award, Users, BookOpen, Clock, Building, Wallet, Receipt, Landmark, X, FileText, CheckCircle2, ChevronRight, Eye, EyeOff } from "lucide-react";
 
 export default function ProfilPribadi() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [showSalaryModal, setShowSalaryModal] = useState(false);
+  const [showMoney, setShowMoney] = useState(false);
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -160,6 +161,19 @@ export default function ProfilPribadi() {
       </div>
 
       {/* Section Keuangan (Mockup) */}
+      <div className="flex justify-between items-center mt-8 mb-4">
+        <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
+          <Wallet size={20} className="text-emerald-500" /> Informasi Keuangan
+        </h3>
+        <button 
+          onClick={() => setShowMoney(!showMoney)}
+          className="flex items-center gap-2 text-xs font-bold text-slate-500 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 px-3 py-1.5 rounded-lg transition-colors"
+        >
+          {showMoney ? <EyeOff size={14} /> : <Eye size={14} />}
+          {showMoney ? "Sembunyikan" : "Tampilkan"}
+        </button>
+      </div>
+      
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-6">
         
         {/* Card Gaji */}
@@ -178,7 +192,7 @@ export default function ProfilPribadi() {
           
           <div className="mt-3">
             <p className="text-2xl lg:text-3xl font-black text-emerald-700 dark:text-emerald-400 tracking-tight">
-              <span className="text-lg opacity-70 mr-1">Rp</span>4.500.000
+              {showMoney ? <><span className="text-lg opacity-70 mr-1">Rp</span>4.500.000</> : "••••••••"}
             </p>
           </div>
           
@@ -206,13 +220,13 @@ export default function ProfilPribadi() {
           
           <div className="mt-3">
             <p className="text-2xl lg:text-3xl font-black text-rose-700 dark:text-rose-400 tracking-tight">
-              <span className="text-lg opacity-70 mr-1">Rp</span>500.000
+              {showMoney ? <><span className="text-lg opacity-70 mr-1">Rp</span>500.000</> : "••••••"}
             </p>
           </div>
           
           <div className="mt-4 pt-4 border-t border-rose-200/50 dark:border-rose-800/30 flex justify-between items-center text-xs">
             <span className="text-slate-500 dark:text-slate-400">Batas Maksimal</span>
-            <span className="font-bold text-slate-700 dark:text-slate-300">Rp 1.500.000</span>
+            <span className="font-bold text-slate-700 dark:text-slate-300">{showMoney ? "Rp 1.500.000" : "••••••"}</span>
           </div>
         </div>
 
@@ -231,13 +245,13 @@ export default function ProfilPribadi() {
           
           <div className="mt-3">
             <p className="text-2xl lg:text-3xl font-black text-indigo-700 dark:text-indigo-400 tracking-tight">
-              <span className="text-lg opacity-70 mr-1">Rp</span>2.350.000
+              {showMoney ? <><span className="text-lg opacity-70 mr-1">Rp</span>2.350.000</> : "••••••••"}
             </p>
           </div>
           
           <div className="mt-4 pt-4 border-t border-indigo-200/50 dark:border-indigo-800/30 flex justify-between items-center text-xs">
             <span className="text-slate-500 dark:text-slate-400">Bagi Hasil YTD</span>
-            <span className="font-bold text-emerald-600 dark:text-emerald-400">+Rp 120.000</span>
+            <span className="font-bold text-emerald-600 dark:text-emerald-400">{showMoney ? "+Rp 120.000" : "••••"}</span>
           </div>
         </div>
 
@@ -366,8 +380,14 @@ export default function ProfilPribadi() {
 
       {/* Modal Riwayat Gaji */}
       {showSalaryModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-300 border border-slate-200 dark:border-slate-800 flex flex-col max-h-[85vh]">
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200"
+          onClick={() => setShowSalaryModal(false)}
+        >
+          <div 
+            className="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-300 border border-slate-200 dark:border-slate-800 flex flex-col max-h-[85vh]"
+            onClick={(e) => e.stopPropagation()}
+          >
             
             <div className="p-5 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/10 dark:to-teal-900/10">
               <div className="flex items-center gap-3">
@@ -408,8 +428,14 @@ export default function ProfilPribadi() {
                     
                     <div className="flex justify-between items-end mt-4">
                       <div className="text-xl font-black text-slate-800 dark:text-slate-100 tracking-tight">
-                        <span className="text-xs text-slate-400 font-bold mr-1">Rp</span>
-                        {item.nominal}
+                        {showMoney ? (
+                          <>
+                            <span className="text-xs text-slate-400 font-bold mr-1">Rp</span>
+                            {item.nominal}
+                          </>
+                        ) : (
+                          "••••••••"
+                        )}
                       </div>
                       <button className="flex items-center gap-1 text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 transition-colors">
                         <FileText size={14} /> Slip
