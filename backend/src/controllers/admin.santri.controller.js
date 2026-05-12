@@ -513,3 +513,52 @@ exports.generateMassNis = async (req, res) => {
     res.status(500).json({ success: false, message: "Terjadi kesalahan pada server." });
   }
 };
+
+exports.getSantriWaliKelas = async (req, res) => {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: req.user.userId || req.user.id },
+      include: {
+        pegawai: {
+          include: {
+            kelasWali: true
+          }
+        }
+      }
+    });
+
+    if (!user || !user.pegawai || !user.pegawai.kelasWali || user.pegawai.kelasWali.length === 0) {
+      return res.status(403).json({ success: false, message: "Akses ditolak. Anda bukan Wali Kelas." });
+    }
+
+    const kelasIds = user.pegawai.kelasWali.map(k => k.id);
+
+    const santriList = await prisma.santri.findMany({
+      where: {
+        kelasId: { in: kelasIds },
+        status: 'AKTIF'
+      },
+      include: {
+        registration: {
+          select: {
+            studentName: true,
+            program: true,
+            gender: true
+          }
+        },
+        kelasRef: true,
+        asramaRef: true
+      },
+      orderBy: {
+        registration: {
+          studentName: 'asc'
+        }
+      }
+    });
+
+    res.json({ success: true, santri: santriList });
+  } catch (error) {
+    console.error("getSantriWaliKelas error:", error);
+    res.status(500).json({ success: false, message: "Server Error" });
+  }
+};

@@ -70,7 +70,12 @@ const login = async (req, res) => {
       },
       include: {
         registrations: true,
-        adminGroups: true
+        adminGroups: true,
+        pegawai: {
+          include: {
+            kelasWali: true
+          }
+        }
       }
     });
 
@@ -107,6 +112,12 @@ const login = async (req, res) => {
     );
 
     const finalPermissions = mergePermissions(user.permissions, user.adminGroups);
+
+    if (user.pegawai && user.pegawai.kelasWali && user.pegawai.kelasWali.length > 0) {
+      if (!finalPermissions.includes('WALI_KELAS_VIEW')) {
+        finalPermissions.push('WALI_KELAS_VIEW');
+      }
+    }
 
     // Log Activity
     await logActivity({

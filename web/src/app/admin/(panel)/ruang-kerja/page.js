@@ -7,12 +7,14 @@ import AktivitasRutin from "./components/AktivitasRutin";
 import MasterTime from "./components/MasterTime";
 import CatatanPribadi from "./components/CatatanPribadi";
 import ProfilPribadi from "./components/ProfilPribadi";
-import { Clock, Calendar, MapPin, BarChart2, ClipboardList, CalendarDays, Edit3, History, Sun, Moon, Sunrise, Sunset, UserCircle } from "lucide-react";
+import RuangWaliKelas from "./components/RuangWaliKelas";
+import { Clock, Calendar, MapPin, BarChart2, ClipboardList, CalendarDays, Edit3, History, Sun, Moon, Sunrise, Sunset, UserCircle, Users } from "lucide-react";
 
 export default function DashboardPribadiPage() {
   const [activeTab, setActiveTab] = useState("ringkasan");
   const [showAllMenu, setShowAllMenu] = useState(false);
   const [isSuperAdmin, setIsSuperAdmin] = useState(false);
+  const [isWaliKelas, setIsWaliKelas] = useState(false);
   
   const [adminName, setAdminName] = useState("");
   const [greeting, setGreeting] = useState("");
@@ -27,10 +29,11 @@ export default function DashboardPribadiPage() {
     // Nama Admin
     setAdminName(localStorage.getItem("admin_name") || "Admin");
     
-    // Cek Role Superadmin
+    // Cek Role Superadmin & Wali Kelas
     try {
       const perms = JSON.parse(localStorage.getItem("admin_permissions") || "[]");
       setIsSuperAdmin(perms.includes("MANAJEMEN_ADMIN"));
+      setIsWaliKelas(perms.includes("WALI_KELAS_VIEW"));
     } catch (e) {}
 
     // Tanggal Hijriyah
@@ -128,13 +131,20 @@ export default function DashboardPribadiPage() {
     { id: "log_aktivitas", name: "Log Aktivitas", icon: <History size={22} strokeWidth={2.5} />, color: "text-purple-500", bg: "bg-purple-50 dark:bg-purple-500/10 border-purple-100 dark:border-purple-500/20" }
   ];
 
+  let insertIndex = 1;
+  if (isWaliKelas) {
+    tabs.splice(insertIndex, 0, { id: "wali_kelas", name: "Ruang Wali Kelas", icon: <Users size={22} strokeWidth={2.5} />, color: "text-teal-500", bg: "bg-teal-50 dark:bg-teal-500/10 border-teal-100 dark:border-teal-500/20" });
+    insertIndex++;
+  }
+  
   if (!isSuperAdmin) {
-    tabs.splice(1, 0, { id: "profil", name: "Profil", icon: <UserCircle size={22} strokeWidth={2.5} />, color: "text-indigo-500", bg: "bg-indigo-50 dark:bg-indigo-500/10 border-indigo-100 dark:border-indigo-500/20" });
+    tabs.splice(insertIndex, 0, { id: "profil", name: "Profil", icon: <UserCircle size={22} strokeWidth={2.5} />, color: "text-indigo-500", bg: "bg-indigo-50 dark:bg-indigo-500/10 border-indigo-100 dark:border-indigo-500/20" });
   }
 
   const getActiveTabTitle = () => {
     switch(activeTab) {
       case "ringkasan": return "Ringkasan Harian";
+      case "wali_kelas": return "Ruang Wali Kelas";
       case "profil": return "Profil Pribadi";
       case "aktivitas_rutin": return "Aktivitas Rutin";
       case "master_time": return "Master Time: Calendar";
@@ -266,6 +276,7 @@ export default function DashboardPribadiPage() {
         
         <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 w-full min-w-0">
           {activeTab === "ringkasan" && <RingkasanPribadi />}
+          {activeTab === "wali_kelas" && <RuangWaliKelas />}
           {activeTab === "profil" && <ProfilPribadi />}
           {activeTab === "aktivitas_rutin" && <AktivitasRutin />}
           {activeTab === "master_time" && <MasterTime />}
