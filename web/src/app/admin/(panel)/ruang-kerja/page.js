@@ -176,7 +176,7 @@ export default function DashboardPribadiPage() {
           </svg>
         </div>
 
-        <div className="relative z-10 flex flex-col gap-5">
+        <div className="relative flex flex-col gap-5">
           {/* Tanggal Masehi & Hijriah */}
           <div className="flex flex-row flex-wrap items-center gap-2">
             <div className="inline-flex items-center gap-2 bg-emerald-800/60 backdrop-blur-md px-3.5 py-1.5 rounded-lg border border-emerald-600/40 w-fit shadow-inner">
