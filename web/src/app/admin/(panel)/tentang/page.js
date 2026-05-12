@@ -13,7 +13,7 @@ export default function TentangPage() {
       <SpiderWebEffect />
 
       {/* TABS NAVIGATION */}
-      <div className="max-w-5xl mx-auto flex gap-2 p-1.5 bg-slate-200/50 dark:bg-slate-800/50 rounded-2xl w-fit border border-slate-200 dark:border-slate-700/50 backdrop-blur-sm">
+      <div className="relative z-10 max-w-5xl mx-auto flex gap-2 p-1.5 bg-slate-200/50 dark:bg-slate-800/50 rounded-2xl w-fit border border-slate-200 dark:border-slate-700/50 backdrop-blur-sm">
         <button
           onClick={() => setActiveTab("aplikasi")}
           className={`flex items-center gap-2 px-6 py-2.5 rounded-xl font-bold text-sm transition-all duration-300 ${
@@ -39,7 +39,7 @@ export default function TentangPage() {
       </div>
 
       {activeTab === "aplikasi" && (
-        <div className="bg-white dark:bg-slate-900 p-8 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-800 transition-colors max-w-5xl mx-auto relative overflow-hidden animate-in slide-in-from-bottom-4">
+        <div className="relative z-10 bg-white dark:bg-slate-900 p-8 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-800 transition-colors max-w-5xl mx-auto overflow-hidden animate-in slide-in-from-bottom-4">
           
           {/* Background Accents */}
           <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3"></div>
@@ -178,7 +178,7 @@ export default function TentangPage() {
       )}
 
       {activeTab === "organisasi" && (
-        <div className="bg-white dark:bg-slate-900 p-6 md:p-10 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-800 transition-colors max-w-5xl mx-auto animate-in slide-in-from-bottom-4">
+        <div className="relative z-10 bg-white dark:bg-slate-900 p-6 md:p-10 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-800 transition-colors max-w-5xl mx-auto animate-in slide-in-from-bottom-4">
           
           <div className="text-center mb-12">
             <h2 className="text-2xl md:text-3xl font-black text-slate-800 dark:text-slate-100 tracking-tight mb-2">
@@ -347,8 +347,8 @@ function SpiderWebEffect() {
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     
-    let w = canvas.width = window.innerWidth;
-    let h = canvas.height = window.innerHeight;
+    let w = canvas.width = canvas.parentElement.offsetWidth;
+    let h = canvas.height = canvas.parentElement.offsetHeight;
     
     const particles = [];
     const properties = {
@@ -361,20 +361,23 @@ function SpiderWebEffect() {
 
     let mouse = { x: null, y: null };
     
-    const handleResize = () => {
-      w = canvas.width = window.innerWidth;
-      h = canvas.height = window.innerHeight;
-    };
+    const resizeObserver = new ResizeObserver(() => {
+      if (!canvas.parentElement) return;
+      w = canvas.width = canvas.parentElement.offsetWidth;
+      h = canvas.height = canvas.parentElement.offsetHeight;
+    });
+    resizeObserver.observe(canvas.parentElement);
+
     const handleMouseMove = (e) => {
-      mouse.x = e.clientX;
-      mouse.y = e.clientY;
+      const rect = canvas.getBoundingClientRect();
+      mouse.x = e.clientX - rect.left;
+      mouse.y = e.clientY - rect.top;
     };
     const handleMouseOut = () => {
       mouse.x = null;
       mouse.y = null;
     };
 
-    window.addEventListener('resize', handleResize);
     window.addEventListener('mousemove', handleMouseMove);
     window.addEventListener('mouseout', handleMouseOut);
 
@@ -461,11 +464,11 @@ function SpiderWebEffect() {
 
     return () => {
       cancelAnimationFrame(animationId);
-      window.removeEventListener('resize', handleResize);
+      resizeObserver.disconnect();
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseout', handleMouseOut);
     };
   }, []);
 
-  return <canvas id="spider-web-canvas" className="pointer-events-none fixed inset-0 z-50 opacity-70"></canvas>;
+  return <canvas id="spider-web-canvas" className="pointer-events-none absolute inset-0 w-full h-full z-0 opacity-70"></canvas>;
 }
