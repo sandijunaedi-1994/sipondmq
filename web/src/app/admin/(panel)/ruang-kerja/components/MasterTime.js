@@ -87,6 +87,36 @@ export default function MasterTime() {
     }
   };
 
+  const deleteTask = async (taskId, isUserTask, e) => {
+    e.stopPropagation();
+    
+    if (!confirm("Apakah Anda yakin ingin menghapus aktivitas ini?")) return;
+
+    try {
+      const token = localStorage.getItem("admin_token");
+      let url = `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"}/api/admin/routines/schedules/${taskId}`;
+      
+      if (isUserTask) {
+        url = `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"}/api/admin/routines/initiative/${taskId}`;
+      }
+
+      const res = await fetch(url, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.message || "Failed to delete task");
+      }
+
+      setSchedules(schedules.filter(s => s.id !== taskId));
+    } catch (error) {
+      console.error(error);
+      alert("Gagal menghapus tugas: " + error.message);
+    }
+  };
+
   // Calendar Helpers
   const nextPeriod = () => {
     const d = new Date(currentDate);
@@ -136,13 +166,6 @@ export default function MasterTime() {
             </div>
           </div>
           <div className="p-2 flex-1 space-y-1">
-            {/* Render Events */}
-            {dayEvents.map(ev => (
-              <div key={`ev-${ev.id}`} className="text-[10px] p-1.5 rounded-md bg-blue-50 text-blue-700 border border-blue-200 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20 font-semibold flex flex-col">
-                <span className="truncate">📌 {ev.judul}</span>
-                <span className="text-[8px] opacity-70 truncate">{ev.markaz?.kode || 'Semua Markaz'}</span>
-              </div>
-            ))}
             {/* Render Schedules */}
             {daySchedules.map(sch => (
               <div 
@@ -189,8 +212,8 @@ export default function MasterTime() {
     const days = Array.from({ length: daysInMonth }).map((_, i) => {
       const dayDate = new Date(y, m, i + 1);
       const isToday = dayDate.toDateString() === new Date().toDateString();
-      const { daySchedules, dayEvents } = getDayItems(dayDate);
-      const totalItems = daySchedules.length + dayEvents.length;
+      const { daySchedules } = getDayItems(dayDate);
+      const totalItems = daySchedules.length;
       
       return (
         <div key={`day-${i+1}`} 
@@ -207,14 +230,7 @@ export default function MasterTime() {
             )}
           </div>
           <div className="flex-1 space-y-1 overflow-hidden">
-            {dayEvents.length > 0 && (
-              <div className="flex gap-1 flex-wrap mb-1">
-                {dayEvents.map(ev => (
-                  <div key={`ev-${ev.id}`} className="w-1.5 h-1.5 rounded-full bg-blue-500" title={`${ev.judul} - ${ev.markaz?.kode || 'Semua Markaz'}`}></div>
-                ))}
-              </div>
-            )}
-            {daySchedules.slice(0, 3 - Math.min(dayEvents.length, 2)).map(sch => (
+            {daySchedules.slice(0, 3).map(sch => (
               <div key={sch.id} className={`text-[10px] px-1.5 py-1 rounded border truncate flex items-center gap-1 ${
                   sch.status === 'SELESAI' 
                     ? 'bg-emerald-50 border-emerald-100 text-emerald-600 dark:bg-emerald-500/10 dark:border-emerald-500/20 dark:text-emerald-500 opacity-60' 
@@ -371,7 +387,7 @@ export default function MasterTime() {
                 </h3>
                 <div className="space-y-3">
                   {daySchedules.map(sch => (
-                    <ScheduleCard key={sch.id} schedule={sch} onToggle={toggleStatus} size="lg" />
+                    <ScheduleCard key={sch.id} schedule={sch} onToggle={toggleStatus} onDelete={deleteTask} size="lg" />
                   ))}
                 </div>
               </div>
