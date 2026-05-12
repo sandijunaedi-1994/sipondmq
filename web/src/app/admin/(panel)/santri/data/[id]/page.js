@@ -16,6 +16,9 @@ export default function SantriDetailPage() {
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editForm, setEditForm] = useState({});
   const [saving, setSaving] = useState(false);
+  
+  const [kelasList, setKelasList] = useState([]);
+  const [asramaList, setAsramaList] = useState([]);
 
   useEffect(() => {
     try {
@@ -60,6 +63,37 @@ export default function SantriDetailPage() {
     
     fetchDetail();
   }, [id, editModalOpen]);
+
+  useEffect(() => {
+    const fetchOptions = async () => {
+      try {
+        const token = localStorage.getItem("admin_token");
+        const urlKelas = `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"}/api/admin/santri-settings/kelas`;
+        const urlAsrama = `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"}/api/admin/santri-settings/asrama`;
+        
+        const [resKelas, resAsrama] = await Promise.all([
+          fetch(urlKelas, { headers: { Authorization: `Bearer ${token}` } }),
+          fetch(urlAsrama, { headers: { Authorization: `Bearer ${token}` } })
+        ]);
+
+        if (resKelas.ok) {
+          const dataKelas = await resKelas.json();
+          setKelasList(dataKelas.kelas || []);
+        }
+        
+        if (resAsrama.ok) {
+          const dataAsrama = await resAsrama.json();
+          setAsramaList(dataAsrama.asrama || []);
+        }
+      } catch (err) {
+        console.error("Gagal mengambil data opsi kelas/asrama", err);
+      }
+    };
+    
+    if (editModalOpen) {
+      fetchOptions();
+    }
+  }, [editModalOpen]);
 
   const handleSaveEdit = async (e) => {
     e.preventDefault();
@@ -380,11 +414,21 @@ export default function SantriDetailPage() {
                   </div>
                   <div>
                     <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Kelas</label>
-                    <input type="text" value={editForm.kelas} onChange={(e) => setEditForm({...editForm, kelas: e.target.value})} placeholder="Contoh: 7A, 10 MIPA 1" className="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-950 focus:ring-2 focus:ring-emerald-500 outline-none" />
+                    <select value={editForm.kelas} onChange={(e) => setEditForm({...editForm, kelas: e.target.value})} className="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-950 focus:ring-2 focus:ring-emerald-500 outline-none">
+                      <option value="">Pilih Kelas</option>
+                      {kelasList.map(k => (
+                        <option key={k.id} value={k.nama}>{k.nama}</option>
+                      ))}
+                    </select>
                   </div>
                   <div>
                     <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Asrama</label>
-                    <input type="text" value={editForm.asrama} onChange={(e) => setEditForm({...editForm, asrama: e.target.value})} className="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-950 focus:ring-2 focus:ring-emerald-500 outline-none" />
+                    <select value={editForm.asrama} onChange={(e) => setEditForm({...editForm, asrama: e.target.value})} className="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-950 focus:ring-2 focus:ring-emerald-500 outline-none">
+                      <option value="">Pilih Asrama</option>
+                      {asramaList.map(a => (
+                        <option key={a.id} value={a.nama}>{a.nama}</option>
+                      ))}
+                    </select>
                   </div>
                   <div>
                     <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Status Aktif</label>
