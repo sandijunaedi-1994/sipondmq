@@ -388,6 +388,21 @@ export default function TabDaftarProject() {
 
   const tahunAjaranOptions = generateTahunAjaran();
 
+  // Handle Escape key to close modals
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        setIsModalOpen(false);
+        setIsRabModalOpen(false);
+        setIsDetailModalOpen(false);
+        setIsDeleteProjectModalOpen(false);
+        setDeleteRabId(null);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   return (
     <div className="animate-in fade-in duration-300">
       <div className="flex flex-col md:flex-row md:justify-between md:items-end gap-4 mb-6">
@@ -598,8 +613,14 @@ export default function TabDaftarProject() {
 
       {/* MODAL PROJECT EDIT/CREATE */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm overflow-y-auto">
-          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl w-full max-w-lg border border-slate-200 dark:border-slate-800 my-8">
+        <div 
+          className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm overflow-y-auto"
+          onClick={() => setIsModalOpen(false)}
+        >
+          <div 
+            className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl w-full max-w-lg border border-slate-200 dark:border-slate-800 my-8"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="p-5 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
               <h3 className="font-bold text-lg text-slate-800 dark:text-slate-100">{isEdit ? 'Edit Project' : 'Tambah Project Baru'}</h3>
               <button onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:text-slate-600"><X size={20} /></button>
@@ -705,8 +726,14 @@ export default function TabDaftarProject() {
 
       {/* MODAL RAB DETAILING */}
       {isRabModalOpen && selectedProject && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm overflow-y-auto">
-          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl w-full max-w-2xl border border-slate-200 dark:border-slate-800 my-8 flex flex-col max-h-[90vh]">
+        <div 
+          className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm overflow-y-auto"
+          onClick={() => setIsRabModalOpen(false)}
+        >
+          <div 
+            className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl w-full max-w-2xl border border-slate-200 dark:border-slate-800 my-8 flex flex-col max-h-[90vh]"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="p-5 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center shrink-0">
               <div>
                 <h3 className="font-bold text-lg text-slate-800 dark:text-slate-100">Penyusunan RAB Project</h3>
@@ -856,7 +883,10 @@ export default function TabDaftarProject() {
 
       {/* MODAL PROJECT DETAIL PASSPORT */}
       {isDetailModalOpen && selectedProject && (
-        <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm overflow-y-auto print:p-0 print:bg-transparent">
+        <div 
+          className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm overflow-y-auto print:p-0 print:bg-transparent"
+          onClick={() => setIsDetailModalOpen(false)}
+        >
           <style dangerouslySetInnerHTML={{__html: `
             @media print {
               body * { visibility: hidden; }
@@ -868,7 +898,11 @@ export default function TabDaftarProject() {
               .no-print { display: none !important; }
             }
           `}} />
-          <div id="printable-modal" className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-3xl border border-slate-200 dark:border-slate-800 my-8 flex flex-col print:border-none print:shadow-none print:m-0 print:w-full">
+          <div 
+            id="printable-modal" 
+            className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-3xl border border-slate-200 dark:border-slate-800 my-8 flex flex-col print:border-none print:shadow-none print:m-0 print:w-full"
+            onClick={(e) => e.stopPropagation()}
+          >
             
             {/* Header */}
             <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-start bg-indigo-600 rounded-t-2xl print:bg-white print:border-b-2 print:border-slate-800">
