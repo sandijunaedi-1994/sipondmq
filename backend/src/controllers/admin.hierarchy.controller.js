@@ -88,7 +88,34 @@ const assignSupervisors = async (req, res) => {
   }
 };
 
+// Mendapatkan bawahan langsung dari user yang sedang login
+const getMySubordinates = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const hierarchy = await prisma.userHierarchy.findMany({
+      where: { supervisorId: userId },
+      include: {
+        subordinate: {
+          select: {
+            id: true,
+            namaLengkap: true,
+            role: true
+          }
+        }
+      }
+    });
+    
+    // mapping output
+    const subordinates = hierarchy.map(h => h.subordinate);
+    res.status(200).json(subordinates);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
 module.exports = {
   getHierarchy,
-  assignSupervisors
+  assignSupervisors,
+  getMySubordinates
 };

@@ -60,7 +60,7 @@ const {
 
 const { getTodayChat, sendChatMessage } = require('../controllers/admin.chat.controller');
 
-const { getHierarchy, assignSupervisors } = require('../controllers/admin.hierarchy.controller');
+const { getHierarchy, assignSupervisors, getMySubordinates } = require('../controllers/admin.hierarchy.controller');
 
 // Semua rute admin butuh role ADMIN_PUSAT
 router.use(requireAdmin);
@@ -68,6 +68,7 @@ router.use(requireAdmin);
 // Hirarki Pengguna
 router.get('/hierarchy', getHierarchy);
 router.post('/hierarchy', assignSupervisors);
+router.get('/hierarchy/subordinates', getMySubordinates);
 
 // Catatan Admin
 router.get('/catatan', getCatatan);

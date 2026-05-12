@@ -10,6 +10,7 @@ export default function TabPembagianTugas() {
   // Master Data
   const [workers, setWorkers] = useState([]);
   const [vendors, setVendors] = useState([]);
+  const [bawahans, setBawahans] = useState([]);
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -30,18 +31,20 @@ export default function TabPembagianTugas() {
   const fetchData = async () => {
     try {
       const token = localStorage.getItem("admin_token");
-      const [resProj, resWork, resVen] = await Promise.all([
+      const [resProj, resWork, resVen, resBawahan] = await Promise.all([
         fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"}/api/admin/projects`, { headers: { Authorization: `Bearer ${token}` } }),
         fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"}/api/admin/pembangunan/workers`, { headers: { Authorization: `Bearer ${token}` } }),
-        fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"}/api/admin/pembangunan/vendors`, { headers: { Authorization: `Bearer ${token}` } })
+        fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"}/api/admin/pembangunan/vendors`, { headers: { Authorization: `Bearer ${token}` } }),
+        fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"}/api/admin/hierarchy/subordinates`, { headers: { Authorization: `Bearer ${token}` } })
       ]);
       const proj = await resProj.json();
       const work = await resWork.json();
       const ven = await resVen.json();
+      const baw = await resBawahan.json();
       
       if(proj.success) {
-        // Only active projects
-        const activeProjects = proj.data.filter(p => p.status !== 'COMPLETED');
+        // Only active projects that have a timeline
+        const activeProjects = proj.data.filter(p => p.status !== 'COMPLETED' && p.tanggalMulai && p.tanggalSelesai);
         setProjects(activeProjects);
         if(activeProjects.length > 0 && !selectedProjectId) {
           setSelectedProjectId(activeProjects[0].id);
@@ -49,6 +52,7 @@ export default function TabPembagianTugas() {
       }
       if(work.success) setWorkers(work.data);
       if(ven.success) setVendors(ven.data);
+      if(Array.isArray(baw)) setBawahans(baw);
     } catch (e) {
       console.error(e);
     } finally {
@@ -81,12 +85,21 @@ export default function TabPembagianTugas() {
         if(task.pekerjaIds) parsedPekerjaIds = JSON.parse(task.pekerjaIds);
       } catch(e) {}
 
+      let detectedPihakKetiga = "PEKERJA";
+      if (task.vendorId) {
+        detectedPihakKetiga = "VENDOR";
+      } else if (parsedPekerjaIds.length > 0) {
+        // Check if the first ID belongs to bawahans
+        const isBawahan = bawahans.some(b => b.id === parsedPekerjaIds[0]);
+        if (isBawahan) detectedPihakKetiga = "BAWAHAN";
+      }
+
       setForm({
         id: task.id,
         namaPekerjaan: task.namaPekerjaan || "",
         targetSelesai: task.targetSelesai ? new Date(task.targetSelesai).toISOString().split('T')[0] : "",
         catatan: task.catatan || "",
-        pihakKetiga: task.vendorId ? "VENDOR" : "PEKERJA",
+        pihakKetiga: detectedPihakKetiga,
         pekerjaIds: parsedPekerjaIds,
         vendorId: task.vendorId || "",
         status: task.status || "PENDING"
@@ -132,7 +145,7 @@ export default function TabPembagianTugas() {
         targetSelesai: form.targetSelesai,
         catatan: form.catatan,
         status: form.status,
-        pekerjaIds: form.pihakKetiga === "PEKERJA" ? form.pekerjaIds : null,
+        pekerjaIds: (form.pihakKetiga === "PEKERJA" || form.pihakKetiga === "BAWAHAN") ? form.pekerjaIds : null,
         vendorId: form.pihakKetiga === "VENDOR" ? form.vendorId : null
       };
 
@@ -267,7 +280,10 @@ export default function TabPembagianTugas() {
                         const ids = JSON.parse(task.pekerjaIds);
                         pekerjaLabels = ids.map(id => {
                           const w = workers.find(work => work.id === id);
-                          return w ? { name: w.nama, type: 'pekerja' } : null;
+                          if (w) return { name: w.nama, type: 'pekerja' };
+                          const b = bawahans.find(baw => baw.id === id);
+                          if (b) return { name: b.namaLengkap, type: 'bawahan' };
+                          return null;
                         }).filter(Boolean);
                       } catch(e){}
                     }
@@ -302,7 +318,7 @@ export default function TabPembagianTugas() {
                           {pekerjaLabels.length > 0 ? (
                             <div className="flex flex-wrap gap-1.5">
                               {pekerjaLabels.map((p, idx) => (
-                                <span key={idx} className={`inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-bold ${p.type === 'vendor' ? 'bg-purple-100 text-purple-700' : 'bg-indigo-100 text-indigo-700'}`}>
+                                <span key={idx} className={`inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-bold ${p.type === 'vendor' ? 'bg-purple-100 text-purple-700' : p.type === 'bawahan' ? 'bg-teal-100 text-teal-700' : 'bg-indigo-100 text-indigo-700'}`}>
                                   {p.type === 'vendor' ? <Truck size={10} /> : <Users size={10} />}
                                   {p.name}
                                 </span>
@@ -370,8 +386,12 @@ export default function TabPembagianTugas() {
                 <label className="block text-xs font-bold text-slate-500 mb-2">Penugasan Kepada</label>
                 <div className="flex items-center gap-4 mb-3 pb-3 border-b border-slate-100 dark:border-slate-800">
                   <label className="flex items-center gap-2 text-sm font-semibold cursor-pointer">
-                    <input type="radio" name="pihakTugas" checked={form.pihakKetiga === "PEKERJA"} onChange={() => setForm({...form, pihakKetiga: "PEKERJA", vendorId: ""})} className="text-indigo-600 focus:ring-indigo-500 w-4 h-4" />
+                    <input type="radio" name="pihakTugas" checked={form.pihakKetiga === "PEKERJA"} onChange={() => setForm({...form, pihakKetiga: "PEKERJA", vendorId: "", pekerjaIds: []})} className="text-indigo-600 focus:ring-indigo-500 w-4 h-4" />
                     Pekerja Internal (Bisa &gt;1)
+                  </label>
+                  <label className="flex items-center gap-2 text-sm font-semibold cursor-pointer">
+                    <input type="radio" name="pihakTugas" checked={form.pihakKetiga === "BAWAHAN"} onChange={() => setForm({...form, pihakKetiga: "BAWAHAN", vendorId: "", pekerjaIds: []})} className="text-indigo-600 focus:ring-indigo-500 w-4 h-4" />
+                    Bawahan (User)
                   </label>
                   <label className="flex items-center gap-2 text-sm font-semibold cursor-pointer">
                     <input type="radio" name="pihakTugas" checked={form.pihakKetiga === "VENDOR"} onChange={() => setForm({...form, pihakKetiga: "VENDOR", pekerjaIds: []})} className="text-indigo-600 focus:ring-indigo-500 w-4 h-4" />
@@ -389,6 +409,22 @@ export default function TabPembagianTugas() {
                             <div className="leading-tight">
                               <p className="text-sm font-bold text-slate-700 dark:text-slate-200">{w.nama}</p>
                               <p className="text-[9px] uppercase font-bold text-slate-400">{w.kategori}</p>
+                            </div>
+                          </label>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ) : form.pihakKetiga === "BAWAHAN" ? (
+                  <div className="bg-slate-50 dark:bg-slate-950 p-3 rounded-xl border border-slate-200 dark:border-slate-800 max-h-48 overflow-y-auto custom-scrollbar">
+                    {bawahans.length === 0 ? <p className="text-xs text-slate-400 text-center py-2">Tidak ada data bawahan</p> : (
+                      <div className="grid grid-cols-2 gap-2">
+                        {bawahans.map(b => (
+                          <label key={b.id} className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer border transition-colors ${form.pekerjaIds.includes(b.id) ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-500/20' : 'border-transparent hover:bg-white dark:hover:bg-slate-900'}`}>
+                            <input type="checkbox" checked={form.pekerjaIds.includes(b.id)} onChange={() => handlePekerjaCheckbox(b.id)} className="w-4 h-4 rounded text-indigo-600" />
+                            <div className="leading-tight">
+                              <p className="text-sm font-bold text-slate-700 dark:text-slate-200">{b.namaLengkap}</p>
+                              <p className="text-[9px] uppercase font-bold text-slate-400">{b.role}</p>
                             </div>
                           </label>
                         ))}
@@ -414,7 +450,7 @@ export default function TabPembagianTugas() {
 
               <div className="pt-4 flex justify-end gap-3 border-t border-slate-100 dark:border-slate-800">
                 <button type="button" onClick={() => setIsModalOpen(false)} className="px-5 py-2.5 text-sm font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors">Batal</button>
-                <button type="submit" disabled={form.pihakKetiga === "PEKERJA" && form.pekerjaIds.length === 0} className="px-5 py-2.5 text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-500 rounded-xl transition-colors shadow-md disabled:opacity-50 disabled:cursor-not-allowed">
+                <button type="submit" disabled={(form.pihakKetiga === "PEKERJA" || form.pihakKetiga === "BAWAHAN") && form.pekerjaIds.length === 0} className="px-5 py-2.5 text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-500 rounded-xl transition-colors shadow-md disabled:opacity-50 disabled:cursor-not-allowed">
                   Simpan Pekerjaan
                 </button>
               </div>
