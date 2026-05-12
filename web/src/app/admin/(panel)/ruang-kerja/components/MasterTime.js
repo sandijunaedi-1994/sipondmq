@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ChevronLeft, ChevronRight, CheckCircle2, Circle, CalendarDays, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, CheckCircle2, Circle, CalendarDays, X, Trash2 } from "lucide-react";
 import AddActivityModal from "./AddActivityModal";
 
 export default function MasterTime() {
@@ -220,7 +220,7 @@ export default function MasterTime() {
     const days = Array.from({ length: daysInMonth }).map((_, i) => {
       const dayDate = new Date(y, m, i + 1);
       const isToday = dayDate.toDateString() === new Date().toDateString();
-      const { daySchedules } = getDayItems(dayDate);
+      const { daySchedules, dayEvents } = getDayItems(dayDate);
       const totalItems = daySchedules.length;
       
       return (
@@ -497,6 +497,7 @@ export default function MasterTime() {
           schedules={schedules.filter(s => new Date(s.taskDate).toDateString() === selectedDate.toDateString())}
           events={events.filter(e => new Date(e.tanggal).toDateString() === selectedDate.toDateString())}
           onToggle={toggleStatus}
+          onDelete={deleteTask}
           onAddActivity={() => { setAddModalDate(selectedDate); setShowAddModal(true); }}
         />
       )}
@@ -513,7 +514,7 @@ export default function MasterTime() {
   );
 }
 
-function DayDetailModal({ date, onClose, schedules, events, onToggle, onAddActivity }) {
+function DayDetailModal({ date, onClose, schedules, events, onToggle, onDelete, onAddActivity }) {
   // Close on Escape
   useEffect(() => {
     const handleEscape = (e) => { if (e.key === "Escape") onClose(); };
@@ -574,7 +575,7 @@ function DayDetailModal({ date, onClose, schedules, events, onToggle, onAddActiv
                   </h4>
                   <div className="space-y-2">
                     {schedules.map(sch => (
-                      <ScheduleCard key={sch.id} schedule={sch} onToggle={onToggle} size="md" />
+                      <ScheduleCard key={sch.id} schedule={sch} onToggle={onToggle} onDelete={onDelete} size="md" />
                     ))}
                   </div>
                 </div>
@@ -588,7 +589,7 @@ function DayDetailModal({ date, onClose, schedules, events, onToggle, onAddActiv
 }
 
 // Sub-component for Daily & Weekly Views and Modal
-function ScheduleCard({ schedule, onToggle, size = "sm" }) {
+function ScheduleCard({ schedule, onToggle, onDelete, size = "sm" }) {
   const isDone = schedule.status === 'SELESAI';
   const task = schedule.McRoutineTask;
   
@@ -646,6 +647,15 @@ function ScheduleCard({ schedule, onToggle, size = "sm" }) {
           </span>
         </div>
       </div>
+      {onDelete && !isDone && !isPast && (
+        <button 
+          onClick={(e) => onDelete(schedule.id, schedule.isUserTask, e)} 
+          className="p-1.5 text-slate-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors opacity-0 group-hover:opacity-100"
+          title="Hapus aktivitas"
+        >
+          <Trash2 size={size === "lg" ? 18 : 16} />
+        </button>
+      )}
     </div>
   );
 }
