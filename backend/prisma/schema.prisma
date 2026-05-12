@@ -40,6 +40,7 @@ model User {
   groupMessages GroupMessage[]
   pegawai       Pegawai?
   catatanAdmin  CatatanAdmin[]
+  riwayatGantiKartu RiwayatKartu[]
 
   @@index([role])
 }
@@ -455,6 +456,8 @@ model Pegawai {
   kasbon         PegawaiKasbon[]
   payroll        PegawaiPayroll[]
   koperasi       PegawaiKoperasi?
+  kelasWali      Kelas[]          @relation("WaliKelas")
+  asramaMusyrif  Asrama[]         @relation("MusyrifAsrama")
 }
 
 model Markaz {
@@ -471,6 +474,8 @@ model Markaz {
   InfoDokumen   InfoDokumen[]
   Broadcast     Broadcast[]
   pegawai       Pegawai[]
+  kelas         Kelas[]
+  asrama        Asrama[]
 }
 
 model Santri {
@@ -480,7 +485,11 @@ model Santri {
   markazId     Int?
   markaz       Markaz?      @relation(fields: [markazId], references: [id])
   kelas        String?      @db.VarChar(50)
+  kelasId      Int?
+  kelasRef     Kelas?       @relation(fields: [kelasId], references: [id])
   asrama       String?      @db.VarChar(100)
+  asramaId     Int?
+  asramaRef    Asrama?      @relation(fields: [asramaId], references: [id])
   tahunMasuk   Int?
   sppNominal   Decimal?     @db.Decimal(12, 0)
   status       StatusSantri @default(AKTIF)
@@ -506,6 +515,7 @@ model Santri {
   matanCapaian    MatanCapaian[]
   perizinan       Perizinan[]
   healthRecords   HealthRecord[]
+  kartuSantri     KartuSantri?
 }
 
 model HealthRecord {
@@ -1474,3 +1484,55 @@ model PegawaiKoperasi {
   terakhirUpdate DateTime @default(now())
 }
 
+model Kelas {
+  id          Int       @id @default(autoincrement())
+  markazId    Int
+  markaz      Markaz    @relation(fields: [markazId], references: [id])
+  nama        String    @db.VarChar(50)
+  waliKelasId String?
+  waliKelas   Pegawai?  @relation("WaliKelas", fields: [waliKelasId], references: [id])
+  tahunAjaran String    @db.VarChar(20)
+  aktif       Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  santri      Santri[]
+}
+
+model Asrama {
+  id          Int       @id @default(autoincrement())
+  markazId    Int
+  markaz      Markaz    @relation(fields: [markazId], references: [id])
+  nama        String    @db.VarChar(100)
+  musyrifId   String?
+  musyrif     Pegawai?  @relation("MusyrifAsrama", fields: [musyrifId], references: [id])
+  kapasitas   Int?
+  aktif       Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  santri      Santri[]
+}
+
+model KartuSantri {
+  id          String   @id @default(uuid())
+  santriId    String   @unique
+  santri      Santri   @relation(fields: [santriId], references: [id], onDelete: Cascade)
+  nomorKartu  String   @unique @db.VarChar(100)
+  aktif       Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  riwayat     RiwayatKartu[]
+}
+
+model RiwayatKartu {
+  id            String      @id @default(uuid())
+  kartuId       String
+  kartu         KartuSantri @relation(fields: [kartuId], references: [id], onDelete: Cascade)
+  nomorKartuLama String      @db.VarChar(100)
+  alasan        String      @db.Text
+  tanggalGanti  DateTime    @default(now())
+  diurusOlehId  String?
+  diurusOleh    User?       @relation(fields: [diurusOlehId], references: [id])
+}

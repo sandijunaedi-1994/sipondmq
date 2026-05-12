@@ -137,6 +137,31 @@ router.post('/ppdb/:id/manual-payment', recordManualPayment);
 router.post('/ppdb/:id/reset-password', resetUserPassword);
 router.delete('/ppdb/:id', deleteRegistration);
 
+const {
+  getKelas, createKelas, updateKelas, deleteKelas,
+  getAsrama, createAsrama, updateAsrama, deleteAsrama,
+  getKartuSantri, registerKartu, replaceKartu, toggleStatusKartu, getRiwayatKartu
+} = require('../controllers/admin.santri-settings.controller');
+
+// Pengaturan Kelas
+router.get('/santri-settings/kelas', getKelas);
+router.post('/santri-settings/kelas', createKelas);
+router.put('/santri-settings/kelas/:id', updateKelas);
+router.delete('/santri-settings/kelas/:id', deleteKelas);
+
+// Pengaturan Asrama
+router.get('/santri-settings/asrama', getAsrama);
+router.post('/santri-settings/asrama', createAsrama);
+router.put('/santri-settings/asrama/:id', updateAsrama);
+router.delete('/santri-settings/asrama/:id', deleteAsrama);
+
+// Pengaturan Kartu Santri
+router.get('/santri-settings/kartu', getKartuSantri);
+router.post('/santri-settings/kartu', registerKartu);
+router.put('/santri-settings/kartu/:santriId/replace', replaceKartu);
+router.put('/santri-settings/kartu/:santriId/toggle', toggleStatusKartu);
+router.get('/santri-settings/kartu/:santriId/history', getRiwayatKartu);
+
 // PPDB Setting: CBT Questions
 router.get('/ppdb-settings/cbt', getCbtQuestions);
 router.post('/ppdb-settings/cbt', createCbtQuestion);
