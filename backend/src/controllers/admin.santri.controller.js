@@ -302,7 +302,13 @@ exports.getSantriDetail = async (req, res) => {
       include: {
         registration: {
           include: {
-            registrationData: true
+            registrationData: {
+              include: {
+                siblings: true,
+                mqSiblings: true
+              }
+            },
+            documents: true
           }
         },
         markaz: true,

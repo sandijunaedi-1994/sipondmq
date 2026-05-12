@@ -76,7 +76,7 @@ export default function SantriDetailPage() {
           <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" /></svg>
         </button>
         <div>
-          <h1 className="text-lg font-black text-slate-800 dark:text-slate-100">Detail Santri Aktif</h1>
+          <h1 className="text-lg font-black text-slate-800 dark:text-slate-100">{registration?.studentName || "Detail Santri"}</h1>
           <p className="text-xs text-slate-500 dark:text-slate-400">Profil lengkap, rekam jejak, dan administrasi.</p>
         </div>
       </div>
@@ -187,11 +187,87 @@ export default function SantriDetailPage() {
               </div>
             )}
           </div>
+
+          {/* Data Saudara */}
+          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 p-5">
+            <h3 className="text-xs font-black text-slate-800 dark:text-white uppercase tracking-wider border-b border-slate-100 dark:border-slate-800 pb-2 mb-3">Data Saudara</h3>
+            
+            {(regData?.mqSiblings && regData.mqSiblings.length > 0) || (regData?.siblings && regData.siblings.length > 0) ? (
+              <div className="space-y-3">
+                {regData?.mqSiblings?.map(sib => (
+                  <div key={sib.id} className="p-3 bg-emerald-50 dark:bg-emerald-950/30 rounded-xl border border-emerald-100 dark:border-emerald-800/30">
+                    <div className="flex items-center justify-between mb-1">
+                      <p className="font-bold text-xs text-slate-800 dark:text-slate-100">{sib.name}</p>
+                      <span className="px-1.5 py-0.5 rounded text-[9px] font-bold uppercase bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-400">
+                        Santri MQ
+                      </span>
+                    </div>
+                    <p className="text-[10px] text-slate-500 dark:text-slate-400">{sib.program} - {sib.class || "Tanpa Kelas"}</p>
+                  </div>
+                ))}
+                
+                {regData?.siblings?.map(sib => (
+                  <div key={sib.id} className="p-3 bg-slate-50 dark:bg-slate-950 rounded-xl border border-slate-100 dark:border-slate-800">
+                    <p className="font-bold text-xs text-slate-800 dark:text-slate-100 mb-1">{sib.name}</p>
+                    <div className="flex flex-wrap gap-x-2 gap-y-1 text-[10px] text-slate-500 dark:text-slate-400">
+                      <span>{sib.age ? `${sib.age} thn` : "-"}</span> • 
+                      <span>{sib.education || "-"}</span> • 
+                      <span>{sib.occupation || "-"}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="p-3 bg-slate-50 dark:bg-slate-950 rounded-xl border border-slate-100 dark:border-slate-800 text-center text-xs text-slate-500">
+                Tidak ada data saudara.
+              </div>
+            )}
+          </div>
         </div>
 
-        {/* ── KOLOM KANAN (Aktivitas / Modul) ── */}
+        {/* ── KOLOM KANAN (Aktivitas / Modul / Berkas) ── */}
         <div className="md:col-span-3 space-y-4">
-          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 p-6 text-center min-h-[300px] flex flex-col items-center justify-center">
+
+          {/* Data Berkas */}
+          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 p-5 md:p-6">
+            <h3 className="text-sm font-black text-slate-800 dark:text-white mb-4 flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+              Berkas Santri
+            </h3>
+            
+            {registration?.documents && registration.documents.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {registration.documents.map(doc => (
+                  <a key={doc.id} href={doc.fileUrl} target="_blank" rel="noopener noreferrer" className="flex items-start gap-3 p-3 rounded-xl border border-slate-100 dark:border-slate-800 hover:border-emerald-300 dark:hover:border-emerald-700 hover:shadow-sm transition-all group bg-slate-50 dark:bg-slate-900/50">
+                    <div className="w-10 h-10 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" /></svg>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-bold text-slate-800 dark:text-slate-100 truncate group-hover:text-emerald-600 transition-colors">
+                        {doc.type.replace(/_/g, ' ')}
+                      </p>
+                      <div className="flex items-center gap-1 mt-1">
+                        <span className={`px-1.5 py-0.5 text-[9px] font-bold rounded uppercase ${
+                          doc.status === 'APPROVED' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-400' :
+                          doc.status === 'REJECTED' ? 'bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-400' :
+                          'bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-400'
+                        }`}>
+                          {doc.status}
+                        </span>
+                      </div>
+                    </div>
+                  </a>
+                ))}
+              </div>
+            ) : (
+              <div className="p-4 bg-slate-50 dark:bg-slate-950 rounded-xl border border-slate-100 dark:border-slate-800 text-center text-sm text-slate-500">
+                Tidak ada berkas yang dilampirkan.
+              </div>
+            )}
+          </div>
+
+          {/* Modul Placeholder */}
+          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 p-6 text-center min-h-[200px] flex flex-col items-center justify-center">
             <div className="w-16 h-16 bg-slate-50 dark:bg-slate-950 rounded-full flex items-center justify-center mb-4 border border-slate-100 dark:border-slate-800">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
             </div>
