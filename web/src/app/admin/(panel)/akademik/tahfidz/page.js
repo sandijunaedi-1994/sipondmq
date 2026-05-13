@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from "react";
 import { BookOpen, Users, Plus, Edit2, Trash2, ShieldCheck, FileText } from "lucide-react";
-import toast from "react-hot-toast";
 
 export default function ManajemenTahfidzPage() {
   const [activeTab, setActiveTab] = useState("halaqoh");
@@ -44,7 +43,7 @@ export default function ManajemenTahfidzPage() {
       if (dataHalaqoh.success) setHalaqohList(dataHalaqoh.halaqoh);
       if (dataPegawai.success) setPegawaiList(dataPegawai.pegawai);
     } catch (err) {
-      toast.error("Gagal memuat data halaqoh");
+      alert("Gagal memuat data halaqoh");
     } finally {
       setLoading(false);
     }
@@ -52,7 +51,7 @@ export default function ManajemenTahfidzPage() {
 
   const handleSave = async (e) => {
     e.preventDefault();
-    if (!formData.nama) return toast.error("Nama halaqoh harus diisi");
+    if (!formData.nama) return alert("Nama halaqoh harus diisi");
 
     try {
       const token = localStorage.getItem("admin_token");
@@ -73,14 +72,14 @@ export default function ManajemenTahfidzPage() {
 
       const data = await res.json();
       if (data.success) {
-        toast.success(data.message);
+        alert(data.message);
         setShowModal(false);
         fetchData();
       } else {
-        toast.error(data.message);
+        alert(data.message);
       }
     } catch (err) {
-      toast.error("Terjadi kesalahan sistem");
+      alert("Terjadi kesalahan sistem");
     }
   };
 
@@ -95,13 +94,13 @@ export default function ManajemenTahfidzPage() {
       });
       const data = await res.json();
       if (data.success) {
-        toast.success(data.message);
+        alert(data.message);
         fetchData();
       } else {
-        toast.error(data.message);
+        alert(data.message);
       }
     } catch (err) {
-      toast.error("Terjadi kesalahan sistem");
+      alert("Terjadi kesalahan sistem");
     }
   };
 

@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from "react";
 import { BookOpen, CheckCircle, Clock, Award, Upload } from "lucide-react";
-import toast from "react-hot-toast";
 
 export default function SantriTahfidzModule({ santriId }) {
   const [activeTab, setActiveTab] = useState("tahapan"); // tahapan, hafalan, sertifikat
@@ -83,11 +82,11 @@ export default function SantriTahfidzModule({ santriId }) {
       });
       const data = await res.json();
       if (data.success) {
-        toast.success("Status tahapan diperbarui");
+        alert("Status tahapan diperbarui");
         fetchTahapan();
       }
     } catch (err) {
-      toast.error("Gagal update status");
+      alert("Gagal update status");
     }
   };
 

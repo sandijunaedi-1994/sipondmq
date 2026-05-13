@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { BookOpen, Users, Search, ClipboardCheck, Eye } from "lucide-react";
-import toast from "react-hot-toast";
 
 export default function RuangMuhaffidz() {
   const [halaqohList, setHalaqohList] = useState([]);
