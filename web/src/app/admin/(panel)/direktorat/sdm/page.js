@@ -18,7 +18,7 @@ export default function ManajemenPegawaiPage() {
 
       {/* Global Navigation Tabs */}
       <div className="flex overflow-x-auto gap-2 border-b border-slate-200 dark:border-slate-800 pb-px mb-6 custom-scrollbar">
-        {['data-pegawai', 'penggajian', 'kasbon'].map((tab) => (
+        {['data-pegawai', 'penggajian', 'kasbon', 'rekrutmen', 'kinerja'].map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
@@ -29,7 +29,9 @@ export default function ManajemenPegawaiPage() {
             }`}
           >
             {tab === 'data-pegawai' ? 'Data Pegawai' : 
-             tab === 'penggajian' ? 'Penggajian / Payroll' : 'Manajemen Kasbon'}
+             tab === 'penggajian' ? 'Penggajian / Payroll' : 
+             tab === 'kasbon' ? 'Manajemen Kasbon' : 
+             tab === 'rekrutmen' ? 'Rekrutmen' : 'Penilaian Kinerja'}
           </button>
         ))}
       </div>
@@ -39,6 +41,18 @@ export default function ManajemenPegawaiPage() {
         {activeTab === 'data-pegawai' && <TabDataPegawai />}
         {activeTab === 'penggajian' && <TabPenggajianGlobal />}
         {activeTab === 'kasbon' && <TabKasbonGlobal />}
+        {activeTab === 'rekrutmen' && (
+          <div className="p-8 text-center bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800">
+            <h3 className="text-xl font-bold text-slate-400 dark:text-slate-500">Modul Rekrutmen</h3>
+            <p className="text-slate-400 mt-2">Fitur ini sedang dalam pengembangan.</p>
+          </div>
+        )}
+        {activeTab === 'kinerja' && (
+          <div className="p-8 text-center bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800">
+            <h3 className="text-xl font-bold text-slate-400 dark:text-slate-500">Modul Penilaian Kinerja</h3>
+            <p className="text-slate-400 mt-2">Fitur ini sedang dalam pengembangan.</p>
+          </div>
+        )}
       </div>
     </div>
   );

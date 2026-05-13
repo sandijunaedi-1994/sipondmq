@@ -58,32 +58,13 @@ export default function AdminLayout({ children }) {
   const allMenuItems = [
     { name: "Ruang Kerja Saya", path: "/admin/ruang-kerja", icon: "💼", permission: null },
     { 
-      name: "Sekretariat", icon: "📁", permission: null,
+      name: "Direktorat Pusat", icon: "🏛️", permission: null,
       subItems: [
-        { name: "Surat Menyurat", path: "/admin/sekretariat/surat", permission: "SEKRETARIAT_VIEW" },
-        { name: "Arsip Digital", path: "/admin/sekretariat/arsip", permission: "SEKRETARIAT_VIEW" }
-      ]
-    },
-    { 
-      name: "Manajemen SDM", icon: "👥", permission: null,
-      subItems: [
-        { name: "Data Pegawai", path: "/admin/sdm/pegawai", permission: "SDM_VIEW" },
-        { name: "Rekrutmen", path: "/admin/sdm/rekrutmen", permission: "SDM_VIEW" },
-        { name: "Penilaian Kinerja", path: "/admin/sdm/kinerja", permission: "SDM_VIEW" }
-      ]
-    },
-    { 
-      name: "Litbang & Budaya", icon: "🔬", permission: null,
-      subItems: [
-        { name: "Penelitian", path: "/admin/litbang/penelitian", permission: "LITBANG_VIEW" },
-        { name: "SOP & Panduan", path: "/admin/litbang/sop", permission: "LITBANG_VIEW" }
-      ]
-    },
-    { 
-      name: "Pengelolaan Keuangan", icon: "💰", permission: null,
-      subItems: [
-        { name: "Anggaran", path: "/admin/keuangan-baru/anggaran", permission: "KEUANGAN_ANGGARAN_VIEW" },
-        { name: "Penggajian", path: "/admin/keuangan-baru/penggajian", permission: "KEUANGAN_PENGGAJIAN_VIEW" }
+        { name: "Sekretariat", path: "/admin/direktorat/sekretariat", permission: "SEKRETARIAT_VIEW" },
+        { name: "Manajemen SDM", path: "/admin/direktorat/sdm", permission: "SDM_VIEW" },
+        { name: "Litbang & Budaya", path: "/admin/direktorat/litbang", permission: "LITBANG_VIEW" },
+        { name: "Pengelolaan Keuangan", path: "/admin/direktorat/keuangan", permission: "KEUANGAN_ANGGARAN_VIEW" },
+        { name: "Legal & Aset", path: "/admin/direktorat/legal", permission: "LEGAL_VIEW" }
       ]
     },
     { 
@@ -91,14 +72,6 @@ export default function AdminLayout({ children }) {
       subItems: [
         { name: "Kurikulum", path: "/admin/pembelajaran/kurikulum", permission: "AKADEMIK_ADMIN_VIEW" },
         { name: "Jadwal Pelajaran", path: "/admin/pembelajaran/jadwal", permission: "AKADEMIK_ADMIN_VIEW" }
-      ]
-    },
-    { 
-      name: "Legal & Aset", icon: "⚖️", permission: null,
-      subItems: [
-        { name: "Inventaris", path: "/admin/legal/inventaris", permission: "LEGAL_VIEW" },
-        { name: "Perizinan Lembaga", path: "/admin/legal/perizinan", permission: "LEGAL_VIEW" },
-        { name: "Pembangunan & Maintenance", path: "/admin/legal/pembangunan", permission: "LEGAL_VIEW" }
       ]
     },
     { 
