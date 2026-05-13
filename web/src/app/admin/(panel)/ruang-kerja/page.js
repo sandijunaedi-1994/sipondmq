@@ -125,24 +125,24 @@ export default function DashboardPribadiPage() {
   }, []);
 
   let tabs = [
-    { id: "ringkasan", name: "Ringkasan", icon: <BarChart2 size={22} strokeWidth={2.5} />, color: "text-blue-500", bg: "bg-blue-50 dark:bg-blue-500/10 border-blue-100 dark:border-blue-500/20" },
-    { id: "aktivitas_rutin", name: "Aktivitas Rutin", icon: <ClipboardList size={22} strokeWidth={2.5} />, color: "text-orange-500", bg: "bg-orange-50 dark:bg-orange-500/10 border-orange-100 dark:border-orange-500/20" },
-    { id: "master_time", name: "Master Time", icon: <CalendarDays size={22} strokeWidth={2.5} />, color: "text-rose-500", bg: "bg-rose-50 dark:bg-rose-500/10 border-rose-100 dark:border-rose-500/20" },
-    { id: "catatan_pribadi", name: "Catatan Pribadi", icon: <Edit3 size={22} strokeWidth={2.5} />, color: "text-amber-500", bg: "bg-amber-50 dark:bg-amber-500/10 border-amber-100 dark:border-amber-500/20" },
-    { id: "log_aktivitas", name: "Log Aktivitas", icon: <History size={22} strokeWidth={2.5} />, color: "text-purple-500", bg: "bg-purple-50 dark:bg-purple-500/10 border-purple-100 dark:border-purple-500/20" }
+    { id: "ringkasan", name: "Ringkasan", icon: <BarChart2 size={18} strokeWidth={2.5} />, color: "text-blue-500", bg: "bg-blue-50 dark:bg-blue-500/10 border-blue-100 dark:border-blue-500/20" },
+    { id: "aktivitas_rutin", name: "Aktivitas Rutin", icon: <ClipboardList size={18} strokeWidth={2.5} />, color: "text-orange-500", bg: "bg-orange-50 dark:bg-orange-500/10 border-orange-100 dark:border-orange-500/20" },
+    { id: "master_time", name: "Master Time", icon: <CalendarDays size={18} strokeWidth={2.5} />, color: "text-rose-500", bg: "bg-rose-50 dark:bg-rose-500/10 border-rose-100 dark:border-rose-500/20" },
+    { id: "catatan_pribadi", name: "Catatan Pribadi", icon: <Edit3 size={18} strokeWidth={2.5} />, color: "text-amber-500", bg: "bg-amber-50 dark:bg-amber-500/10 border-amber-100 dark:border-amber-500/20" },
+    { id: "log_aktivitas", name: "Log Aktivitas", icon: <History size={18} strokeWidth={2.5} />, color: "text-purple-500", bg: "bg-purple-50 dark:bg-purple-500/10 border-purple-100 dark:border-purple-500/20" }
   ];
 
   let insertIndex = 1;
   if (isWaliKelas) {
-    tabs.splice(insertIndex, 0, { id: "wali_kelas", name: "Ruang Wali Kelas", icon: <Users size={22} strokeWidth={2.5} />, color: "text-teal-500", bg: "bg-teal-50 dark:bg-teal-500/10 border-teal-100 dark:border-teal-500/20" });
+    tabs.splice(insertIndex, 0, { id: "wali_kelas", name: "Ruang Wali Kelas", icon: <Users size={18} strokeWidth={2.5} />, color: "text-teal-500", bg: "bg-teal-50 dark:bg-teal-500/10 border-teal-100 dark:border-teal-500/20" });
     insertIndex++;
   }
   
-  tabs.splice(insertIndex, 0, { id: "muhaffidz", name: "Ruang Muhaffidz", icon: <BookOpen size={22} strokeWidth={2.5} />, color: "text-emerald-500", bg: "bg-emerald-50 dark:bg-emerald-500/10 border-emerald-100 dark:border-emerald-500/20" });
+  tabs.splice(insertIndex, 0, { id: "muhaffidz", name: "Ruang Muhaffidz", icon: <BookOpen size={18} strokeWidth={2.5} />, color: "text-emerald-500", bg: "bg-emerald-50 dark:bg-emerald-500/10 border-emerald-100 dark:border-emerald-500/20" });
   insertIndex++;
   
   if (!isSuperAdmin) {
-    tabs.splice(insertIndex, 0, { id: "profil", name: "Profil", icon: <UserCircle size={22} strokeWidth={2.5} />, color: "text-indigo-500", bg: "bg-indigo-50 dark:bg-indigo-500/10 border-indigo-100 dark:border-indigo-500/20" });
+    tabs.splice(insertIndex, 0, { id: "profil", name: "Profil", icon: <UserCircle size={18} strokeWidth={2.5} />, color: "text-indigo-500", bg: "bg-indigo-50 dark:bg-indigo-500/10 border-indigo-100 dark:border-indigo-500/20" });
   }
 
   const getActiveTabTitle = () => {
@@ -256,12 +256,12 @@ export default function DashboardPribadiPage() {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`snap-center shrink-0 flex flex-col items-center gap-3 w-[84px] md:w-28 group transition-all`}
+              className={`snap-center shrink-0 flex flex-col items-center gap-2.5 w-16 md:w-24 group transition-all`}
             >
-              <div className={`w-14 h-14 md:w-16 md:h-16 flex items-center justify-center rounded-2xl border shadow-sm transition-transform duration-300 ${tab.bg} ${tab.color} ${activeTab === tab.id ? 'ring-2 ring-offset-2 ring-emerald-500 dark:ring-offset-slate-900 scale-105' : 'group-hover:scale-105'}`}>
+              <div className={`w-12 h-12 md:w-14 md:h-14 flex items-center justify-center rounded-2xl border shadow-sm transition-transform duration-300 ${tab.bg} ${tab.color} ${activeTab === tab.id ? 'ring-2 ring-offset-2 ring-emerald-500 dark:ring-offset-slate-900 scale-105' : 'group-hover:scale-105'}`}>
                 {tab.icon}
               </div>
-              <span className={`text-[11px] md:text-sm font-bold text-center leading-tight transition-colors ${activeTab === tab.id ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-600 dark:text-slate-400'}`}>
+              <span className={`text-[10px] md:text-xs font-bold text-center leading-tight transition-colors ${activeTab === tab.id ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-600 dark:text-slate-400'}`}>
                 {tab.name}
               </span>
             </button>
@@ -272,12 +272,12 @@ export default function DashboardPribadiPage() {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`snap-center shrink-0 hidden md:flex flex-col items-center gap-3 w-[84px] md:w-28 group transition-all`}
+              className={`snap-center shrink-0 hidden md:flex flex-col items-center gap-2.5 w-16 md:w-24 group transition-all`}
             >
-              <div className={`w-14 h-14 md:w-16 md:h-16 flex items-center justify-center rounded-2xl border shadow-sm transition-transform duration-300 ${tab.bg} ${tab.color} ${activeTab === tab.id ? 'ring-2 ring-offset-2 ring-emerald-500 dark:ring-offset-slate-900 scale-105' : 'group-hover:scale-105'}`}>
+              <div className={`w-12 h-12 md:w-14 md:h-14 flex items-center justify-center rounded-2xl border shadow-sm transition-transform duration-300 ${tab.bg} ${tab.color} ${activeTab === tab.id ? 'ring-2 ring-offset-2 ring-emerald-500 dark:ring-offset-slate-900 scale-105' : 'group-hover:scale-105'}`}>
                 {tab.icon}
               </div>
-              <span className={`text-[11px] md:text-sm font-bold text-center leading-tight transition-colors ${activeTab === tab.id ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-600 dark:text-slate-400'}`}>
+              <span className={`text-[10px] md:text-xs font-bold text-center leading-tight transition-colors ${activeTab === tab.id ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-600 dark:text-slate-400'}`}>
                 {tab.name}
               </span>
             </button>
@@ -325,7 +325,7 @@ export default function DashboardPribadiPage() {
                   onClick={() => { setActiveTab(tab.id); setShowAllMenu(false); }}
                   className="flex flex-col items-center gap-3 group"
                 >
-                  <div className={`w-14 h-14 flex items-center justify-center rounded-2xl border shadow-sm transition-transform duration-300 ${tab.bg} ${tab.color} group-hover:scale-110`}>
+                  <div className={`w-12 h-12 flex items-center justify-center rounded-2xl border shadow-sm transition-transform duration-300 ${tab.bg} ${tab.color} group-hover:scale-110`}>
                     {tab.icon}
                   </div>
                   <span className="text-[10px] font-bold text-center leading-tight text-slate-600 dark:text-slate-400 group-hover:text-emerald-600">
