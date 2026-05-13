@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { BookOpen, Users, Plus, Edit2, Trash2, FileText, Search, ChevronLeft, Clock } from "lucide-react";
+import { BookOpen, Users, Plus, Edit2, Trash2, FileText, Search, ChevronLeft, Clock, X } from "lucide-react";
 import Swal from 'sweetalert2';
 import SantriTahfidzModule from "../../santri/data/[id]/components/SantriTahfidzModule";
 
