@@ -56,6 +56,13 @@ export default function AdminLayout({ children }) {
   };
 
   const allMenuItems = [
+    { 
+      name: "Dashboard", icon: "📊", permission: null,
+      subItems: [
+        { name: "Dashboard Organisasi", path: "/admin/dashboard/organisasi", permission: "DASHBOARD_ORGANISASI_VIEW" },
+        { name: "Dashboard Santri", path: "/admin/dashboard/santri", permission: "DASHBOARD_SANTRI_VIEW" }
+      ]
+    },
     { name: "Ruang Kerja Saya", path: "/admin/ruang-kerja", icon: "💼", permission: null },
     { name: "Organisasi", path: "/admin/organisasi", icon: "🏢", permission: "ORGANISASI_VIEW" },
     { 
@@ -73,14 +80,6 @@ export default function AdminLayout({ children }) {
       subItems: [
         { name: "Kurikulum", path: "/admin/pembelajaran/kurikulum", permission: "AKADEMIK_ADMIN_VIEW" },
         { name: "Jadwal Pelajaran", path: "/admin/pembelajaran/jadwal", permission: "AKADEMIK_ADMIN_VIEW" }
-      ]
-    },
-    { 
-      name: "Dashboard", icon: "📊", permission: null,
-      subItems: [
-        { name: "Utama", path: "/admin/dashboard", permission: "DASHBOARD_UTAMA_VIEW" },
-        { name: "SPMB", path: "/admin/dashboard/ppdb", permission: "DASHBOARD_SPMB_VIEW" },
-        { name: "Keuangan", path: "/admin/dashboard/keuangan", permission: "DASHBOARD_KEUANGAN_VIEW" }
       ]
     },
     { 
@@ -203,17 +202,17 @@ export default function AdminLayout({ children }) {
             const isSubItemActive = hasSubmenu && item.subItems.some(sub => pathname.startsWith(sub.path));
             const active = !hasSubmenu && item.path && pathname.startsWith(item.path);
             
-            const isMenuSayaFirst = item.name === "Ruang Kerja Saya" && index === menuItems.findIndex(i => i.name === "Ruang Kerja Saya");
-            const isMenuUtamaFirst = item.name === "Dashboard" && index === menuItems.findIndex(i => i.name === "Dashboard");
+            const isMenuSayaFirst = item.name === "Dashboard" && index === menuItems.findIndex(i => i.name === "Dashboard");
+            const isMenuUtamaFirst = item.name === "Manajemen SPMB" && index === menuItems.findIndex(i => i.name === "Manajemen SPMB");
             const isLainnyaFirst = (item.name === "Halaman Admin" || item.name === "Tentang") && index === menuItems.findIndex(i => i.name === "Halaman Admin" || i.name === "Tentang");
 
             return (
               <div key={item.name}>
                 {isMenuSayaFirst && (
-                  <p className={`px-3 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest ${index === 0 ? 'mb-3' : 'mt-6 mb-3'} transition-colors`}>Menu Saya</p>
+                  <p className={`px-3 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest ${index === 0 ? 'mb-3' : 'mt-6 mb-3'} transition-colors`}>Menu Utama</p>
                 )}
                 {isMenuUtamaFirst && (
-                  <p className={`px-3 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest ${index === 0 ? 'mb-3' : 'mt-6 mb-3'} transition-colors`}>Menu Utama</p>
+                  <p className={`px-3 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest ${index === 0 ? 'mb-3' : 'mt-6 mb-3'} transition-colors`}>Menu Santri</p>
                 )}
                 {isLainnyaFirst && (
                   <p className={`px-3 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest ${index === 0 ? 'mb-3' : 'mt-6 mb-3'} transition-colors`}>Lainnya</p>
