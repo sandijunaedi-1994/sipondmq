@@ -610,25 +610,43 @@ export default function ManajemenTahfidzPage() {
 
       {/* Modal Form Halaqoh */}
       {showModal && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4" onClick={() => setShowModal(false)}>
-          <div className="bg-white dark:bg-slate-900 rounded-2xl w-full max-w-md shadow-2xl border border-slate-200 dark:border-slate-800" onClick={e => e.stopPropagation()}>
-            <div className="p-5 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center">
-              <h2 className="font-bold text-lg text-slate-800 dark:text-white">
-                {editingId ? "Edit Halaqoh" : "Tambah Halaqoh"}
-              </h2>
-              <button onClick={() => setShowModal(false)} className="text-slate-400 hover:text-slate-600">✕</button>
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/60 backdrop-blur-md p-4 transition-all duration-300 animate-[fadeIn_0.2s_ease-out]" onClick={() => setShowModal(false)}>
+          <div className="bg-white dark:bg-slate-900 rounded-[2rem] w-full max-w-md shadow-[0_20px_50px_-12px_rgba(0,0,0,0.5)] border border-slate-200/50 dark:border-slate-700/50 overflow-hidden transform transition-all" onClick={e => e.stopPropagation()}>
+            
+            {/* Header Modal */}
+            <div className="relative p-6 bg-gradient-to-br from-teal-500 via-emerald-500 to-teal-700 overflow-hidden">
+              <div className="absolute -top-10 -right-10 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
+              <div className="absolute bottom-0 right-10 w-24 h-24 bg-black/10 rounded-full blur-xl"></div>
+              
+              <div className="relative z-10 flex justify-between items-start">
+                <div>
+                  <div className="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-white/20 backdrop-blur-md text-white mb-3 shadow-inner border border-white/20">
+                    <BookOpen size={20} />
+                  </div>
+                  <h2 className="font-black text-2xl text-white tracking-tight">
+                    {editingId ? "Edit Halaqoh" : "Halaqoh Baru"}
+                  </h2>
+                  <p className="text-teal-50 text-sm mt-1 opacity-90">Masukan rincian data kelompok tahfidz</p>
+                </div>
+                <button onClick={() => setShowModal(false)} className="text-white/70 hover:text-white bg-black/10 hover:bg-black/20 p-2 rounded-full backdrop-blur-sm transition-all duration-200">
+                  <X size={16} />
+                </button>
+              </div>
             </div>
-            <form onSubmit={handleSaveHalaqoh} className="p-5 space-y-4">
+
+            <form onSubmit={handleSaveHalaqoh} className="p-6 space-y-5">
               <div>
                 <label className="block text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wider">Nama Halaqoh <span className="text-red-500">*</span></label>
-                <input
-                  type="text"
-                  required
-                  value={formData.nama}
-                  onChange={(e) => setFormData({ ...formData, nama: e.target.value })}
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
-                  placeholder="Misal: Halaqoh Abu Bakar"
-                />
+                <div className="relative">
+                  <input
+                    type="text"
+                    required
+                    value={formData.nama}
+                    onChange={(e) => setFormData({ ...formData, nama: e.target.value })}
+                    className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 text-slate-800 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all placeholder-slate-400"
+                    placeholder="Contoh: Halaqoh Abu Bakar"
+                  />
+                </div>
               </div>
               
               <div>
@@ -636,7 +654,7 @@ export default function ManajemenTahfidzPage() {
                 <select
                   value={formData.markazId}
                   onChange={(e) => setFormData({ ...formData, markazId: e.target.value })}
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+                  className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 text-slate-800 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all cursor-pointer"
                 >
                   <option value="">-- Pilih Markaz --</option>
                   {markazList.map(m => (
@@ -650,39 +668,38 @@ export default function ManajemenTahfidzPage() {
                 <select
                   value={formData.muhaffidzId}
                   onChange={(e) => setFormData({ ...formData, muhaffidzId: e.target.value })}
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+                  className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 text-slate-800 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all cursor-pointer"
                 >
-                  <option value="">-- Pilih Muhaffidz --</option>
+                  <option value="">-- Belum Ditentukan --</option>
                   {pegawaiList.map(p => (
                     <option key={p.id} value={p.id}>{p.namaLengkap}</option>
                   ))}
                 </select>
               </div>
 
-              <div className="flex items-center gap-2 pt-2">
-                <input
-                  type="checkbox"
-                  id="aktif"
-                  checked={formData.aktif}
-                  onChange={(e) => setFormData({ ...formData, aktif: e.target.checked })}
-                  className="w-4 h-4 rounded text-teal-600"
-                />
-                <label htmlFor="aktif" className="text-sm font-medium text-slate-700 dark:text-slate-300">Status Aktif</label>
+              <div className="flex items-center p-4 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" onClick={() => setFormData({ ...formData, aktif: !formData.aktif })}>
+                <div className="flex-1">
+                  <label className="text-sm font-bold text-slate-800 dark:text-white cursor-pointer">Status Aktif</label>
+                  <p className="text-xs text-slate-500 mt-0.5">Halaqoh yang tidak aktif akan disembunyikan</p>
+                </div>
+                <div className={`w-12 h-6 flex items-center rounded-full p-1 transition-colors duration-300 ease-in-out ${formData.aktif ? 'bg-teal-500' : 'bg-slate-300 dark:bg-slate-600'}`}>
+                  <div className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-300 ease-in-out ${formData.aktif ? 'translate-x-6' : 'translate-x-0'}`}></div>
+                </div>
               </div>
 
-              <div className="pt-4 flex justify-end gap-3">
+              <div className="pt-4 flex gap-3">
                 <button
                   type="button"
                   onClick={() => setShowModal(false)}
-                  className="px-5 py-2.5 text-slate-600 dark:text-slate-300 font-bold hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors"
+                  className="flex-1 py-3 text-slate-600 dark:text-slate-300 font-bold hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors text-sm"
                 >
                   Batal
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2.5 bg-teal-500 hover:bg-teal-600 text-white font-bold rounded-xl transition-colors shadow-lg shadow-teal-500/30"
+                  className="flex-1 py-3 bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 text-white font-bold rounded-xl transition-all shadow-lg shadow-teal-500/30 hover:shadow-teal-500/50 transform hover:-translate-y-0.5 active:translate-y-0 text-sm flex justify-center items-center gap-2"
                 >
-                  Simpan
+                  {editingId ? "Simpan Perubahan" : "Simpan Halaqoh"}
                 </button>
               </div>
             </form>

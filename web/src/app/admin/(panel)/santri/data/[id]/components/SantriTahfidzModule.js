@@ -217,32 +217,60 @@ export default function SantriTahfidzModule({ santriId, isEditable = false }) {
 
       {/* ── Modal Upload Sertifikat ── */}
       {isEditable && showSertifikatModal && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4" onClick={() => setShowSertifikatModal(false)}>
-          <div className="bg-white dark:bg-slate-900 rounded-2xl w-full max-w-sm shadow-xl border border-slate-200 dark:border-slate-800" onClick={e => e.stopPropagation()}>
-            <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-slate-50 dark:bg-slate-950/50 rounded-t-2xl">
-              <h3 className="font-bold text-slate-800 dark:text-white">Upload Sertifikat</h3>
-              <button onClick={() => setShowSertifikatModal(false)} className="text-slate-400 hover:text-slate-600">✕</button>
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/60 backdrop-blur-md p-4 transition-all duration-300 animate-[fadeIn_0.2s_ease-out]" onClick={() => setShowSertifikatModal(false)}>
+          <div className="bg-white dark:bg-slate-900 rounded-[2rem] w-full max-w-sm shadow-[0_20px_50px_-12px_rgba(0,0,0,0.5)] border border-slate-200/50 dark:border-slate-700/50 overflow-hidden transform transition-all" onClick={e => e.stopPropagation()}>
+            
+            <div className="relative p-6 bg-gradient-to-br from-indigo-500 via-blue-600 to-indigo-800 overflow-hidden">
+              <div className="absolute -top-10 -right-10 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
+              <div className="absolute bottom-0 right-10 w-24 h-24 bg-black/10 rounded-full blur-xl"></div>
+              
+              <div className="relative z-10 flex justify-between items-start">
+                <div>
+                  <div className="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-white/20 backdrop-blur-md text-white mb-3 shadow-inner border border-white/20">
+                    <Upload size={20} />
+                  </div>
+                  <h3 className="font-black text-xl text-white tracking-tight">Upload Sertifikat</h3>
+                  <p className="text-indigo-100 text-xs mt-1">Sertifikat untuk {sertifikatForm.tahapanNama}</p>
+                </div>
+                <button onClick={() => setShowSertifikatModal(false)} className="text-white/70 hover:text-white bg-black/10 hover:bg-black/20 p-2 rounded-full backdrop-blur-sm transition-all duration-200">
+                  <X size={16} />
+                </button>
+              </div>
             </div>
-            <form onSubmit={submitSertifikat} className="p-4 space-y-3">
+
+            <form onSubmit={submitSertifikat} className="p-6 space-y-4">
               <div>
-                <label className="block text-xs font-bold text-slate-500 mb-1">Judul Sertifikat</label>
-                <input type="text" required value={sertifikatForm.judul} onChange={e => setSertifikatForm({...sertifikatForm, judul: e.target.value})} className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm" placeholder="Misal: Sertifikat Tahapan" />
+                <label className="block text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wider">Judul Sertifikat <span className="text-red-500">*</span></label>
+                <input type="text" required value={sertifikatForm.judul} onChange={e => setSertifikatForm({...sertifikatForm, judul: e.target.value})} className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all placeholder-slate-400" placeholder="Misal: Sertifikat Tahapan" />
               </div>
+              
               <div>
-                <label className="block text-xs font-bold text-slate-500 mb-1">Penerbit</label>
-                <input type="text" value={sertifikatForm.penerbit} onChange={e => setSertifikatForm({...sertifikatForm, penerbit: e.target.value})} className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm" placeholder="Misal: Pesantren My MQ" />
+                <label className="block text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wider">Penerbit</label>
+                <input type="text" value={sertifikatForm.penerbit} onChange={e => setSertifikatForm({...sertifikatForm, penerbit: e.target.value})} className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all placeholder-slate-400" placeholder="Misal: Pesantren My MQ" />
               </div>
+
               <div>
-                <label className="block text-xs font-bold text-slate-500 mb-1">Tanggal Terbit</label>
-                <input type="date" required value={sertifikatForm.tanggal} onChange={e => setSertifikatForm({...sertifikatForm, tanggal: e.target.value})} className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm" />
+                <label className="block text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wider">Tanggal Terbit <span className="text-red-500">*</span></label>
+                <input type="date" required value={sertifikatForm.tanggal} onChange={e => setSertifikatForm({...sertifikatForm, tanggal: e.target.value})} className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all" />
               </div>
+
               <div>
-                <label className="block text-xs font-bold text-slate-500 mb-1">File Sertifikat (Gambar / PDF)</label>
-                <input type="file" required accept=".pdf,image/*" onChange={e => setSertifikatForm({...sertifikatForm, file: e.target.files[0]})} className="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-teal-50 file:text-teal-700 hover:file:bg-teal-100" />
+                <label className="block text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wider">File (Gambar / PDF) <span className="text-red-500">*</span></label>
+                <div className="relative border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-xl bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors p-4 flex flex-col items-center justify-center cursor-pointer group">
+                  <div className="p-2 bg-indigo-100 dark:bg-indigo-500/20 rounded-full text-indigo-600 dark:text-indigo-400 mb-2 group-hover:scale-110 transition-transform">
+                    <Upload size={18} />
+                  </div>
+                  <span className="text-xs font-medium text-slate-600 dark:text-slate-300 text-center">
+                    {sertifikatForm.file ? sertifikatForm.file.name : "Klik untuk memilih file"}
+                  </span>
+                  <input type="file" required accept=".pdf,image/*" onChange={e => setSertifikatForm({...sertifikatForm, file: e.target.files[0]})} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+                </div>
               </div>
-              <div className="pt-2">
-                <button type="submit" className="w-full py-2.5 bg-teal-500 hover:bg-teal-600 text-white font-bold rounded-xl transition-colors">
-                  Upload Sertifikat
+
+              <div className="pt-3">
+                <button type="submit" className="w-full py-3 bg-gradient-to-r from-indigo-500 to-blue-600 hover:from-indigo-600 hover:to-blue-700 text-white font-bold rounded-xl transition-all shadow-lg shadow-indigo-500/30 hover:shadow-indigo-500/50 transform hover:-translate-y-0.5 active:translate-y-0 text-sm flex justify-center items-center gap-2">
+                  <Upload size={18} />
+                  Upload Sekarang
                 </button>
               </div>
             </form>

@@ -99,67 +99,53 @@ export default function AdminDashboardPage() {
 
   return (
     <div className="space-y-6">
-      {/* ── Welcome Banner ── */}
-      <div className="bg-slate-900 rounded-2xl p-8 text-white relative overflow-hidden shadow-lg border border-slate-800">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3"></div>
-        <div className="absolute bottom-0 right-32 w-48 h-48 bg-blue-500/10 rounded-full blur-2xl translate-y-1/2"></div>
+      {/* ── Dashboard Header & Filters ── */}
+      <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm transition-colors flex flex-col xl:flex-row justify-between items-start xl:items-center gap-6">
+        <div>
+          <h2 className="text-2xl font-black text-slate-800 dark:text-white tracking-tight">Dashboard SPMB</h2>
+          <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">Pusat analitik pendaftar dan seleksi santri baru</p>
+        </div>
         
-        <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-          <div>
-            <h2 className="text-2xl font-bold mb-2">Selamat datang di Panel Admin! 👋</h2>
-            <p className="text-slate-400 max-w-xl text-sm leading-relaxed">
-              Pusat analitik Sistem Informasi Manajemen My MQ. Pantau pergerakan data pendaftar secara real-time.
-            </p>
-            <div className="mt-6 flex gap-3">
-              <Link href="/admin/ppdb/peserta" className="bg-emerald-500 hover:bg-emerald-600 text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow-md shadow-emerald-500/20 transition-all flex items-center gap-2">
-                Kelola SPMB Sekarang
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
-              </Link>
-            </div>
+        <div className="flex flex-col sm:flex-row gap-3 w-full xl:w-auto">
+          <div className="flex gap-3 w-full sm:w-auto">
+            <select 
+              value={filterMarkaz}
+              onChange={(e) => setFilterMarkaz(e.target.value)}
+              className="bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-white border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-emerald-500 transition-all cursor-pointer w-full sm:w-auto"
+            >
+              <option value="SEMUA">Semua Markaz</option>
+              {markazList.map(m => (
+                <option key={m.id} value={m.id}>{m.name}</option>
+              ))}
+            </select>
+            <select 
+              value={filterProgram}
+              onChange={(e) => setFilterProgram(e.target.value)}
+              className="bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-white border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-emerald-500 transition-all cursor-pointer w-full sm:w-auto"
+            >
+              <option value="SEMUA">Semua Program</option>
+              <option value="SD">SD</option>
+              <option value="SMP">SMP</option>
+              <option value="SMA">SMA</option>
+              <option value="MAHAD_ALY">Ma'had Aly</option>
+            </select>
           </div>
-          
-          <div className="flex flex-col gap-3 w-full md:w-auto bg-slate-800/50 p-4 rounded-xl border border-slate-700 backdrop-blur-sm">
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Filter Global</p>
-            <div className="flex gap-3">
-              <select 
-                value={filterMarkaz}
-                onChange={(e) => setFilterMarkaz(e.target.value)}
-                className="bg-slate-700 text-white border border-slate-600 rounded-lg px-3 py-2 text-sm outline-none focus:border-emerald-500 transition-colors"
-              >
-                <option value="SEMUA">Semua Markaz</option>
-                {markazList.map(m => (
-                  <option key={m.id} value={m.id}>{m.name}</option>
-                ))}
-              </select>
-              <select 
-                value={filterProgram}
-                onChange={(e) => setFilterProgram(e.target.value)}
-                className="bg-slate-700 text-white border border-slate-600 rounded-lg px-3 py-2 text-sm outline-none focus:border-emerald-500 transition-colors"
-              >
-                <option value="SEMUA">Semua Program</option>
-                <option value="SD">SD</option>
-                <option value="SMP">SMP</option>
-                <option value="SMA">SMA</option>
-                <option value="MAHAD_ALY">Ma'had Aly</option>
-              </select>
-            </div>
-            <div className="flex gap-3">
-              <input 
-                type="date"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-                className="bg-slate-700 text-white border border-slate-600 rounded-lg px-3 py-2 text-sm outline-none focus:border-emerald-500 transition-colors w-full"
-                title="Dari Tanggal"
-              />
-              <span className="text-slate-400 self-center text-sm">-</span>
-              <input 
-                type="date"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-                className="bg-slate-700 text-white border border-slate-600 rounded-lg px-3 py-2 text-sm outline-none focus:border-emerald-500 transition-colors w-full"
-                title="Sampai Tanggal"
-              />
-            </div>
+          <div className="flex gap-2 w-full sm:w-auto items-center">
+            <input 
+              type="date"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              className="bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-white border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-emerald-500 transition-all w-full"
+              title="Dari Tanggal"
+            />
+            <span className="text-slate-400 font-bold">-</span>
+            <input 
+              type="date"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              className="bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-white border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-emerald-500 transition-all w-full"
+              title="Sampai Tanggal"
+            />
           </div>
         </div>
       </div>
