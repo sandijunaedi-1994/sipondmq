@@ -1,17 +1,19 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { BookOpen, Users, Plus, Edit2, Trash2, ShieldCheck, FileText } from "lucide-react";
+import { BookOpen, Users, Plus, Edit2, Trash2, ShieldCheck, FileText, Search, ChevronLeft } from "lucide-react";
+import SantriTahfidzModule from "../../santri/data/[id]/components/SantriTahfidzModule";
 
 export default function ManajemenTahfidzPage() {
-  const [activeTab, setActiveTab] = useState("halaqoh");
+  const [activeTab, setActiveTab] = useState("halaqoh"); // halaqoh, santri
   
   // Data
   const [halaqohList, setHalaqohList] = useState([]);
   const [pegawaiList, setPegawaiList] = useState([]);
+  const [santriList, setSantriList] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Form
+  // Form Halaqoh
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState({
@@ -19,6 +21,10 @@ export default function ManajemenTahfidzPage() {
     muhaffidzId: "",
     aktif: true
   });
+
+  // Santri Tab
+  const [searchSantri, setSearchSantri] = useState("");
+  const [selectedSantri, setSelectedSantri] = useState(null);
 
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
 
@@ -32,16 +38,19 @@ export default function ManajemenTahfidzPage() {
       const token = localStorage.getItem("admin_token");
       const headers = { Authorization: `Bearer ${token}` };
 
-      const [resHalaqoh, resPegawai] = await Promise.all([
+      const [resHalaqoh, resPegawai, resSantri] = await Promise.all([
         fetch(`${apiUrl}/api/admin/halaqoh`, { headers }),
-        fetch(`${apiUrl}/api/admin/sdm/pegawai`, { headers })
+        fetch(`${apiUrl}/api/admin/sdm/pegawai`, { headers }),
+        fetch(`${apiUrl}/api/admin/santri`, { headers })
       ]);
 
       const dataHalaqoh = await resHalaqoh.json();
       const dataPegawai = await resPegawai.json();
+      const dataSantri = await resSantri.json();
 
       if (dataHalaqoh.success) setHalaqohList(dataHalaqoh.halaqoh);
       if (dataPegawai.success) setPegawaiList(dataPegawai.pegawai);
+      if (dataSantri.success) setSantriList(dataSantri.santri || []);
     } catch (err) {
       alert("Gagal memuat data halaqoh");
     } finally {
@@ -123,6 +132,13 @@ export default function ManajemenTahfidzPage() {
     setShowModal(true);
   };
 
+  const filteredSantri = santriList.filter(s => {
+    const term = searchSantri.toLowerCase();
+    const nama = s.registration?.studentName?.toLowerCase() || "";
+    const nis = s.nis?.toLowerCase() || "";
+    return nama.includes(term) || nis.includes(term);
+  });
+
   return (
     <div className="space-y-6">
       <div>
@@ -136,11 +152,14 @@ export default function ManajemenTahfidzPage() {
       <div className="flex gap-2 overflow-x-auto pb-2 border-b border-slate-200 dark:border-slate-800">
         {[
           { id: "halaqoh", label: "Daftar Halaqoh", icon: <Users size={18} /> },
-          // Tambahkan tab statistik/laporan nanti
+          { id: "santri", label: "Progress Santri", icon: <FileText size={18} /> }
         ].map((tab) => (
           <button
             key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
+            onClick={() => {
+              setActiveTab(tab.id);
+              if (tab.id !== "santri") setSelectedSantri(null);
+            }}
             className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap ${
               activeTab === tab.id
                 ? "bg-teal-50 text-teal-600 dark:bg-teal-500/10 dark:text-teal-400"
@@ -152,7 +171,7 @@ export default function ManajemenTahfidzPage() {
         ))}
       </div>
 
-      {/* Tab Content */}
+      {/* Tab Content: Halaqoh */}
       {activeTab === "halaqoh" && (
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden">
           <div className="p-5 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center">
@@ -223,7 +242,76 @@ export default function ManajemenTahfidzPage() {
         </div>
       )}
 
-      {/* Modal Form */}
+      {/* Tab Content: Progress Santri */}
+      {activeTab === "santri" && (
+        <div className="space-y-4">
+          {!selectedSantri ? (
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm p-5">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="font-bold text-slate-800 dark:text-white">Pilih Santri</h2>
+                <div className="relative w-64">
+                  <input
+                    type="text"
+                    placeholder="Cari nama / NIS..."
+                    value={searchSantri}
+                    onChange={e => setSearchSantri(e.target.value)}
+                    className="w-full pl-9 pr-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm"
+                  />
+                  <Search className="absolute left-3 top-2.5 text-slate-400" size={16} />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-[60vh] overflow-y-auto pr-2">
+                {loading ? (
+                  <div className="col-span-full p-8 text-center text-slate-500">Memuat data santri...</div>
+                ) : filteredSantri.length === 0 ? (
+                  <div className="col-span-full p-8 text-center text-slate-500 bg-slate-50 dark:bg-slate-800/50 rounded-xl">Tidak ada santri ditemukan.</div>
+                ) : (
+                  filteredSantri.map(s => (
+                    <div 
+                      key={s.id} 
+                      onClick={() => setSelectedSantri(s)}
+                      className="p-4 border border-slate-200 dark:border-slate-700 rounded-xl hover:border-teal-400 dark:hover:border-teal-500 hover:shadow-md cursor-pointer transition-all bg-white dark:bg-slate-900 flex items-center gap-3"
+                    >
+                      <div className="w-10 h-10 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center font-bold text-slate-500 shrink-0">
+                        {s.registration?.studentName?.charAt(0) || "-"}
+                      </div>
+                      <div>
+                        <p className="font-bold text-slate-800 dark:text-slate-100 text-sm line-clamp-1">{s.registration?.studentName}</p>
+                        <p className="text-xs text-slate-500">{s.nis || "No NIS"} • {s.kelas?.nama || "No Kelas"}</p>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <button 
+                onClick={() => setSelectedSantri(null)}
+                className="flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-slate-800 dark:hover:text-white"
+              >
+                <ChevronLeft size={16} /> Kembali ke Daftar Santri
+              </button>
+              
+              <div className="bg-white dark:bg-slate-900 p-5 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm flex items-center gap-4">
+                <div className="w-12 h-12 bg-teal-100 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400 rounded-full flex items-center justify-center font-bold text-lg">
+                  {selectedSantri.registration?.studentName?.charAt(0)}
+                </div>
+                <div>
+                  <h2 className="text-lg font-black text-slate-800 dark:text-white">{selectedSantri.registration?.studentName}</h2>
+                  <p className="text-sm text-slate-500">{selectedSantri.nis} • {selectedSantri.kelas?.nama}</p>
+                </div>
+              </div>
+
+              {/* Panggil Module dengan isEditable=true */}
+              <SantriTahfidzModule santriId={selectedSantri.id} isEditable={true} />
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Modal Form Halaqoh */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
           <div className="bg-white dark:bg-slate-900 rounded-2xl w-full max-w-md shadow-2xl border border-slate-200 dark:border-slate-800">
