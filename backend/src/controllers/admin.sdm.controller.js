@@ -1,6 +1,55 @@
 const prisma = require('../lib/prisma');
 const { logActivity } = require('../utils/logger');
 
+// Helper: Urutkan posisi organisasi (Unit root paling atas)
+const sortPosisiOrganisasi = async (pegawaiListOrSingle) => {
+  const isArray = Array.isArray(pegawaiListOrSingle);
+  const dataList = isArray ? pegawaiListOrSingle : [pegawaiListOrSingle];
+  
+  if (dataList.length === 0) return;
+
+  let hasPosisi = false;
+  for (const p of dataList) {
+    if (p.posisiOrganisasi && p.posisiOrganisasi.length > 1) {
+      hasPosisi = true;
+      break;
+    }
+  }
+
+  if (!hasPosisi) return;
+
+  const allUnits = await prisma.sdmUnit.findMany({ select: { id: true, parentId: true } });
+  const unitDepthMap = {};
+  
+  const getDepth = (unitId) => {
+    if (unitDepthMap[unitId] !== undefined) return unitDepthMap[unitId];
+    const unit = allUnits.find(u => u.id === unitId);
+    if (!unit) return 0;
+    if (!unit.parentId) {
+      unitDepthMap[unitId] = 0;
+      return 0;
+    }
+    const depth = 1 + getDepth(unit.parentId);
+    unitDepthMap[unitId] = depth;
+    return depth;
+  };
+
+  allUnits.forEach(u => getDepth(u.id));
+
+  dataList.forEach(pegawai => {
+    if (pegawai.posisiOrganisasi && pegawai.posisiOrganisasi.length > 1) {
+      pegawai.posisiOrganisasi.sort((a, b) => {
+        const depthA = unitDepthMap[a.unitId] || 0;
+        const depthB = unitDepthMap[b.unitId] || 0;
+        if (depthA !== depthB) return depthA - depthB;
+        if (a.isKepala && !b.isKepala) return -1;
+        if (!a.isKepala && b.isKepala) return 1;
+        return a.nama.localeCompare(b.nama);
+      });
+    }
+  });
+};
+
 // Mendapatkan daftar pegawai dengan filter dan pencarian
 const getPegawaiList = async (req, res) => {
   try {
@@ -40,6 +89,8 @@ const getPegawaiList = async (req, res) => {
       }),
       prisma.pegawai.count({ where: whereClause })
     ]);
+
+    await sortPosisiOrganisasi(pegawaiList);
 
     const stats = {
       total: totalData,
@@ -81,6 +132,8 @@ const getPegawaiById = async (req, res) => {
     });
 
     if (!pegawai) return res.status(404).json({ message: 'Data pegawai tidak ditemukan' });
+
+    await sortPosisiOrganisasi(pegawai);
 
     res.status(200).json({ pegawai });
   } catch (error) {
