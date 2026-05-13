@@ -63,7 +63,7 @@ export default function ManajemenTahfidzPage() {
         fetch(`${apiUrl}/api/admin/halaqoh`, { headers }),
         fetch(`${apiUrl}/api/admin/sdm/pegawai`, { headers }),
         fetch(`${apiUrl}/api/admin/markaz`, { headers }),
-        fetch(`${apiUrl}/api/admin/santri`, { headers }),
+        fetch(`${apiUrl}/api/admin/santri?limit=1000`, { headers }),
         fetch(`${apiUrl}/api/admin/tahfidz/hafalan`, { headers }) // global hafalan
       ]);
 
@@ -75,7 +75,7 @@ export default function ManajemenTahfidzPage() {
 
       if (dataHalaqoh.success) setHalaqohList(dataHalaqoh.halaqoh);
       if (dataPegawai.success) setPegawaiList(dataPegawai.pegawai);
-      if (dataMarkaz.success) setMarkazList(dataMarkaz.markaz || dataMarkaz.data || []);
+      if (dataMarkaz.markaz) setMarkazList(dataMarkaz.markaz);
       if (dataSantri.success) setSantriList(dataSantri.santri || []);
       if (dataHafalan.success) setGlobalHafalan(dataHafalan.hafalan || []);
     } catch (err) {
@@ -374,7 +374,7 @@ export default function ManajemenTahfidzPage() {
                       </div>
                       <div>
                         <p className="font-bold text-slate-800 dark:text-slate-100 text-sm line-clamp-1">{s.registration?.studentName}</p>
-                        <p className="text-xs text-slate-500">{s.nis || "No NIS"} • {s.kelas?.nama || "No Kelas"}</p>
+                        <p className="text-xs text-slate-500">{s.nis || "No NIS"} • {s.kelas || "No Kelas"}</p>
                       </div>
                     </div>
                   ))
@@ -396,7 +396,7 @@ export default function ManajemenTahfidzPage() {
                 </div>
                 <div>
                   <h2 className="text-lg font-black text-slate-800 dark:text-white">{selectedSantri.registration?.studentName}</h2>
-                  <p className="text-sm text-slate-500">{selectedSantri.nis} • {selectedSantri.kelas?.nama}</p>
+                  <p className="text-sm text-slate-500">{selectedSantri.nis} • {selectedSantri.kelas}</p>
                 </div>
               </div>
 
@@ -525,7 +525,7 @@ export default function ManajemenTahfidzPage() {
                           <td className="px-4 py-3 text-xs whitespace-nowrap">{new Date(h.tanggal).toLocaleDateString('id-ID')}</td>
                           <td className="px-4 py-3">
                             <div className="font-bold text-slate-800 dark:text-white text-xs line-clamp-1">{h.santri?.registration?.studentName}</div>
-                            <div className="text-[10px] text-slate-500">{h.santri?.kelas?.nama}</div>
+                            <div className="text-[10px] text-slate-500">{h.santri?.kelasRef?.nama || h.santri?.kelas || "-"}</div>
                           </td>
                           <td className="px-4 py-3 text-center">{h.targetHal}</td>
                           <td className="px-4 py-3 text-center font-bold text-teal-600 dark:text-teal-400">{h.capaianHal}</td>

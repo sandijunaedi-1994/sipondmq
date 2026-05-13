@@ -183,7 +183,7 @@ exports.getGlobalHafalan = async (req, res) => {
         santri: {
           include: {
             registration: { select: { studentName: true } },
-            kelas: { select: { nama: true } }
+            kelasRef: { select: { nama: true } }
           }
         }
       }
