@@ -33,7 +33,7 @@ export default function TabStruktur() {
       });
       if (resPegawai.ok) {
         const dataPegawai = await resPegawai.json();
-        setPegawaiList(dataPegawai.pegawai || []);
+        setPegawaiList(dataPegawai.data || []);
       }
     } catch (err) {
       console.error(err);
