@@ -74,7 +74,8 @@ const getPegawaiById = async (req, res) => {
         user: { select: { id: true, email: true } },
         markaz: true,
         pendidikan: { orderBy: { tahunLulus: 'desc' } },
-        berkas: true
+        berkas: true,
+        posisiOrganisasi: { include: { unit: true } }
       }
     });
 

@@ -230,6 +230,32 @@ export default function DetailPegawaiPage() {
             </div>
           </div>
 
+          {/* Kartu Struktur Organisasi */}
+          {pegawai.posisiOrganisasi && pegawai.posisiOrganisasi.length > 0 && (
+            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 p-6 transition-colors">
+              <h3 className="text-sm font-black text-slate-800 dark:text-slate-100 uppercase tracking-widest mb-4 flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-indigo-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path></svg>
+                Jabatan Struktural
+              </h3>
+              <div className="space-y-3">
+                {pegawai.posisiOrganisasi.map((pos) => (
+                  <div key={pos.id} className="p-3 bg-indigo-50 dark:bg-indigo-500/10 rounded-xl border border-indigo-100 dark:border-indigo-500/20 flex flex-col gap-1">
+                    <div className="flex items-start justify-between gap-2">
+                      <span className="text-sm font-bold text-indigo-700 dark:text-indigo-400">{pos.nama}</span>
+                      {pos.isKepala && (
+                        <span className="px-2 py-0.5 text-[10px] font-black bg-indigo-600 text-white rounded-md whitespace-nowrap">KEPALA</span>
+                      )}
+                    </div>
+                    <span className="text-xs font-semibold text-indigo-600/70 dark:text-indigo-400/70 flex items-center gap-1">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect><path d="M9 22v-4h6v4"></path><path d="M8 6h.01"></path><path d="M16 6h.01"></path><path d="M12 6h.01"></path><path d="M12 10h.01"></path><path d="M12 14h.01"></path><path d="M16 10h.01"></path><path d="M16 14h.01"></path><path d="M8 10h.01"></path><path d="M8 14h.01"></path></svg>
+                      {pos.unit?.nama || '-'}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Kartu Status Tautan Akun */}
           <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 p-6 transition-colors">
             <h3 className="text-sm font-black text-slate-800 dark:text-slate-100 uppercase tracking-widest mb-4 flex items-center gap-2">
