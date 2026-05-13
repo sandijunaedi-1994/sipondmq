@@ -10,6 +10,7 @@ export default function ManajemenTahfidzPage() {
   // Data
   const [halaqohList, setHalaqohList] = useState([]);
   const [pegawaiList, setPegawaiList] = useState([]);
+  const [markazList, setMarkazList] = useState([]);
   const [santriList, setSantriList] = useState([]);
   const [globalHafalan, setGlobalHafalan] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -20,6 +21,7 @@ export default function ManajemenTahfidzPage() {
   const [formData, setFormData] = useState({
     nama: "",
     muhaffidzId: "",
+    markazId: "",
     aktif: true
   });
 
@@ -43,6 +45,12 @@ export default function ManajemenTahfidzPage() {
 
   useEffect(() => {
     fetchData();
+
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") setShowModal(false);
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
   const fetchData = async () => {
@@ -51,20 +59,23 @@ export default function ManajemenTahfidzPage() {
       const token = localStorage.getItem("admin_token");
       const headers = { Authorization: `Bearer ${token}` };
 
-      const [resHalaqoh, resPegawai, resSantri, resHafalan] = await Promise.all([
+      const [resHalaqoh, resPegawai, resMarkaz, resSantri, resHafalan] = await Promise.all([
         fetch(`${apiUrl}/api/admin/halaqoh`, { headers }),
         fetch(`${apiUrl}/api/admin/sdm/pegawai`, { headers }),
+        fetch(`${apiUrl}/api/admin/markaz`, { headers }),
         fetch(`${apiUrl}/api/admin/santri`, { headers }),
         fetch(`${apiUrl}/api/admin/tahfidz/hafalan`, { headers }) // global hafalan
       ]);
 
       const dataHalaqoh = await resHalaqoh.json();
       const dataPegawai = await resPegawai.json();
+      const dataMarkaz = await resMarkaz.json();
       const dataSantri = await resSantri.json();
       const dataHafalan = await resHafalan.json();
 
       if (dataHalaqoh.success) setHalaqohList(dataHalaqoh.halaqoh);
       if (dataPegawai.success) setPegawaiList(dataPegawai.pegawai);
+      if (dataMarkaz.success) setMarkazList(dataMarkaz.markaz || dataMarkaz.data || []);
       if (dataSantri.success) setSantriList(dataSantri.santri || []);
       if (dataHafalan.success) setGlobalHafalan(dataHafalan.hafalan || []);
     } catch (err) {
@@ -186,6 +197,7 @@ export default function ManajemenTahfidzPage() {
       setFormData({
         nama: h.nama,
         muhaffidzId: h.muhaffidzId || "",
+        markazId: h.markazId || "",
         aktif: h.aktif
       });
     } else {
@@ -193,6 +205,7 @@ export default function ManajemenTahfidzPage() {
       setFormData({
         nama: "",
         muhaffidzId: "",
+        markazId: "",
         aktif: true
       });
     }
@@ -270,6 +283,7 @@ export default function ManajemenTahfidzPage() {
               <thead className="bg-slate-50 dark:bg-slate-800/50 text-slate-700 dark:text-slate-200 font-semibold border-b border-slate-200 dark:border-slate-800 uppercase text-[11px] tracking-wider">
                 <tr>
                   <th className="px-6 py-4">Nama Halaqoh</th>
+                  <th className="px-6 py-4">Markaz</th>
                   <th className="px-6 py-4">Muhaffidz / Pengampu</th>
                   <th className="px-6 py-4 text-center">Jml Santri</th>
                   <th className="px-6 py-4">Status</th>
@@ -279,16 +293,17 @@ export default function ManajemenTahfidzPage() {
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
                 {loading ? (
                   <tr>
-                    <td colSpan={5} className="text-center p-10 text-slate-500">Memuat data...</td>
+                    <td colSpan={6} className="text-center p-10 text-slate-500">Memuat data...</td>
                   </tr>
                 ) : halaqohList.length === 0 ? (
                   <tr>
-                    <td colSpan={5} className="text-center p-10 text-slate-500">Belum ada data halaqoh.</td>
+                    <td colSpan={6} className="text-center p-10 text-slate-500">Belum ada data halaqoh.</td>
                   </tr>
                 ) : (
                   halaqohList.map((h) => (
                     <tr key={h.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
                       <td className="px-6 py-4 font-bold text-slate-800 dark:text-white">{h.nama}</td>
+                      <td className="px-6 py-4">{h.markaz?.nama || <span className="text-slate-400 italic">-</span>}</td>
                       <td className="px-6 py-4">{h.muhaffidz?.namaLengkap || <span className="text-slate-400 italic">Belum ditentukan</span>}</td>
                       <td className="px-6 py-4 text-center">
                         <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 font-bold text-xs">
@@ -529,8 +544,8 @@ export default function ManajemenTahfidzPage() {
 
       {/* Modal Form Halaqoh */}
       {showModal && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
-          <div className="bg-white dark:bg-slate-900 rounded-2xl w-full max-w-md shadow-2xl border border-slate-200 dark:border-slate-800">
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4" onClick={() => setShowModal(false)}>
+          <div className="bg-white dark:bg-slate-900 rounded-2xl w-full max-w-md shadow-2xl border border-slate-200 dark:border-slate-800" onClick={e => e.stopPropagation()}>
             <div className="p-5 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center">
               <h2 className="font-bold text-lg text-slate-800 dark:text-white">
                 {editingId ? "Edit Halaqoh" : "Tambah Halaqoh"}
@@ -550,6 +565,20 @@ export default function ManajemenTahfidzPage() {
                 />
               </div>
               
+              <div>
+                <label className="block text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wider">Markaz</label>
+                <select
+                  value={formData.markazId}
+                  onChange={(e) => setFormData({ ...formData, markazId: e.target.value })}
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+                >
+                  <option value="">-- Pilih Markaz --</option>
+                  {markazList.map(m => (
+                    <option key={m.id} value={m.id}>{m.nama}</option>
+                  ))}
+                </select>
+              </div>
+
               <div>
                 <label className="block text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wider">Muhaffidz (Pengampu)</label>
                 <select

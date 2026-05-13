@@ -17,6 +17,12 @@ export default function SantriTahfidzModule({ santriId, isEditable = false }) {
     if (santriId) {
       fetchTahapan();
     }
+
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") setShowSertifikatModal(false);
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, [santriId]);
 
   const fetchTahapan = async () => {
@@ -211,8 +217,8 @@ export default function SantriTahfidzModule({ santriId, isEditable = false }) {
 
       {/* ── Modal Upload Sertifikat ── */}
       {isEditable && showSertifikatModal && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
-          <div className="bg-white dark:bg-slate-900 rounded-2xl w-full max-w-sm shadow-xl border border-slate-200 dark:border-slate-800">
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4" onClick={() => setShowSertifikatModal(false)}>
+          <div className="bg-white dark:bg-slate-900 rounded-2xl w-full max-w-sm shadow-xl border border-slate-200 dark:border-slate-800" onClick={e => e.stopPropagation()}>
             <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-slate-50 dark:bg-slate-950/50 rounded-t-2xl">
               <h3 className="font-bold text-slate-800 dark:text-white">Upload Sertifikat</h3>
               <button onClick={() => setShowSertifikatModal(false)} className="text-slate-400 hover:text-slate-600">✕</button>
