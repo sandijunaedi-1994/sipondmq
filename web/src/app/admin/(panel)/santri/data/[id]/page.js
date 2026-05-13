@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
+import SantriTahfidzModule from "./components/SantriTahfidzModule";
 
 export default function SantriDetailPage() {
   const { id } = useParams();
@@ -358,16 +359,8 @@ export default function SantriDetailPage() {
             )}
           </div>
 
-          {/* Modul Placeholder */}
-          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 p-6 text-center min-h-[200px] flex flex-col items-center justify-center">
-            <div className="w-16 h-16 bg-slate-50 dark:bg-slate-950 rounded-full flex items-center justify-center mb-4 border border-slate-100 dark:border-slate-800">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
-            </div>
-            <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-1.5">Modul Sedang Dikembangkan</h3>
-            <p className="text-slate-500 dark:text-slate-400 max-w-sm mx-auto text-xs">
-              Fitur riwayat tagihan, tahfidz, kehadiran, poin pelanggaran, dan aktivitas santri akan ditampilkan di area ini pada update mendatang.
-            </p>
-          </div>
+          {/* Modul Tahfidz */}
+          <SantriTahfidzModule santriId={id} />
         </div>
 
       </div>

@@ -8,7 +8,8 @@ import MasterTime from "./components/MasterTime";
 import CatatanPribadi from "./components/CatatanPribadi";
 import ProfilPribadi from "./components/ProfilPribadi";
 import RuangWaliKelas from "./components/RuangWaliKelas";
-import { Clock, Calendar, MapPin, BarChart2, ClipboardList, CalendarDays, Edit3, History, Sun, Moon, Sunrise, Sunset, UserCircle, Users } from "lucide-react";
+import RuangMuhaffidz from "./components/RuangMuhaffidz";
+import { BookOpen, Clock, Calendar, MapPin, BarChart2, ClipboardList, CalendarDays, Edit3, History, Sun, Moon, Sunrise, Sunset, UserCircle, Users } from "lucide-react";
 
 export default function DashboardPribadiPage() {
   const [activeTab, setActiveTab] = useState("ringkasan");
@@ -137,6 +138,9 @@ export default function DashboardPribadiPage() {
     insertIndex++;
   }
   
+  tabs.splice(insertIndex, 0, { id: "muhaffidz", name: "Ruang Muhaffidz", icon: <BookOpen size={22} strokeWidth={2.5} />, color: "text-emerald-500", bg: "bg-emerald-50 dark:bg-emerald-500/10 border-emerald-100 dark:border-emerald-500/20" });
+  insertIndex++;
+  
   if (!isSuperAdmin) {
     tabs.splice(insertIndex, 0, { id: "profil", name: "Profil", icon: <UserCircle size={22} strokeWidth={2.5} />, color: "text-indigo-500", bg: "bg-indigo-50 dark:bg-indigo-500/10 border-indigo-100 dark:border-indigo-500/20" });
   }
@@ -145,6 +149,7 @@ export default function DashboardPribadiPage() {
     switch(activeTab) {
       case "ringkasan": return "Ringkasan Harian";
       case "wali_kelas": return "Ruang Wali Kelas";
+      case "muhaffidz": return "Ruang Muhaffidz";
       case "profil": return "Profil Pribadi";
       case "aktivitas_rutin": return "Aktivitas Rutin";
       case "master_time": return "Master Time: Calendar";
@@ -277,6 +282,7 @@ export default function DashboardPribadiPage() {
         <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 w-full min-w-0">
           {activeTab === "ringkasan" && <RingkasanPribadi />}
           {activeTab === "wali_kelas" && <RuangWaliKelas />}
+          {activeTab === "muhaffidz" && <RuangMuhaffidz />}
           {activeTab === "profil" && <ProfilPribadi />}
           {activeTab === "aktivitas_rutin" && <AktivitasRutin />}
           {activeTab === "master_time" && <MasterTime />}

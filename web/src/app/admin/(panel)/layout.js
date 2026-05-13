@@ -128,7 +128,7 @@ export default function AdminLayout({ children }) {
     { 
       name: "Akademik", icon: "📚", permission: null,
       subItems: [
-        { name: "Hafalan Qur'an", path: "/admin/quran", permission: "QURAN_VIEW" },
+        { name: "Hafalan Qur'an", path: "/admin/akademik/tahfidz", permission: "QURAN_VIEW" },
         { name: "Hafalan Matan", path: "/admin/matan", permission: "MATAN_VIEW" },
         { name: "Pelanggaran", path: "/admin/pelanggaran", permission: "PELANGGARAN_VIEW" },
         { name: "Prestasi", path: "/admin/prestasi", permission: "PRESTASI_VIEW" }

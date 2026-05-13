@@ -282,6 +282,30 @@ const {
 // ==========================================
 // 14. MANAJEMEN SDM (PEGAWAI)
 // ==========================================
+
+const tahfidzController = require('../controllers/admin.tahfidz.controller');
+const halaqohController = require('../controllers/admin.halaqoh.controller');
+
+// ==========================================
+// TAHFIDZ & HALAQOH
+// ==========================================
+router.get('/tahfidz/:santriId/tahapan', requireAdmin, tahfidzController.getTahapanSantri);
+router.put('/tahfidz/:santriId/tahapan', requireAdmin, tahfidzController.updateTahapanSantri);
+router.get('/tahfidz/:santriId/hafalan', requireAdmin, tahfidzController.getHafalanHarian);
+router.post('/tahfidz/:santriId/hafalan', requireAdmin, tahfidzController.addHafalanHarian);
+router.get('/tahfidz/:santriId/sertifikat', requireAdmin, tahfidzController.getSertifikatTahfidz);
+router.post('/tahfidz/:santriId/sertifikat', requireAdmin, uploadDisk.single('file'), tahfidzController.uploadSertifikatTahfidz);
+router.delete('/tahfidz/sertifikat/:id', requireAdmin, tahfidzController.deleteSertifikatTahfidz);
+
+router.get('/halaqoh/me', requireAdmin, halaqohController.getMyHalaqoh);
+router.get('/halaqoh', requireAdmin, halaqohController.getHalaqoh);
+router.post('/halaqoh', requireAdmin, halaqohController.createHalaqoh);
+router.put('/halaqoh/:id', requireAdmin, halaqohController.updateHalaqoh);
+router.delete('/halaqoh/:id', requireAdmin, halaqohController.deleteHalaqoh);
+router.get('/halaqoh/:halaqohId/santri', requireAdmin, halaqohController.getSantriHalaqoh);
+router.post('/halaqoh/:halaqohId/santri', requireAdmin, halaqohController.assignSantriHalaqoh);
+router.delete('/halaqoh/santri/:santriId', requireAdmin, halaqohController.removeSantriHalaqoh);
+router.post('/halaqoh/:halaqohId/absensi', requireAdmin, halaqohController.inputAbsensiHalaqoh);
 router.get('/sdm/pegawai/me', requireAdmin, getMyProfile);
 router.post('/sdm/pegawai/me/foto', requireAdmin, uploadDisk.single('file'), uploadFotoProfil);
 router.get('/sdm/pegawai', requireAdmin, getPegawaiList);
