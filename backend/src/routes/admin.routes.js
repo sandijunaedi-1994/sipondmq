@@ -276,7 +276,9 @@ const {
   deletePegawai,
   linkAccount,
   getMyProfile,
-  uploadFotoProfil
+  uploadFotoProfil,
+  uploadPegawaiBerkas,
+  deletePegawaiBerkas
 } = require('../controllers/admin.sdm.controller');
 
 // ==========================================
@@ -318,5 +320,7 @@ router.post('/sdm/pegawai', requireAdmin, createPegawai);
 router.put('/sdm/pegawai/:id', requireAdmin, updatePegawai);
 router.delete('/sdm/pegawai/:id', requireAdmin, deletePegawai);
 router.post('/sdm/pegawai/:id/link', requireAdmin, linkAccount);
+router.post('/sdm/pegawai/:id/berkas', requireAdmin, uploadDisk.single('file'), uploadPegawaiBerkas);
+router.delete('/sdm/pegawai/:id/berkas/:berkasId', requireAdmin, deletePegawaiBerkas);
 
 module.exports = router;

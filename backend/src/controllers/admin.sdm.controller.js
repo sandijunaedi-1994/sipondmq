@@ -30,7 +30,8 @@ const getPegawaiList = async (req, res) => {
           },
           markaz: {
             select: { id: true, nama: true, kode: true }
-          }
+          },
+          pendidikan: { orderBy: { tahunLulus: 'desc' } }
         },
         skip,
         take: parseInt(limit),
@@ -71,7 +72,9 @@ const getPegawaiById = async (req, res) => {
       where: { id },
       include: {
         user: { select: { id: true, email: true } },
-        markaz: true
+        markaz: true,
+        pendidikan: { orderBy: { tahunLulus: 'desc' } },
+        berkas: true
       }
     });
 
@@ -118,7 +121,16 @@ const createPegawai = async (req, res) => {
         statusPegawai: data.statusPegawai || 'KONTRAK',
         tinggalDiKomplek: data.tinggalDiKomplek || false,
         domisiliMarkaz: data.domisiliMarkaz || null,
-        jarakRumah: data.jarakRumah ? parseFloat(data.jarakRumah) : null
+        jarakRumah: data.jarakRumah ? parseFloat(data.jarakRumah) : null,
+        pendidikan: data.pendidikan && data.pendidikan.length > 0 ? {
+          create: data.pendidikan.map(p => ({
+            tingkat: p.tingkat,
+            institusi: p.institusi,
+            jurusan: p.jurusan || null,
+            tahunLulus: p.tahunLulus ? parseInt(p.tahunLulus) : null,
+            isTerakhir: p.isTerakhir || false
+          }))
+        } : undefined
       }
     });
 
@@ -176,7 +188,17 @@ const updatePegawai = async (req, res) => {
         statusPegawai: data.statusPegawai || existing.statusPegawai,
         tinggalDiKomplek: data.tinggalDiKomplek !== undefined ? data.tinggalDiKomplek : existing.tinggalDiKomplek,
         domisiliMarkaz: data.domisiliMarkaz !== undefined ? data.domisiliMarkaz : existing.domisiliMarkaz,
-        jarakRumah: data.jarakRumah !== undefined ? (data.jarakRumah ? parseFloat(data.jarakRumah) : null) : existing.jarakRumah
+        jarakRumah: data.jarakRumah !== undefined ? (data.jarakRumah ? parseFloat(data.jarakRumah) : null) : existing.jarakRumah,
+        pendidikan: data.pendidikan ? {
+          deleteMany: {},
+          create: data.pendidikan.map(p => ({
+            tingkat: p.tingkat,
+            institusi: p.institusi,
+            jurusan: p.jurusan || null,
+            tahunLulus: p.tahunLulus ? parseInt(p.tahunLulus) : null,
+            isTerakhir: p.isTerakhir || false
+          }))
+        } : undefined
       }
     });
 
@@ -322,6 +344,91 @@ const uploadFotoProfil = async (req, res) => {
   }
 };
 
+const fs = require('fs');
+const path = require('path');
+
+const uploadPegawaiBerkas = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { jenis } = req.body;
+
+    if (!req.file) {
+      return res.status(400).json({ message: 'Tidak ada file yang diunggah' });
+    }
+    if (!jenis) {
+      return res.status(400).json({ message: 'Jenis berkas tidak disertakan' });
+    }
+
+    const pegawai = await prisma.pegawai.findUnique({ where: { id } });
+    if (!pegawai) {
+      return res.status(404).json({ message: 'Data pegawai tidak ditemukan' });
+    }
+
+    const fileUrl = `/uploads/avatars/${req.file.filename}`; // We use the same destination as uploadDisk for now
+    
+    const berkas = await prisma.pegawaiBerkas.create({
+      data: {
+        pegawaiId: id,
+        jenis: jenis,
+        namaFile: req.file.originalname,
+        fileUrl: fileUrl
+      }
+    });
+
+    await logActivity({
+      userId: req.user.userId,
+      action: 'CREATE',
+      entity: 'PegawaiBerkas',
+      entityId: berkas.id,
+      details: `Mengunggah berkas ${jenis} untuk pegawai: ${pegawai.namaLengkap}`,
+      req
+    });
+
+    res.status(200).json({ message: 'Berkas berhasil diunggah', berkas });
+  } catch (error) {
+    console.error("Error uploadPegawaiBerkas:", error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+const deletePegawaiBerkas = async (req, res) => {
+  try {
+    const { id, berkasId } = req.params;
+
+    const berkas = await prisma.pegawaiBerkas.findUnique({ where: { id: berkasId } });
+    if (!berkas || berkas.pegawaiId !== id) {
+      return res.status(404).json({ message: 'Berkas tidak ditemukan' });
+    }
+
+    await prisma.pegawaiBerkas.delete({ where: { id: berkasId } });
+
+    // Hapus file fisik jika diperlukan (opsional, tapi disarankan)
+    try {
+      const fileName = path.basename(berkas.fileUrl);
+      const filePath = path.join(__dirname, '../../public/uploads/avatars', fileName);
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+      }
+    } catch (fsError) {
+      console.error("Gagal menghapus file fisik:", fsError);
+    }
+
+    await logActivity({
+      userId: req.user.userId,
+      action: 'DELETE',
+      entity: 'PegawaiBerkas',
+      entityId: berkasId,
+      details: `Menghapus berkas ${berkas.jenis} untuk pegawai ID: ${id}`,
+      req
+    });
+
+    res.status(200).json({ message: 'Berkas berhasil dihapus' });
+  } catch (error) {
+    console.error("Error deletePegawaiBerkas:", error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
 module.exports = {
   getPegawaiList,
   getPegawaiById,
@@ -330,5 +437,7 @@ module.exports = {
   deletePegawai,
   linkAccount,
   getMyProfile,
-  uploadFotoProfil
+  uploadFotoProfil,
+  uploadPegawaiBerkas,
+  deletePegawaiBerkas
 };

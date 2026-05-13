@@ -7,7 +7,6 @@ import Link from "next/link";
 export default function TabDataPegawai() {
   const router = useRouter();
   const [pegawaiList, setPegawaiList] = useState([]);
-  const [stats, setStats] = useState({ total: 0, tetap: 0, kontrak: 0, pusat: 0, markaz: 0 });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   
@@ -46,7 +45,8 @@ export default function TabDataPegawai() {
     tanggalMasuk: "",
     tinggalDiKomplek: false,
     domisiliMarkaz: "",
-    jarakRumah: ""
+    jarakRumah: "",
+    pendidikan: []
   };
   const [formData, setFormData] = useState(initialForm);
   const [linkUserId, setLinkUserId] = useState("");
@@ -97,7 +97,6 @@ export default function TabDataPegawai() {
       if (!res.ok) throw new Error(data.message || "Gagal mengambil data pegawai");
 
       setPegawaiList(data.data);
-      setStats(data.stats);
       setTotalPages(data.pagination.totalPages);
     } catch (err) {
       setError(err.message);
@@ -130,7 +129,8 @@ export default function TabDataPegawai() {
         tanggalMasuk: pegawai.tanggalMasuk ? pegawai.tanggalMasuk.split('T')[0] : "",
         tinggalDiKomplek: pegawai.tinggalDiKomplek || false,
         domisiliMarkaz: pegawai.domisiliMarkaz || "",
-        jarakRumah: pegawai.jarakRumah || ""
+        jarakRumah: pegawai.jarakRumah || "",
+        pendidikan: pegawai.pendidikan || []
       });
     } else if (mode === 'link' && pegawai) {
       setCurrentPegawai(pegawai);
@@ -234,39 +234,6 @@ export default function TabDataPegawai() {
           Tambah Pegawai Baru
         </button>
       </div>
-
-      {/* Statistik Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 flex items-center gap-4">
-          <div className="w-12 h-12 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-xl">👥</div>
-          <div>
-            <p className="text-[10px] uppercase tracking-widest font-bold text-slate-400">Total Pegawai</p>
-            <p className="text-2xl font-black text-slate-800 dark:text-slate-100">{stats.total}</p>
-          </div>
-        </div>
-        <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 flex items-center gap-4">
-          <div className="w-12 h-12 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl">🔰</div>
-          <div>
-            <p className="text-[10px] uppercase tracking-widest font-bold text-slate-400">Pegawai Tetap</p>
-            <p className="text-2xl font-black text-slate-800 dark:text-slate-100">{stats.tetap}</p>
-          </div>
-        </div>
-        <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 flex items-center gap-4">
-          <div className="w-12 h-12 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center text-xl">🏢</div>
-          <div>
-            <p className="text-[10px] uppercase tracking-widest font-bold text-slate-400">Penempatan Pusat</p>
-            <p className="text-2xl font-black text-slate-800 dark:text-slate-100">{stats.pusat}</p>
-          </div>
-        </div>
-        <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 flex items-center gap-4">
-          <div className="w-12 h-12 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center text-xl">🏫</div>
-          <div>
-            <p className="text-[10px] uppercase tracking-widest font-bold text-slate-400">Penempatan Markaz</p>
-            <p className="text-2xl font-black text-slate-800 dark:text-slate-100">{stats.markaz}</p>
-          </div>
-        </div>
-      </div>
-
       {/* Filter & Search */}
       <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 flex flex-col md:flex-row gap-4 items-center">
         <div className="relative w-full md:w-96 flex-shrink-0">
@@ -301,6 +268,8 @@ export default function TabDataPegawai() {
             <option value="KONTRAK">Pegawai Kontrak</option>
             <option value="MAGANG">Magang</option>
             <option value="BERHENTI">Berhenti</option>
+            <option value="PENGABDIAN_INTERNAL">Pengabdian Internal</option>
+            <option value="MASYARAKAT_SEKITAR">Masyarakat Sekitar</option>
           </select>
         </div>
       </div>
@@ -459,7 +428,9 @@ export default function TabDataPegawai() {
                         <option value="TETAP">Pegawai Tetap</option>
                         <option value="KONTRAK">Pegawai Kontrak</option>
                         <option value="MAGANG">Magang</option>
-                        <option value="BERHENTI">Berhenti</option>
+                        <option value="BERHENTI">Berhenti / Resign</option>
+                        <option value="PENGABDIAN_INTERNAL">Pengabdian Internal</option>
+                        <option value="MASYARAKAT_SEKITAR">Masyarakat Sekitar</option>
                       </select>
                     </div>
                     <div>
@@ -534,6 +505,87 @@ export default function TabDataPegawai() {
                       <textarea rows="3" value={formData.alamat} onChange={e => setFormData({...formData, alamat: e.target.value})} className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl outline-none focus:ring-2 focus:ring-emerald-500 text-sm custom-scrollbar dark:text-white"></textarea>
                     </div>
                   </div>
+                </div>
+
+                <div>
+                  <div className="flex justify-between items-center mb-4 pb-2 border-b border-slate-100 dark:border-slate-800 mt-6">
+                    <h4 className="text-sm font-bold text-slate-800 dark:text-slate-200 uppercase tracking-widest">Riwayat Pendidikan</h4>
+                    <button type="button" onClick={() => setFormData({...formData, pendidikan: [...formData.pendidikan, { tingkat: 'S1', institusi: '', jurusan: '', tahunLulus: '', isTerakhir: false }]})} className="text-xs px-3 py-1.5 bg-emerald-50 text-emerald-600 rounded-lg font-bold hover:bg-emerald-100 transition">
+                      + Tambah Riwayat
+                    </button>
+                  </div>
+                  
+                  {formData.pendidikan.length === 0 ? (
+                    <p className="text-sm text-slate-500 text-center py-4 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800">Belum ada riwayat pendidikan yang ditambahkan.</p>
+                  ) : (
+                    <div className="space-y-4">
+                      {formData.pendidikan.map((p, index) => (
+                        <div key={index} className="p-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl relative">
+                          <button type="button" onClick={() => {
+                            const newPendidikan = [...formData.pendidikan];
+                            newPendidikan.splice(index, 1);
+                            setFormData({...formData, pendidikan: newPendidikan});
+                          }} className="absolute top-4 right-4 text-red-500 hover:text-red-700">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" /></svg>
+                          </button>
+                          
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mr-8">
+                            <div>
+                              <label className="block text-xs font-bold text-slate-500 mb-1.5">Tingkat Pendidikan *</label>
+                              <select required value={p.tingkat} onChange={e => {
+                                const newPendidikan = [...formData.pendidikan];
+                                newPendidikan[index].tingkat = e.target.value;
+                                setFormData({...formData, pendidikan: newPendidikan});
+                              }} className="w-full px-4 py-2 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg outline-none text-sm dark:text-white">
+                                <option value="SD">SD</option>
+                                <option value="SMP">SMP</option>
+                                <option value="SMA">SMA</option>
+                                <option value="D1">D1</option>
+                                <option value="D2">D2</option>
+                                <option value="D3">D3</option>
+                                <option value="S1">S1</option>
+                                <option value="S2">S2</option>
+                                <option value="S3">S3</option>
+                              </select>
+                            </div>
+                            <div>
+                              <label className="block text-xs font-bold text-slate-500 mb-1.5">Nama Institusi *</label>
+                              <input required type="text" value={p.institusi} onChange={e => {
+                                const newPendidikan = [...formData.pendidikan];
+                                newPendidikan[index].institusi = e.target.value;
+                                setFormData({...formData, pendidikan: newPendidikan});
+                              }} className="w-full px-4 py-2 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg outline-none text-sm dark:text-white" />
+                            </div>
+                            <div>
+                              <label className="block text-xs font-bold text-slate-500 mb-1.5">Jurusan</label>
+                              <input type="text" value={p.jurusan} onChange={e => {
+                                const newPendidikan = [...formData.pendidikan];
+                                newPendidikan[index].jurusan = e.target.value;
+                                setFormData({...formData, pendidikan: newPendidikan});
+                              }} className="w-full px-4 py-2 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg outline-none text-sm dark:text-white" />
+                            </div>
+                            <div>
+                              <label className="block text-xs font-bold text-slate-500 mb-1.5">Tahun Lulus</label>
+                              <input type="number" min="1950" max="2100" value={p.tahunLulus} onChange={e => {
+                                const newPendidikan = [...formData.pendidikan];
+                                newPendidikan[index].tahunLulus = e.target.value;
+                                setFormData({...formData, pendidikan: newPendidikan});
+                              }} className="w-full px-4 py-2 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg outline-none text-sm dark:text-white" />
+                            </div>
+                            <div className="md:col-span-2 flex items-center gap-2 mt-2">
+                              <input type="checkbox" id={`terakhir-${index}`} checked={p.isTerakhir} onChange={e => {
+                                const newPendidikan = [...formData.pendidikan];
+                                if(e.target.checked) newPendidikan.forEach(item => item.isTerakhir = false);
+                                newPendidikan[index].isTerakhir = e.target.checked;
+                                setFormData({...formData, pendidikan: newPendidikan});
+                              }} className="w-4 h-4 text-emerald-500 rounded focus:ring-emerald-500" />
+                              <label htmlFor={`terakhir-${index}`} className="text-sm text-slate-700 dark:text-slate-300 font-medium cursor-pointer">Jadikan sebagai pendidikan terakhir</label>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </form>
             </div>

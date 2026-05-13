@@ -430,6 +430,50 @@ enum StatusPegawai {
   KONTRAK
   MAGANG
   BERHENTI
+  PENGABDIAN_INTERNAL
+  MASYARAKAT_SEKITAR
+}
+
+enum JenisBerkasPegawai {
+  KTP
+  KK
+  IJAZAH
+  SERTIFIKAT
+  BUKU_NIKAH
+}
+
+enum TingkatPendidikan {
+  SD
+  SMP
+  SMA
+  D1
+  D2
+  D3
+  S1
+  S2
+  S3
+}
+
+model PegawaiBerkas {
+  id        String             @id @default(uuid())
+  pegawaiId String
+  pegawai   Pegawai            @relation(fields: [pegawaiId], references: [id], onDelete: Cascade)
+  jenis     JenisBerkasPegawai
+  namaFile  String             @db.VarChar(255)
+  fileUrl   String             @db.VarChar(500)
+  createdAt DateTime           @default(now())
+}
+
+model PegawaiPendidikan {
+  id          String            @id @default(uuid())
+  pegawaiId   String
+  pegawai     Pegawai           @relation(fields: [pegawaiId], references: [id], onDelete: Cascade)
+  tingkat     TingkatPendidikan
+  institusi   String            @db.VarChar(255)
+  jurusan     String?           @db.VarChar(255)
+  tahunLulus  Int?
+  isTerakhir  Boolean           @default(false)
+  createdAt   DateTime          @default(now())
 }
 
 model Pegawai {
@@ -460,6 +504,8 @@ model Pegawai {
   kasbon        PegawaiKasbon[]
   payroll       PegawaiPayroll[]
   koperasi      PegawaiKoperasi?
+  berkas        PegawaiBerkas[]
+  pendidikan    PegawaiPendidikan[]
   kelasWali          Kelas[]              @relation("WaliKelas")
   asramaMusyrif      Asrama[]             @relation("MusyrifAsrama")
   halaqoh            Halaqoh[]            @relation("MuhaffidzHalaqoh")

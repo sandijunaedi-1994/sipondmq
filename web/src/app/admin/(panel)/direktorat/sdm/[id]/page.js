@@ -15,6 +15,53 @@ export default function DetailPegawaiPage() {
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState("profil");
 
+  const [uploading, setUploading] = useState(false);
+  const [berkasFile, setBerkasFile] = useState(null);
+  const [jenisBerkas, setJenisBerkas] = useState("KTP");
+
+  const handleUploadBerkas = async (e) => {
+    e.preventDefault();
+    if (!berkasFile) return alert('Pilih file terlebih dahulu');
+    setUploading(true);
+    try {
+      const token = localStorage.getItem("admin_token");
+      const formData = new FormData();
+      formData.append('file', berkasFile);
+      formData.append('jenis', jenisBerkas);
+
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"}/api/admin/sdm/pegawai/${id}/berkas`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.message || 'Gagal mengunggah berkas');
+      }
+      setBerkasFile(null);
+      fetchPegawaiDetail();
+    } catch (err) {
+      alert(err.message);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleDeleteBerkas = async (berkasId) => {
+    if (!confirm('Yakin ingin menghapus berkas ini?')) return;
+    try {
+      const token = localStorage.getItem("admin_token");
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"}/api/admin/sdm/pegawai/${id}/berkas/${berkasId}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (!res.ok) throw new Error('Gagal menghapus berkas');
+      fetchPegawaiDetail();
+    } catch (err) {
+      alert(err.message);
+    }
+  };
+
   useEffect(() => {
     fetchPegawaiDetail();
   }, [id]);
@@ -239,6 +286,78 @@ export default function DetailPegawaiPage() {
                     <p className="text-sm font-semibold text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-950 p-2.5 rounded-xl border border-slate-100 dark:border-slate-800">{pegawai.jarakRumah ? `${pegawai.jarakRumah} Km` : "-"}</p>
                   </div>
                 </div>
+              </div>
+
+              {/* Riwayat Pendidikan */}
+              <div className="md:col-span-2 pt-6 mt-4 border-t border-slate-100 dark:border-slate-800">
+                <h4 className="text-sm font-bold text-slate-800 dark:text-slate-200 uppercase tracking-widest mb-4 flex items-center gap-2">
+                  <span className="p-1.5 bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 rounded-lg">🎓</span>
+                  Riwayat Pendidikan
+                </h4>
+                {(!pegawai.pendidikan || pegawai.pendidikan.length === 0) ? (
+                  <p className="text-sm text-slate-500 italic">Belum ada riwayat pendidikan yang ditambahkan.</p>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {pegawai.pendidikan.map((p) => (
+                      <div key={p.id} className="p-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl relative overflow-hidden">
+                        {p.isTerakhir && (
+                          <div className="absolute top-0 right-0 bg-emerald-500 text-white text-[10px] font-bold px-2 py-1 rounded-bl-xl">Terakhir</div>
+                        )}
+                        <p className="text-sm font-bold text-slate-800 dark:text-slate-100">{p.tingkat} - {p.institusi}</p>
+                        {p.jurusan && <p className="text-xs text-slate-500 mt-1">Jurusan: {p.jurusan}</p>}
+                        {p.tahunLulus && <p className="text-xs text-slate-500 mt-1">Lulus Tahun: {p.tahunLulus}</p>}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Data Berkas */}
+              <div className="md:col-span-2 pt-6 mt-4 border-t border-slate-100 dark:border-slate-800">
+                <h4 className="text-sm font-bold text-slate-800 dark:text-slate-200 uppercase tracking-widest mb-4 flex items-center gap-2">
+                  <span className="p-1.5 bg-blue-100 dark:bg-blue-500/20 text-blue-600 rounded-lg">📁</span>
+                  Data Berkas
+                </h4>
+                
+                {(!pegawai.berkas || pegawai.berkas.length === 0) ? (
+                  <p className="text-sm text-slate-500 italic mb-4">Belum ada data berkas yang diunggah.</p>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+                    {pegawai.berkas.map((b) => (
+                      <div key={b.id} className="p-3 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl flex items-center justify-between shadow-sm">
+                        <div className="flex items-center gap-3 overflow-hidden">
+                          <div className="w-10 h-10 rounded-lg bg-blue-50 dark:bg-blue-500/10 text-blue-600 flex items-center justify-center shrink-0">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clipRule="evenodd" /></svg>
+                          </div>
+                          <div className="truncate">
+                            <p className="text-xs font-bold text-slate-800 dark:text-slate-200">{b.jenis}</p>
+                            <a href={process.env.NEXT_PUBLIC_API_URL ? `${process.env.NEXT_PUBLIC_API_URL}${b.fileUrl}` : b.fileUrl} target="_blank" rel="noopener noreferrer" className="text-[11px] text-blue-500 hover:underline truncate block">Lihat File</a>
+                          </div>
+                        </div>
+                        <button onClick={() => handleDeleteBerkas(b.id)} className="p-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-md transition" title="Hapus Berkas">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" /></svg>
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                <form onSubmit={handleUploadBerkas} className="bg-slate-50 dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800">
+                  <h5 className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-widest mb-3">Unggah Berkas Baru</h5>
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <select required value={jenisBerkas} onChange={(e) => setJenisBerkas(e.target.value)} className="px-3 py-2 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg outline-none text-sm w-full sm:w-auto">
+                      <option value="KTP">KTP</option>
+                      <option value="KK">Kartu Keluarga (KK)</option>
+                      <option value="IJAZAH">Ijazah</option>
+                      <option value="SERTIFIKAT">Sertifikat</option>
+                      <option value="BUKU_NIKAH">Buku Nikah</option>
+                    </select>
+                    <input type="file" required onChange={(e) => setBerkasFile(e.target.files[0])} className="text-sm flex-1 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 dark:file:bg-blue-500/20 dark:file:text-blue-400" />
+                    <button type="submit" disabled={uploading} className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-bold rounded-lg shadow-md shadow-blue-500/30 transition disabled:opacity-50 whitespace-nowrap">
+                      {uploading ? 'Mengunggah...' : 'Unggah'}
+                    </button>
+                  </div>
+                </form>
               </div>
             </div>
 
