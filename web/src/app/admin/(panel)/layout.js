@@ -57,6 +57,7 @@ export default function AdminLayout({ children }) {
 
   const allMenuItems = [
     { name: "Ruang Kerja Saya", path: "/admin/ruang-kerja", icon: "💼", permission: null },
+    { name: "Organisasi", path: "/admin/organisasi", icon: "🏢", permission: null },
     { 
       name: "Direktorat Pusat", icon: "🏛️", permission: null,
       subItems: [
