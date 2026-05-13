@@ -506,6 +506,7 @@ model Pegawai {
   koperasi      PegawaiKoperasi?
   berkas        PegawaiBerkas[]
   pendidikan    PegawaiPendidikan[]
+  posisiOrganisasi SdmPosisi[]
   kelasWali          Kelas[]              @relation("WaliKelas")
   asramaMusyrif      Asrama[]             @relation("MusyrifAsrama")
   halaqoh            Halaqoh[]            @relation("MuhaffidzHalaqoh")
@@ -529,6 +530,31 @@ model Markaz {
   kelas         Kelas[]
   asrama        Asrama[]
   halaqoh       Halaqoh[]
+}
+
+model SdmUnit {
+  id        String    @id @default(uuid())
+  nama      String    @db.VarChar(150)
+  
+  parentId  String?
+  parent    SdmUnit?  @relation("UnitHierarchy", fields: [parentId], references: [id])
+  children  SdmUnit[] @relation("UnitHierarchy")
+
+  posisi    SdmPosisi[]
+}
+
+model SdmPosisi {
+  id          String   @id @default(uuid())
+  nama        String   @db.VarChar(150)
+  isKepala    Boolean  @default(false)
+  
+  unitId      String
+  unit        SdmUnit  @relation(fields: [unitId], references: [id], onDelete: Cascade)
+
+  pegawaiId   String?
+  pegawai     Pegawai? @relation(fields: [pegawaiId], references: [id], onDelete: SetNull)
+  
+  createdAt   DateTime @default(now())
 }
 
 model Santri {

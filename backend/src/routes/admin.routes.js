@@ -26,6 +26,7 @@ const { requireAdmin } = require('../middleware/auth.middleware');
 
 const dokumenController = require('../controllers/admin.dokumen.controller');
 const broadcastController = require('../controllers/admin.broadcast.controller');
+const sdmOrganisasiController = require('../controllers/admin.sdm.organisasi.controller');
 
 const {
   getDashboardStats,
@@ -329,5 +330,13 @@ router.delete('/sdm/pegawai/:id', requireAdmin, deletePegawai);
 router.post('/sdm/pegawai/:id/link', requireAdmin, linkAccount);
 router.post('/sdm/pegawai/:id/berkas', requireAdmin, uploadDisk.single('file'), uploadPegawaiBerkas);
 router.delete('/sdm/pegawai/:id/berkas/:berkasId', requireAdmin, deletePegawaiBerkas);
+
+router.get('/sdm/organisasi/unit', requireAdmin, sdmOrganisasiController.getUnits);
+router.post('/sdm/organisasi/unit', requireAdmin, sdmOrganisasiController.createUnit);
+router.put('/sdm/organisasi/unit/:id', requireAdmin, sdmOrganisasiController.updateUnit);
+router.delete('/sdm/organisasi/unit/:id', requireAdmin, sdmOrganisasiController.deleteUnit);
+router.post('/sdm/organisasi/posisi', requireAdmin, sdmOrganisasiController.createPosisi);
+router.put('/sdm/organisasi/posisi/:id', requireAdmin, sdmOrganisasiController.updatePosisi);
+router.delete('/sdm/organisasi/posisi/:id', requireAdmin, sdmOrganisasiController.deletePosisi);
 
 module.exports = router;
