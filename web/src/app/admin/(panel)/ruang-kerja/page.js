@@ -125,24 +125,24 @@ export default function DashboardPribadiPage() {
   }, []);
 
   let tabs = [
-    { id: "ringkasan", name: "Ringkasan", icon: <BarChart2 size={22} strokeWidth={2.5} />, color: "text-blue-500", bg: "bg-blue-50 dark:bg-blue-500/10 border-blue-100 dark:border-blue-500/20" },
-    { id: "aktivitas_rutin", name: "Aktivitas Rutin", icon: <ClipboardList size={22} strokeWidth={2.5} />, color: "text-orange-500", bg: "bg-orange-50 dark:bg-orange-500/10 border-orange-100 dark:border-orange-500/20" },
-    { id: "master_time", name: "Master Time", icon: <CalendarDays size={22} strokeWidth={2.5} />, color: "text-rose-500", bg: "bg-rose-50 dark:bg-rose-500/10 border-rose-100 dark:border-rose-500/20" },
-    { id: "catatan_pribadi", name: "Catatan Pribadi", icon: <Edit3 size={22} strokeWidth={2.5} />, color: "text-amber-500", bg: "bg-amber-50 dark:bg-amber-500/10 border-amber-100 dark:border-amber-500/20" },
-    { id: "log_aktivitas", name: "Log Aktivitas", icon: <History size={22} strokeWidth={2.5} />, color: "text-purple-500", bg: "bg-purple-50 dark:bg-purple-500/10 border-purple-100 dark:border-purple-500/20" }
+    { id: "ringkasan", name: "Ringkasan", icon: <BarChart2 size={26} strokeWidth={2.5} />, color: "text-blue-500", bg: "bg-blue-50 dark:bg-blue-500/10 border-blue-100 dark:border-blue-500/20" },
+    { id: "aktivitas_rutin", name: "Aktivitas Rutin", icon: <ClipboardList size={26} strokeWidth={2.5} />, color: "text-orange-500", bg: "bg-orange-50 dark:bg-orange-500/10 border-orange-100 dark:border-orange-500/20" },
+    { id: "master_time", name: "Master Time", icon: <CalendarDays size={26} strokeWidth={2.5} />, color: "text-rose-500", bg: "bg-rose-50 dark:bg-rose-500/10 border-rose-100 dark:border-rose-500/20" },
+    { id: "catatan_pribadi", name: "Catatan Pribadi", icon: <Edit3 size={26} strokeWidth={2.5} />, color: "text-amber-500", bg: "bg-amber-50 dark:bg-amber-500/10 border-amber-100 dark:border-amber-500/20" },
+    { id: "log_aktivitas", name: "Log Aktivitas", icon: <History size={26} strokeWidth={2.5} />, color: "text-purple-500", bg: "bg-purple-50 dark:bg-purple-500/10 border-purple-100 dark:border-purple-500/20" }
   ];
 
   let insertIndex = 1;
   if (isWaliKelas) {
-    tabs.splice(insertIndex, 0, { id: "wali_kelas", name: "Ruang Wali Kelas", icon: <Users size={22} strokeWidth={2.5} />, color: "text-teal-500", bg: "bg-teal-50 dark:bg-teal-500/10 border-teal-100 dark:border-teal-500/20" });
+    tabs.splice(insertIndex, 0, { id: "wali_kelas", name: "Ruang Wali Kelas", icon: <Users size={26} strokeWidth={2.5} />, color: "text-teal-500", bg: "bg-teal-50 dark:bg-teal-500/10 border-teal-100 dark:border-teal-500/20" });
     insertIndex++;
   }
   
-  tabs.splice(insertIndex, 0, { id: "muhaffidz", name: "Ruang Muhaffidz", icon: <BookOpen size={22} strokeWidth={2.5} />, color: "text-emerald-500", bg: "bg-emerald-50 dark:bg-emerald-500/10 border-emerald-100 dark:border-emerald-500/20" });
+  tabs.splice(insertIndex, 0, { id: "muhaffidz", name: "Ruang Muhaffidz", icon: <BookOpen size={26} strokeWidth={2.5} />, color: "text-emerald-500", bg: "bg-emerald-50 dark:bg-emerald-500/10 border-emerald-100 dark:border-emerald-500/20" });
   insertIndex++;
   
   if (!isSuperAdmin) {
-    tabs.splice(insertIndex, 0, { id: "profil", name: "Profil", icon: <UserCircle size={22} strokeWidth={2.5} />, color: "text-indigo-500", bg: "bg-indigo-50 dark:bg-indigo-500/10 border-indigo-100 dark:border-indigo-500/20" });
+    tabs.splice(insertIndex, 0, { id: "profil", name: "Profil", icon: <UserCircle size={26} strokeWidth={2.5} />, color: "text-indigo-500", bg: "bg-indigo-50 dark:bg-indigo-500/10 border-indigo-100 dark:border-indigo-500/20" });
   }
 
   const getActiveTabTitle = () => {
@@ -165,17 +165,17 @@ export default function DashboardPribadiPage() {
       {/* ── Header Information (Latar Terang) ── */}
       <div className="flex justify-between items-start pt-2 px-2 md:px-0">
         <div className="flex flex-col gap-1.5 pr-4">
-          <h1 className="text-2xl md:text-3xl font-black text-emerald-900 dark:text-emerald-100 leading-tight">
+          <h1 className="text-3xl md:text-4xl font-black text-emerald-900 dark:text-emerald-100 leading-tight">
             Assalamu'alaikum,<br />{adminName}
           </h1>
-          <p className="text-xs md:text-sm text-slate-500 dark:text-slate-400 font-medium leading-relaxed max-w-[280px] md:max-w-sm mt-1">
+          <p className="text-sm md:text-base text-slate-500 dark:text-slate-400 font-medium leading-relaxed max-w-[280px] md:max-w-sm mt-1">
             {greetingMsg}
           </p>
         </div>
         
         <div className="relative flex-shrink-0 mt-1">
           <div className="absolute -inset-1 bg-gradient-to-r from-emerald-500 to-teal-400 rounded-xl blur opacity-30"></div>
-          <div className="relative bg-emerald-600 shadow-lg px-3 py-2 md:px-4 md:py-2 rounded-xl text-xs md:text-sm font-bold text-white flex items-center gap-1.5 border border-emerald-500/50">
+          <div className="relative bg-emerald-600 shadow-lg px-3 py-2 md:px-5 md:py-3 rounded-xl text-sm md:text-base font-bold text-white flex items-center gap-2 border border-emerald-500/50">
             {greeting} {greetingIcon}
           </div>
         </div>
@@ -194,16 +194,16 @@ export default function DashboardPribadiPage() {
         <div className="relative flex flex-col gap-5">
           {/* Tanggal Masehi & Hijriah */}
           <div className="flex flex-row flex-wrap items-center gap-2">
-            <div className="inline-flex items-center gap-2 bg-emerald-800/60 backdrop-blur-md px-3.5 py-1.5 rounded-lg border border-emerald-600/40 w-fit shadow-inner">
-              <Calendar size={16} className="text-emerald-300" />
-              <span className="text-sm font-bold tracking-wide">
+            <div className="inline-flex items-center gap-2 bg-emerald-800/60 backdrop-blur-md px-4 py-2 rounded-lg border border-emerald-600/40 w-fit shadow-inner">
+              <Calendar size={18} className="text-emerald-300" />
+              <span className="text-sm md:text-base font-bold tracking-wide">
                 {currentTime ? currentTime.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) : "Memuat..."}
               </span>
             </div>
             {hijriDate && (
-              <div className="inline-flex items-center gap-2 bg-emerald-800/40 backdrop-blur-md px-3.5 py-1.5 rounded-lg border border-emerald-600/20 w-fit">
-                <span className="text-sm">🌙</span>
-                <span className="text-xs md:text-sm font-semibold text-emerald-100 tracking-wide">
+              <div className="inline-flex items-center gap-2 bg-emerald-800/40 backdrop-blur-md px-4 py-2 rounded-lg border border-emerald-600/20 w-fit">
+                <span className="text-sm md:text-base">🌙</span>
+                <span className="text-sm md:text-base font-semibold text-emerald-100 tracking-wide">
                   {hijriDate}
                 </span>
               </div>
@@ -211,26 +211,26 @@ export default function DashboardPribadiPage() {
           </div>
 
           {/* Jam Digital Besar */}
-          <div className="flex items-center mt-1 bg-white px-4 py-2.5 rounded-2xl w-fit shadow-lg text-emerald-800 border border-emerald-100">
-            <Clock size={20} className={currentTime ? "animate-pulse text-emerald-500 mr-2" : "mr-2"} />
-            <span className="text-2xl md:text-3xl font-black font-mono tracking-wider">
+          <div className="flex items-center mt-1 bg-white px-5 py-3 rounded-2xl w-fit shadow-lg text-emerald-800 border border-emerald-100">
+            <Clock size={24} className={currentTime ? "animate-pulse text-emerald-500 mr-2" : "mr-2"} />
+            <span className="text-3xl md:text-4xl font-black font-mono tracking-wider">
               {currentTime ? currentTime.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) : "--:--:--"}
             </span>
-            <span className="text-sm font-bold ml-2 opacity-60">WIB</span>
+            <span className="text-base font-bold ml-3 opacity-60">WIB</span>
           </div>
 
           {/* Lokasi & Jadwal Sholat */}
-          <div className="mt-2 pt-4 border-t border-emerald-600/50 flex flex-wrap items-center gap-x-5 gap-y-3">
-            <div className="flex items-center gap-1.5 text-emerald-100 text-xs font-bold uppercase tracking-widest mr-2 bg-emerald-900/40 px-2.5 py-1.5 rounded-md">
-              <MapPin size={14} className="text-emerald-400" /> 
+          <div className="mt-2 pt-4 border-t border-emerald-600/50 flex flex-wrap items-center gap-x-6 gap-y-3">
+            <div className="flex items-center gap-1.5 text-emerald-100 text-sm font-bold uppercase tracking-widest mr-2 bg-emerald-900/40 px-3 py-1.5 rounded-md">
+              <MapPin size={16} className="text-emerald-400" /> 
               {locationName}
             </div>
             {['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'].map(prayer => {
               const label = prayer === 'Fajr' ? 'Subuh' : prayer === 'Dhuhr' ? 'Dzuhur' : prayer === 'Asr' ? 'Ashar' : prayer === 'Isha' ? 'Isya' : prayer;
               return (
                 <div key={prayer} className="flex flex-col">
-                  <span className="text-[10px] md:text-xs font-bold text-emerald-300 uppercase tracking-widest">{label}</span>
-                  <span className="text-sm md:text-base font-bold text-white">{prayerTimes ? prayerTimes[prayer] : '--:--'}</span>
+                  <span className="text-xs md:text-sm font-bold text-emerald-300 uppercase tracking-widest">{label}</span>
+                  <span className="text-base md:text-lg font-bold text-white">{prayerTimes ? prayerTimes[prayer] : '--:--'}</span>
                 </div>
               );
             })}
@@ -255,12 +255,12 @@ export default function DashboardPribadiPage() {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`snap-center shrink-0 flex flex-col items-center gap-3 w-[84px] md:w-28 group transition-all`}
+              className={`snap-center shrink-0 flex flex-col items-center gap-3 w-[96px] md:w-32 group transition-all`}
             >
-              <div className={`w-14 h-14 md:w-16 md:h-16 flex items-center justify-center rounded-2xl border shadow-sm transition-transform duration-300 ${tab.bg} ${tab.color} ${activeTab === tab.id ? 'ring-2 ring-offset-2 ring-emerald-500 dark:ring-offset-slate-900 scale-105' : 'group-hover:scale-105'}`}>
+              <div className={`w-16 h-16 md:w-20 md:h-20 flex items-center justify-center rounded-2xl border shadow-sm transition-transform duration-300 ${tab.bg} ${tab.color} ${activeTab === tab.id ? 'ring-2 ring-offset-2 ring-emerald-500 dark:ring-offset-slate-900 scale-105' : 'group-hover:scale-105'}`}>
                 {tab.icon}
               </div>
-              <span className={`text-[11px] md:text-sm font-bold text-center leading-tight transition-colors ${activeTab === tab.id ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-600 dark:text-slate-400'}`}>
+              <span className={`text-xs md:text-sm font-bold text-center leading-tight transition-colors ${activeTab === tab.id ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-600 dark:text-slate-400'}`}>
                 {tab.name}
               </span>
             </button>
