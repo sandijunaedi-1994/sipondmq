@@ -1,5 +1,5 @@
 const prisma = require('../lib/prisma');
-const { logActivity } = require('../utils/activityLogger');
+const { logActivity } = require('../utils/logger');
 
 // ==========================================
 // SDM UNIT CONTROLLER
