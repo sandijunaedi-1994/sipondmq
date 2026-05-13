@@ -144,7 +144,7 @@ export default function RuangWaliKelas() {
                     </td>
                     <td className="px-6 py-4 text-center">
                       <Link 
-                        href={`/admin/santri/data/${santri.id}`}
+                        href={`/admin/ruang-kerja/santri/${santri.id}`}
                         className="inline-flex items-center justify-center p-2 bg-blue-50 hover:bg-blue-100 text-blue-600 dark:bg-blue-500/10 dark:hover:bg-blue-500/20 dark:text-blue-400 rounded-lg transition-colors"
                         title="Lihat Detail"
                       >

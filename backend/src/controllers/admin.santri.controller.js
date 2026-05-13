@@ -604,7 +604,7 @@ exports.updateSantriDetail = async (req, res) => {
 
     const userPermissions = mergePermissions(currentUser.permissions, currentUser.adminGroups);
     const isSuperAdmin = userPermissions.includes('MANAJEMEN_ADMIN');
-    const canEdit = isSuperAdmin || userPermissions.includes('SANTRI_VIEW');
+    const canEdit = isSuperAdmin || userPermissions.includes('SANTRI_EDIT');
 
     if (!canEdit) {
       return res.status(403).json({ success: false, message: 'Akses ditolak. Anda tidak memiliki izin untuk mengedit data santri.' });

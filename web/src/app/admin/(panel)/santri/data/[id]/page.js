@@ -23,7 +23,7 @@ export default function SantriDetailPage() {
   useEffect(() => {
     try {
       const perms = JSON.parse(localStorage.getItem("admin_permissions") || "[]");
-      setCanEdit(perms.includes("MANAJEMEN_ADMIN") || perms.includes("SANTRI_VIEW"));
+      setCanEdit(perms.includes("MANAJEMEN_ADMIN") || perms.includes("SANTRI_EDIT"));
     } catch (e) {}
   }, []);
 
