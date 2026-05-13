@@ -36,7 +36,8 @@ exports.getTahapanSantri = async (req, res) => {
     });
 
     const capaian = await prisma.tahfidzCapaianTahapan.findMany({
-      where: { santriId }
+      where: { santriId },
+      include: { sertifikat: true }
     });
 
     // Merge master data dengan capaian
@@ -169,6 +170,66 @@ exports.addHafalanHarian = async (req, res) => {
     res.json({ success: true, message: "Hafalan harian berhasil disimpan", hafalan });
   } catch (error) {
     console.error("addHafalanHarian error:", error);
+    res.status(500).json({ success: false, message: "Terjadi kesalahan server" });
+  }
+};
+
+exports.getGlobalHafalan = async (req, res) => {
+  try {
+    const hafalan = await prisma.tahfidzHafalanHarian.findMany({
+      take: 50,
+      orderBy: { tanggal: 'desc' },
+      include: {
+        santri: {
+          include: {
+            registration: { select: { studentName: true } },
+            kelas: { select: { nama: true } }
+          }
+        }
+      }
+    });
+    res.json({ success: true, hafalan });
+  } catch (error) {
+    console.error("getGlobalHafalan error:", error);
+    res.status(500).json({ success: false, message: "Terjadi kesalahan server" });
+  }
+};
+
+exports.addGlobalHafalan = async (req, res) => {
+  try {
+    const { santriId, tanggal, targetHal, capaianHal, totalJuz, keterangan } = req.body;
+    if (!santriId || !tanggal || !targetHal || !capaianHal) {
+      return res.status(400).json({ success: false, message: "Lengkapi semua data yang wajib diisi" });
+    }
+
+    const tgl = new Date(tanggal);
+
+    const hafalan = await prisma.tahfidzHafalanHarian.upsert({
+      where: {
+        santriId_tanggal: {
+          santriId,
+          tanggal: tgl
+        }
+      },
+      update: {
+        targetHal: parseInt(targetHal),
+        capaianHal: parseInt(capaianHal),
+        totalJuz: totalJuz ? parseFloat(totalJuz) : null,
+        keterangan
+      },
+      create: {
+        santriId,
+        tanggal: tgl,
+        targetHal: parseInt(targetHal),
+        capaianHal: parseInt(capaianHal),
+        totalJuz: totalJuz ? parseFloat(totalJuz) : null,
+        keterangan
+      }
+    });
+
+    res.json({ success: true, message: "Hafalan harian berhasil ditambahkan", hafalan });
+  } catch (error) {
+    console.error("addGlobalHafalan error:", error);
     res.status(500).json({ success: false, message: "Terjadi kesalahan server" });
   }
 };

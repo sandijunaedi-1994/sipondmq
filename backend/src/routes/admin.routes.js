@@ -289,6 +289,8 @@ const halaqohController = require('../controllers/admin.halaqoh.controller');
 // ==========================================
 // TAHFIDZ & HALAQOH
 // ==========================================
+router.get('/tahfidz/hafalan', requireAdmin, tahfidzController.getGlobalHafalan);
+router.post('/tahfidz/hafalan', requireAdmin, tahfidzController.addGlobalHafalan);
 router.get('/tahfidz/:santriId/tahapan', requireAdmin, tahfidzController.getTahapanSantri);
 router.put('/tahfidz/:santriId/tahapan', requireAdmin, tahfidzController.updateTahapanSantri);
 router.get('/tahfidz/:santriId/hafalan', requireAdmin, tahfidzController.getHafalanHarian);
