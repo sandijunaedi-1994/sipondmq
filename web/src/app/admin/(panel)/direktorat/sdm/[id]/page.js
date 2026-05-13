@@ -217,6 +217,29 @@ export default function DetailPegawaiPage() {
                   {pegawai.alamat || "-"}
                 </p>
               </div>
+              <div className="md:col-span-2 pt-4 mt-2 border-t border-slate-100 dark:border-slate-800">
+                <h4 className="text-sm font-bold text-slate-800 dark:text-slate-200 uppercase tracking-widest mb-4">Informasi Tempat Tinggal</h4>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div>
+                    <p className="text-xs uppercase font-bold tracking-widest text-slate-400 dark:text-slate-500 mb-1.5">Tinggal di Komplek?</p>
+                    <p className="text-sm font-semibold text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-950 p-2.5 rounded-xl border border-slate-100 dark:border-slate-800">
+                      {pegawai.tinggalDiKomplek ? (
+                        <span className="flex items-center gap-1.5 text-emerald-600"><svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg> Ya</span>
+                      ) : (
+                        <span className="flex items-center gap-1.5 text-slate-500"><svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" /></svg> Tidak</span>
+                      )}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs uppercase font-bold tracking-widest text-slate-400 dark:text-slate-500 mb-1.5">Markaz</p>
+                    <p className="text-sm font-semibold text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-950 p-2.5 rounded-xl border border-slate-100 dark:border-slate-800">{pegawai.domisiliMarkaz || "-"}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs uppercase font-bold tracking-widest text-slate-400 dark:text-slate-500 mb-1.5">Jarak Rumah (Km)</p>
+                    <p className="text-sm font-semibold text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-950 p-2.5 rounded-xl border border-slate-100 dark:border-slate-800">{pegawai.jarakRumah ? `${pegawai.jarakRumah} Km` : "-"}</p>
+                  </div>
+                </div>
+              </div>
             </div>
 
             <div className="mt-8 pt-6 border-t border-slate-100 dark:border-slate-800">

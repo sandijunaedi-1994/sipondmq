@@ -452,6 +452,9 @@ model Pegawai {
   markaz        Markaz?           @relation(fields: [markazId], references: [id])
   tanggalMasuk  DateTime?
   statusPegawai StatusPegawai     @default(KONTRAK)
+  tinggalDiKomplek Boolean        @default(false)
+  domisiliMarkaz String?          @db.VarChar(100)
+  jarakRumah    Float?
   createdAt     DateTime          @default(now())
   updatedAt     DateTime          @updatedAt
   kasbon        PegawaiKasbon[]

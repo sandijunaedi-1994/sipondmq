@@ -115,7 +115,10 @@ const createPegawai = async (req, res) => {
         penempatan: data.penempatan,
         markazId: data.penempatan === 'MARKAZ' && data.markazId ? parseInt(data.markazId) : null,
         tanggalMasuk: data.tanggalMasuk ? new Date(data.tanggalMasuk) : null,
-        statusPegawai: data.statusPegawai || 'KONTRAK'
+        statusPegawai: data.statusPegawai || 'KONTRAK',
+        tinggalDiKomplek: data.tinggalDiKomplek || false,
+        domisiliMarkaz: data.domisiliMarkaz || null,
+        jarakRumah: data.jarakRumah ? parseFloat(data.jarakRumah) : null
       }
     });
 
@@ -170,7 +173,10 @@ const updatePegawai = async (req, res) => {
         penempatan: data.penempatan,
         markazId: data.penempatan === 'MARKAZ' && data.markazId ? parseInt(data.markazId) : null,
         tanggalMasuk: data.tanggalMasuk ? new Date(data.tanggalMasuk) : null,
-        statusPegawai: data.statusPegawai
+        statusPegawai: data.statusPegawai || existing.statusPegawai,
+        tinggalDiKomplek: data.tinggalDiKomplek !== undefined ? data.tinggalDiKomplek : existing.tinggalDiKomplek,
+        domisiliMarkaz: data.domisiliMarkaz !== undefined ? data.domisiliMarkaz : existing.domisiliMarkaz,
+        jarakRumah: data.jarakRumah !== undefined ? (data.jarakRumah ? parseFloat(data.jarakRumah) : null) : existing.jarakRumah
       }
     });
 

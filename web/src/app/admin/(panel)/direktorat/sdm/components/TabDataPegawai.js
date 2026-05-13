@@ -43,7 +43,10 @@ export default function TabDataPegawai() {
     penempatan: "DIREKTORAT_PUSAT",
     markazId: "",
     statusPegawai: "KONTRAK",
-    tanggalMasuk: ""
+    tanggalMasuk: "",
+    tinggalDiKomplek: false,
+    domisiliMarkaz: "",
+    jarakRumah: ""
   };
   const [formData, setFormData] = useState(initialForm);
   const [linkUserId, setLinkUserId] = useState("");
@@ -124,7 +127,10 @@ export default function TabDataPegawai() {
         penempatan: pegawai.penempatan,
         markazId: pegawai.markazId || "",
         statusPegawai: pegawai.statusPegawai,
-        tanggalMasuk: pegawai.tanggalMasuk ? pegawai.tanggalMasuk.split('T')[0] : ""
+        tanggalMasuk: pegawai.tanggalMasuk ? pegawai.tanggalMasuk.split('T')[0] : "",
+        tinggalDiKomplek: pegawai.tinggalDiKomplek || false,
+        domisiliMarkaz: pegawai.domisiliMarkaz || "",
+        jarakRumah: pegawai.jarakRumah || ""
       });
     } else if (mode === 'link' && pegawai) {
       setCurrentPegawai(pegawai);
@@ -459,6 +465,27 @@ export default function TabDataPegawai() {
                     <div>
                       <label className="block text-xs font-bold text-slate-500 mb-1.5">Tanggal Masuk Bekerja</label>
                       <input type="date" value={formData.tanggalMasuk} onChange={e => setFormData({...formData, tanggalMasuk: e.target.value})} className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl outline-none focus:ring-2 focus:ring-emerald-500 text-sm dark:text-white" />
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h4 className="text-sm font-bold text-slate-800 dark:text-slate-200 uppercase tracking-widest mb-4 pb-2 border-b border-slate-100 dark:border-slate-800 mt-6">Domisili & Tempat Tinggal</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-bold text-slate-500 mb-1.5">Tinggal di Komplek Pesantren? *</label>
+                      <select required value={formData.tinggalDiKomplek ? "true" : "false"} onChange={e => setFormData({...formData, tinggalDiKomplek: e.target.value === "true"})} className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl outline-none focus:ring-2 focus:ring-emerald-500 text-sm dark:text-white">
+                        <option value="false">Tidak</option>
+                        <option value="true">Ya</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-slate-500 mb-1.5">Markaz (Tempat Tinggal)</label>
+                      <input type="text" placeholder="Cth: Markaz Al-Furqon" value={formData.domisiliMarkaz} onChange={e => setFormData({...formData, domisiliMarkaz: e.target.value})} className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl outline-none focus:ring-2 focus:ring-emerald-500 text-sm dark:text-white" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-slate-500 mb-1.5">Jarak Rumah (Km)</label>
+                      <input type="number" step="0.1" placeholder="Cth: 2.5" value={formData.jarakRumah} onChange={e => setFormData({...formData, jarakRumah: e.target.value})} className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl outline-none focus:ring-2 focus:ring-emerald-500 text-sm dark:text-white" />
                     </div>
                   </div>
                 </div>
