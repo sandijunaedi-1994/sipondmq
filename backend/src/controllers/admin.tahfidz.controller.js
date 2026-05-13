@@ -234,6 +234,42 @@ exports.addGlobalHafalan = async (req, res) => {
   }
 };
 
+exports.updateGlobalHafalan = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { targetHal, capaianHal, totalJuz, keterangan, tanggal } = req.body;
+
+    const hafalan = await prisma.tahfidzHafalanHarian.update({
+      where: { id },
+      data: {
+        targetHal: parseInt(targetHal),
+        capaianHal: parseInt(capaianHal),
+        totalJuz: totalJuz ? parseFloat(totalJuz) : null,
+        keterangan,
+        tanggal: tanggal ? new Date(tanggal) : undefined
+      }
+    });
+
+    res.json({ success: true, message: "Hafalan harian berhasil diperbarui", hafalan });
+  } catch (error) {
+    console.error("updateGlobalHafalan error:", error);
+    res.status(500).json({ success: false, message: "Terjadi kesalahan server" });
+  }
+};
+
+exports.deleteGlobalHafalan = async (req, res) => {
+  try {
+    const { id } = req.params;
+    await prisma.tahfidzHafalanHarian.delete({
+      where: { id }
+    });
+    res.json({ success: true, message: "Hafalan harian berhasil dihapus" });
+  } catch (error) {
+    console.error("deleteGlobalHafalan error:", error);
+    res.status(500).json({ success: false, message: "Terjadi kesalahan server" });
+  }
+};
+
 exports.getSertifikatTahfidz = async (req, res) => {
   try {
     const { santriId } = req.params;

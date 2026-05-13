@@ -31,6 +31,7 @@ export default function ManajemenTahfidzPage() {
 
   // Hafalan Tab
   const [hafalanForm, setHafalanForm] = useState({
+    id: null,
     santriId: "",
     tanggal: new Date().toISOString().split('T')[0],
     targetHal: "",
@@ -74,7 +75,7 @@ export default function ManajemenTahfidzPage() {
       const dataHafalan = await resHafalan.json();
 
       if (dataHalaqoh.success) setHalaqohList(dataHalaqoh.halaqoh);
-      if (dataPegawai.success) setPegawaiList(dataPegawai.pegawai);
+      if (dataPegawai.data) setPegawaiList(dataPegawai.data);
       if (dataMarkaz.markaz) setMarkazList(dataMarkaz.markaz);
       if (dataSantri.success) setSantriList(dataSantri.santri || []);
       if (dataHafalan.success) setGlobalHafalan(dataHafalan.hafalan || []);
@@ -160,8 +161,12 @@ export default function ManajemenTahfidzPage() {
 
     try {
       const token = localStorage.getItem("admin_token");
-      const res = await fetch(`${apiUrl}/api/admin/tahfidz/hafalan`, {
-        method: "POST",
+      const isEditing = !!hafalanForm.id;
+      const url = isEditing ? `${apiUrl}/api/admin/tahfidz/hafalan/${hafalanForm.id}` : `${apiUrl}/api/admin/tahfidz/hafalan`;
+      const method = isEditing ? "PUT" : "POST";
+
+      const res = await fetch(url, {
+        method,
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`
@@ -174,12 +179,13 @@ export default function ManajemenTahfidzPage() {
         alert(data.message);
         // Reset form except date
         setHafalanForm({
-          ...hafalanForm,
+          id: null,
+          santriId: "",
+          tanggal: hafalanForm.tanggal,
           targetHal: "",
           capaianHal: "",
           totalJuz: "",
-          keterangan: "",
-          santriId: ""
+          keterangan: ""
         });
         setSearchHafalanSantri("");
         fetchGlobalHafalan();
@@ -188,6 +194,38 @@ export default function ManajemenTahfidzPage() {
       }
     } catch (err) {
       alert("Terjadi kesalahan jaringan");
+    }
+  };
+
+  const handleEditHafalan = (h) => {
+    setHafalanForm({
+      id: h.id,
+      santriId: h.santriId,
+      tanggal: new Date(h.tanggal).toISOString().split('T')[0],
+      targetHal: h.targetHal,
+      capaianHal: h.capaianHal,
+      totalJuz: h.totalJuz || "",
+      keterangan: h.keterangan || ""
+    });
+  };
+
+  const handleDeleteHafalan = async (id) => {
+    if (!confirm("Hapus data hafalan ini?")) return;
+    try {
+      const token = localStorage.getItem("admin_token");
+      const res = await fetch(`${apiUrl}/api/admin/tahfidz/hafalan/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert(data.message);
+        fetchGlobalHafalan();
+      } else {
+        alert(data.message);
+      }
+    } catch (err) {
+      alert("Terjadi kesalahan sistem");
     }
   };
 
@@ -303,7 +341,13 @@ export default function ManajemenTahfidzPage() {
                   halaqohList.map((h) => (
                     <tr key={h.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
                       <td className="px-6 py-4 font-bold text-slate-800 dark:text-white">{h.nama}</td>
-                      <td className="px-6 py-4">{h.markaz?.nama || <span className="text-slate-400 italic">-</span>}</td>
+                      <td className="px-6 py-4">
+                        {h.markaz ? (
+                          <span className="inline-flex px-2 py-1 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded text-xs font-medium">
+                            {h.markaz.kode}
+                          </span>
+                        ) : <span className="text-slate-400 italic">-</span>}
+                      </td>
                       <td className="px-6 py-4">{h.muhaffidz?.namaLengkap || <span className="text-slate-400 italic">Belum ditentukan</span>}</td>
                       <td className="px-6 py-4 text-center">
                         <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 font-bold text-xs">
@@ -413,15 +457,28 @@ export default function ManajemenTahfidzPage() {
           {/* Kolom Kiri: Form Input */}
           <div className="lg:col-span-1">
             <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm p-5 sticky top-6">
-              <h2 className="font-bold text-slate-800 dark:text-white mb-4">Input Hafalan Baru</h2>
+              <h2 className="font-bold text-slate-800 dark:text-white mb-4">
+                {hafalanForm.id ? "Edit Hafalan" : "Input Hafalan Baru"}
+              </h2>
               <form onSubmit={submitHafalan} className="space-y-4">
                 
                 {/* Custom Santri Selector */}
                 <div className="relative">
-                  <label className="block text-xs font-bold text-slate-500 mb-1">Nama Santri <span className="text-red-500">*</span></label>
+                  <div className="flex justify-between items-end mb-1">
+                    <label className="block text-xs font-bold text-slate-500">Nama Santri <span className="text-red-500">*</span></label>
+                    {hafalanForm.id && (
+                      <button 
+                        type="button" 
+                        onClick={() => setHafalanForm({...hafalanForm, id: null, santriId: "", targetHal: "", capaianHal: "", totalJuz: "", keterangan: ""})}
+                        className="text-[10px] text-teal-600 hover:underline font-bold"
+                      >
+                        Batal Edit
+                      </button>
+                    )}
+                  </div>
                   <div 
-                    onClick={() => setShowSantriDropdown(!showSantriDropdown)}
-                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm cursor-pointer flex justify-between items-center"
+                    onClick={() => !hafalanForm.id && setShowSantriDropdown(!showSantriDropdown)}
+                    className={`w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm flex justify-between items-center ${hafalanForm.id ? "opacity-70 cursor-not-allowed" : "cursor-pointer"}`}
                   >
                     <span className={hafalanForm.santriId ? "text-slate-800 dark:text-slate-200" : "text-slate-400"}>
                       {hafalanForm.santriId ? getSelectedSantriName() : "Pilih Santri..."}
@@ -488,7 +545,7 @@ export default function ManajemenTahfidzPage() {
 
                 <div className="pt-2">
                   <button type="submit" className="w-full py-2.5 bg-teal-500 hover:bg-teal-600 text-white font-bold rounded-xl transition-colors shadow-lg shadow-teal-500/30">
-                    Simpan Hafalan
+                    {hafalanForm.id ? "Update Hafalan" : "Simpan Hafalan"}
                   </button>
                 </div>
               </form>
@@ -512,13 +569,14 @@ export default function ManajemenTahfidzPage() {
                       <th className="px-4 py-3 text-center">Cap</th>
                       <th className="px-4 py-3">Juz</th>
                       <th className="px-4 py-3">Keterangan</th>
+                      <th className="px-4 py-3 text-right">Aksi</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
                     {loading ? (
-                      <tr><td colSpan={6} className="p-8 text-center text-slate-500">Memuat riwayat...</td></tr>
+                      <tr><td colSpan={7} className="p-8 text-center text-slate-500">Memuat riwayat...</td></tr>
                     ) : globalHafalan.length === 0 ? (
-                      <tr><td colSpan={6} className="p-8 text-center text-slate-500">Belum ada riwayat hafalan.</td></tr>
+                      <tr><td colSpan={7} className="p-8 text-center text-slate-500">Belum ada riwayat hafalan.</td></tr>
                     ) : (
                       globalHafalan.map(h => (
                         <tr key={h.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/30">
@@ -531,6 +589,14 @@ export default function ManajemenTahfidzPage() {
                           <td className="px-4 py-3 text-center font-bold text-teal-600 dark:text-teal-400">{h.capaianHal}</td>
                           <td className="px-4 py-3 text-xs">{h.totalJuz || "-"}</td>
                           <td className="px-4 py-3 text-[11px] text-slate-500 line-clamp-1">{h.keterangan || "-"}</td>
+                          <td className="px-4 py-3 text-right space-x-1">
+                            <button onClick={() => handleEditHafalan(h)} className="p-1 text-blue-600 hover:bg-blue-50 rounded dark:hover:bg-blue-500/10">
+                              <Edit2 size={14} />
+                            </button>
+                            <button onClick={() => handleDeleteHafalan(h.id)} className="p-1 text-red-600 hover:bg-red-50 rounded dark:hover:bg-red-500/10">
+                              <Trash2 size={14} />
+                            </button>
+                          </td>
                         </tr>
                       ))
                     )}
@@ -574,7 +640,7 @@ export default function ManajemenTahfidzPage() {
                 >
                   <option value="">-- Pilih Markaz --</option>
                   {markazList.map(m => (
-                    <option key={m.id} value={m.id}>{m.nama}</option>
+                    <option key={m.id} value={m.id}>{m.kode} - {m.nama}</option>
                   ))}
                 </select>
               </div>
