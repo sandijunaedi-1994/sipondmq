@@ -611,7 +611,7 @@ exports.updateSantriDetail = async (req, res) => {
     }
 
     const santri = await prisma.santri.findUnique({
-      where: { id: parseInt(id) },
+      where: { id: id },
       include: { registration: { include: { registrationData: true } } }
     });
 
@@ -625,7 +625,7 @@ exports.updateSantriDetail = async (req, res) => {
     await prisma.$transaction(async (tx) => {
       // Update Santri Table
       await tx.santri.update({
-        where: { id: parseInt(id) },
+        where: { id: id },
         data: {
           nis: nis !== undefined ? nis : santri.nis,
           kelasId: kelasId ? parseInt(kelasId) : santri.kelasId,
