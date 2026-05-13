@@ -134,8 +134,10 @@ export const PERMISSIONS_SCHEMA = [
       {
         nama: "Surat Menyurat & Arsip",
         actions: [
-          { id: "SEKRETARIAT_VIEW", label: "Lihat Arsip Surat" },
-          { id: "SEKRETARIAT_EDIT", label: "Kelola Surat/Arsip" }
+          { id: "SEKRETARIAT_VIEW", label: "Akses Menu Sekretariat" },
+          { id: "SEKRETARIAT_EDIT", label: "Kelola Surat/Arsip" },
+          { id: "SEKRETARIAT_TAB_SURAT", label: "Tab: Surat Menyurat" },
+          { id: "SEKRETARIAT_TAB_ARSIP", label: "Tab: Arsip Dokumen" }
         ]
       }
     ]
@@ -147,8 +149,13 @@ export const PERMISSIONS_SCHEMA = [
       {
         nama: "Data Pegawai & Kinerja",
         actions: [
-          { id: "SDM_VIEW", label: "Lihat Data Pegawai" },
-          { id: "SDM_EDIT", label: "Kelola Data SDM" }
+          { id: "SDM_VIEW", label: "Akses Menu SDM" },
+          { id: "SDM_EDIT", label: "Kelola Data SDM" },
+          { id: "SDM_TAB_PEGAWAI", label: "Tab: Data Pegawai" },
+          { id: "SDM_TAB_PENGGAJIAN", label: "Tab: Penggajian / Payroll" },
+          { id: "SDM_TAB_KASBON", label: "Tab: Manajemen Kasbon" },
+          { id: "SDM_TAB_REKRUTMEN", label: "Tab: Rekrutmen" },
+          { id: "SDM_TAB_KINERJA", label: "Tab: Penilaian Kinerja" }
         ]
       }
     ]
@@ -160,8 +167,10 @@ export const PERMISSIONS_SCHEMA = [
       {
         nama: "Penelitian & SOP",
         actions: [
-          { id: "LITBANG_VIEW", label: "Lihat Dokumen SOP" },
-          { id: "LITBANG_EDIT", label: "Kelola Litbang" }
+          { id: "LITBANG_VIEW", label: "Akses Menu Litbang" },
+          { id: "LITBANG_EDIT", label: "Kelola Litbang" },
+          { id: "LITBANG_TAB_PENELITIAN", label: "Tab: Penelitian & Inovasi" },
+          { id: "LITBANG_TAB_SOP", label: "Tab: Penyusunan SOP" }
         ]
       }
     ]
@@ -186,7 +195,7 @@ export const PERMISSIONS_SCHEMA = [
       {
         nama: "Inventaris & Izin Lembaga",
         actions: [
-          { id: "LEGAL_VIEW", label: "Lihat Data Aset" },
+          { id: "LEGAL_VIEW", label: "Akses Menu Legal" },
           { id: "LEGAL_EDIT", label: "Kelola Aset/Legal" }
         ]
       },
@@ -196,7 +205,10 @@ export const PERMISSIONS_SCHEMA = [
           { id: "PEMBANGUNAN_VIEW", label: "Lihat Daftar Proyek" },
           { id: "PEMBANGUNAN_CREATE", label: "Tambah/Edit Proyek" },
           { id: "PEMBANGUNAN_APPROVE", label: "Setujui Request Unit" },
-          { id: "PEMBANGUNAN_DELETE", label: "Hapus Proyek" }
+          { id: "PEMBANGUNAN_DELETE", label: "Hapus Proyek" },
+          { id: "LEGAL_TAB_PEMBANGUNAN", label: "Tab: Daftar Project Pembangunan" },
+          { id: "LEGAL_TAB_INVENTARIS", label: "Tab: Inventaris & Aset" },
+          { id: "LEGAL_TAB_IZIN", label: "Tab: Izin & Legalitas" }
         ]
       }
     ]
@@ -237,9 +249,11 @@ export const PERMISSIONS_SCHEMA = [
       {
         nama: "Pengelolaan Internal (Anggaran & Gaji)",
         actions: [
-          { id: "KEUANGAN_ANGGARAN_VIEW", label: "Lihat Anggaran" },
+          { id: "KEUANGAN_ANGGARAN_VIEW", label: "Akses Menu Keuangan Pusat" },
           { id: "KEUANGAN_PENGGAJIAN_VIEW", label: "Lihat Penggajian" },
-          { id: "KEUANGAN_ANGGARAN_EDIT", label: "Kelola Anggaran" }
+          { id: "KEUANGAN_ANGGARAN_EDIT", label: "Kelola Anggaran" },
+          { id: "KEUANGAN_TAB_ANGGARAN", label: "Tab: Anggaran Tahunan" },
+          { id: "KEUANGAN_TAB_PENGGAJIAN", label: "Tab: Penggajian & Insentif" }
         ]
       }
     ]
@@ -310,8 +324,13 @@ export const PERMISSIONS_SCHEMA = [
       {
         nama: "Menu Organisasi",
         actions: [
-          { id: "ORGANISASI_VIEW", label: "Lihat Organisasi" },
-          { id: "ORGANISASI_EDIT", label: "Kelola Organisasi" }
+          { id: "ORGANISASI_VIEW", label: "Akses Menu Organisasi" },
+          { id: "ORGANISASI_EDIT", label: "Kelola Organisasi" },
+          { id: "ORGANISASI_TAB_OKR", label: "Tab: OKR & KPI" },
+          { id: "ORGANISASI_TAB_STRUKTUR", label: "Tab: Struktur & Jobdesk" },
+          { id: "ORGANISASI_TAB_PIVOT", label: "Tab: PIVOT" },
+          { id: "ORGANISASI_TAB_PROJECT", label: "Tab: Manajemen Project" },
+          { id: "ORGANISASI_TAB_RAPAT", label: "Tab: Rapat" }
         ]
       }
     ]

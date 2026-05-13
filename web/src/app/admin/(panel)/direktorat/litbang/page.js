@@ -1,9 +1,36 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { usePermissions } from "@/hooks/usePermissions";
+
+const ALL_TABS = [
+  { id: 'penelitian', label: 'Penelitian', permission: 'LITBANG_TAB_PENELITIAN' },
+  { id: 'sop', label: 'SOP & Panduan', permission: 'LITBANG_TAB_SOP' }
+];
 
 export default function LitbangPage() {
-  const [activeTab, setActiveTab] = useState("penelitian");
+  const { hasAccess, loading } = usePermissions();
+  const [activeTab, setActiveTab] = useState("");
+
+  const availableTabs = ALL_TABS.filter(tab => hasAccess(tab.permission));
+
+  useEffect(() => {
+    if (!loading && availableTabs.length > 0 && !activeTab) {
+      setActiveTab(availableTabs[0].id);
+    }
+  }, [loading, availableTabs, activeTab]);
+
+  if (loading) return <div className="p-8 text-center text-slate-500">Memuat akses...</div>;
+
+  if (availableTabs.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center p-12 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 text-center">
+        <div className="w-16 h-16 bg-rose-100 text-rose-500 rounded-full flex items-center justify-center mb-4 text-2xl">🚫</div>
+        <h2 className="text-xl font-black text-slate-800 dark:text-slate-100 mb-2">Akses Ditolak</h2>
+        <p className="text-slate-500 max-w-md">Anda tidak memiliki hak akses untuk membuka tab manapun di modul ini. Silakan hubungi Superadmin jika ini adalah sebuah kesalahan.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -15,17 +42,17 @@ export default function LitbangPage() {
 
       {/* Navigation Tabs */}
       <div className="flex overflow-x-auto gap-2 border-b border-slate-200 dark:border-slate-800 pb-px custom-scrollbar mb-6">
-        {['penelitian', 'sop'].map((tab) => (
+        {availableTabs.map((tab) => (
           <button
-            key={tab}
-            onClick={() => setActiveTab(tab)}
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id)}
             className={`px-5 py-3 text-sm font-bold border-b-2 whitespace-nowrap transition-colors ${
-              activeTab === tab 
+              activeTab === tab.id 
                 ? 'border-emerald-500 text-emerald-600 dark:text-emerald-400' 
                 : 'border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300'
             }`}
           >
-            {tab === 'penelitian' ? 'Penelitian' : 'SOP & Panduan'}
+            {tab.label}
           </button>
         ))}
       </div>
