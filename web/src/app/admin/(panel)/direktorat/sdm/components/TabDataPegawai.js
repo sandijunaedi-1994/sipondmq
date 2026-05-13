@@ -481,7 +481,12 @@ export default function TabDataPegawai() {
                     </div>
                     <div>
                       <label className="block text-xs font-bold text-slate-500 mb-1.5">Markaz (Tempat Tinggal)</label>
-                      <input type="text" placeholder="Cth: Markaz Al-Furqon" value={formData.domisiliMarkaz} onChange={e => setFormData({...formData, domisiliMarkaz: e.target.value})} className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl outline-none focus:ring-2 focus:ring-emerald-500 text-sm dark:text-white" />
+                      <select value={formData.domisiliMarkaz} onChange={e => setFormData({...formData, domisiliMarkaz: e.target.value})} className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl outline-none focus:ring-2 focus:ring-emerald-500 text-sm dark:text-white">
+                        <option value="">-- Pilih Markaz --</option>
+                        <option value="MQBS1">MQBS1</option>
+                        <option value="MQBS2">MQBS2</option>
+                        <option value="MQBS3">MQBS3</option>
+                      </select>
                     </div>
                     <div>
                       <label className="block text-xs font-bold text-slate-500 mb-1.5">Jarak Rumah (Km)</label>
