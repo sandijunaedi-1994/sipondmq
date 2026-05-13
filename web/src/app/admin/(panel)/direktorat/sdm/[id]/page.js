@@ -202,8 +202,18 @@ export default function DetailPegawaiPage() {
               <div className="w-24 h-24 bg-white dark:bg-slate-800 border-4 border-white dark:border-slate-900 rounded-full flex items-center justify-center shadow-lg mb-4 text-emerald-600 text-3xl font-black uppercase">
                 {pegawai.namaLengkap ? pegawai.namaLengkap.substring(0, 2) : "PG"}
               </div>
-              <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100 text-center">{pegawai.namaLengkap}</h2>
-              <p className="text-sm font-semibold text-emerald-600 dark:text-emerald-400 mb-3">{pegawai.posisi}</p>
+              <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100 text-center mb-1">{pegawai.namaLengkap}</h2>
+              <div className="text-center mb-3 space-y-1">
+                {pegawai.posisiOrganisasi && pegawai.posisiOrganisasi.length > 0 ? (
+                  pegawai.posisiOrganisasi.map(pos => (
+                    <p key={pos.id} className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">
+                      {pos.nama} <span className="text-emerald-600/60 dark:text-emerald-400/60 font-medium">({pos.unit?.nama || '-'})</span>
+                    </p>
+                  ))
+                ) : (
+                  <p className="text-sm font-semibold text-slate-400 italic">Belum Ada Jabatan</p>
+                )}
+              </div>
               
               <span className={`px-4 py-1.5 text-xs font-bold rounded-full border ${getStatusColor(pegawai.statusPegawai)}`}>
                 {pegawai.statusPegawai}
@@ -214,12 +224,6 @@ export default function DetailPegawaiPage() {
               <div className="flex justify-between items-center">
                 <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">NIP</span>
                 <span className="text-sm font-black text-slate-800 dark:text-slate-200">{pegawai.nip}</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">Penempatan</span>
-                <span className="text-sm font-bold text-slate-700 dark:text-slate-300">
-                  {pegawai.penempatan === 'MARKAZ' ? (pegawai.markaz ? pegawai.markaz.nama : 'Markaz') : 'Direktorat Pusat'}
-                </span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">Mulai Bekerja</span>

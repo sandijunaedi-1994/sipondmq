@@ -31,7 +31,8 @@ const getPegawaiList = async (req, res) => {
           markaz: {
             select: { id: true, nama: true, kode: true }
           },
-          pendidikan: { orderBy: { tahunLulus: 'desc' } }
+          pendidikan: { orderBy: { tahunLulus: 'desc' } },
+          posisiOrganisasi: { include: { unit: true } }
         },
         skip,
         take: parseInt(limit),

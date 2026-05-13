@@ -307,10 +307,20 @@ export default function TabDataPegawai() {
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <p className="font-bold text-slate-700 dark:text-slate-200">{pegawai.posisi}</p>
-                      <p className="text-[11px] text-slate-500">
-                        {pegawai.penempatan === 'MARKAZ' ? (pegawai.markaz ? pegawai.markaz.nama : 'Markaz Tidak Diketahui') : 'Direktorat Pusat'}
-                      </p>
+                      {pegawai.posisiOrganisasi && pegawai.posisiOrganisasi.length > 0 ? (
+                        <div className="flex flex-col gap-1">
+                          {pegawai.posisiOrganisasi.map(pos => (
+                            <div key={pos.id}>
+                              <p className="font-bold text-slate-700 dark:text-slate-200">
+                                {pos.nama} {pos.isKepala && <span className="ml-1 px-1.5 py-0.5 text-[8px] bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400 rounded-md">KEPALA</span>}
+                              </p>
+                              <p className="text-[11px] text-slate-500">{pos.unit?.nama || '-'}</p>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-[11px] text-slate-400 italic">Belum Ada Jabatan</p>
+                      )}
                     </td>
                     <td className="px-6 py-4 text-center">
                       <span className={`px-2.5 py-1 text-[10px] font-bold rounded-lg border ${
