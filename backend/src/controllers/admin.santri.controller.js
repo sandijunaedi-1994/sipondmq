@@ -59,6 +59,13 @@ exports.getSantriAktif = async (req, res) => {
           markaz: true,
           kelasRef: true,
           asramaRef: true,
+          halaqoh: {
+            include: {
+              muhaffidz: {
+                select: { id: true, namaLengkap: true }
+              }
+            }
+          },
           waliSantri: {
             include: {
               user: {

@@ -28,6 +28,9 @@ export default function ManajemenTahfidzPage() {
 
   // Santri Tab
   const [searchSantri, setSearchSantri] = useState("");
+  const [filterMarkazTahapan, setFilterMarkazTahapan] = useState("");
+  const [filterKelasTahapan, setFilterKelasTahapan] = useState("");
+  const [filterMuhaffidzTahapan, setFilterMuhaffidzTahapan] = useState("");
   const [selectedSantri, setSelectedSantri] = useState(null);
 
   // Hafalan Tab
@@ -126,7 +129,7 @@ export default function ManajemenTahfidzPage() {
       if (data.success) {
         Swal.fire({ icon: 'success', title: 'Berhasil', text: data.message, timer: 2000, showConfirmButton: false });
         setShowModal(false);
-        fetchGlobalHafalan();
+        fetchData();
       } else {
         Swal.fire({ icon: 'error', title: 'Gagal', text: data.message });
       }
@@ -158,7 +161,7 @@ export default function ManajemenTahfidzPage() {
       const data = await res.json();
       if (data.success) {
         Swal.fire({ icon: 'success', title: 'Terhapus!', text: data.message, timer: 2000, showConfirmButton: false });
-        fetchGlobalHafalan();
+        fetchData();
       } else {
         Swal.fire({ icon: 'error', title: 'Gagal', text: data.message });
       }
@@ -279,8 +282,16 @@ export default function ManajemenTahfidzPage() {
     const term = searchSantri.toLowerCase();
     const nama = s.registration?.studentName?.toLowerCase() || "";
     const nis = s.nis?.toLowerCase() || "";
-    return nama.includes(term) || nis.includes(term);
+    
+    const matchSearch = nama.includes(term) || nis.includes(term);
+    const matchMarkaz = filterMarkazTahapan ? s.markazId?.toString() === filterMarkazTahapan : true;
+    const matchKelas = filterKelasTahapan ? s.kelasRef?.nama === filterKelasTahapan : true;
+    const matchMuhaffidz = filterMuhaffidzTahapan ? s.halaqoh?.muhaffidzId === filterMuhaffidzTahapan : true;
+
+    return matchSearch && matchMarkaz && matchKelas && matchMuhaffidz;
   });
+
+  const uniqueKelas = [...new Set(santriList.map(s => s.kelasRef?.nama).filter(Boolean))].sort();
 
   const filteredHafalanSantri = santriList.filter(s => {
     const term = searchHafalanSantri.toLowerCase();
@@ -414,7 +425,10 @@ export default function ManajemenTahfidzPage() {
             <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm p-5">
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
                 <h2 className="font-bold text-slate-800 dark:text-white">Pilih Santri untuk Update Tahapan</h2>
-                <div className="relative w-full md:w-64">
+              </div>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+                <div className="relative w-full">
                   <input
                     type="text"
                     placeholder="Cari nama / NIS..."
@@ -424,6 +438,39 @@ export default function ManajemenTahfidzPage() {
                   />
                   <Search className="absolute left-3 top-2.5 text-slate-400" size={16} />
                 </div>
+                
+                <select 
+                  value={filterMarkazTahapan} 
+                  onChange={(e) => setFilterMarkazTahapan(e.target.value)}
+                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm"
+                >
+                  <option value="">Semua Markaz</option>
+                  {markazList.map(m => (
+                    <option key={m.id} value={m.id}>{m.kode} - {m.nama}</option>
+                  ))}
+                </select>
+
+                <select 
+                  value={filterKelasTahapan} 
+                  onChange={(e) => setFilterKelasTahapan(e.target.value)}
+                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm"
+                >
+                  <option value="">Semua Kelas</option>
+                  {uniqueKelas.map(k => (
+                    <option key={k} value={k}>{k}</option>
+                  ))}
+                </select>
+
+                <select 
+                  value={filterMuhaffidzTahapan} 
+                  onChange={(e) => setFilterMuhaffidzTahapan(e.target.value)}
+                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm"
+                >
+                  <option value="">Semua Muhaffidz</option>
+                  {pegawaiList.map(p => (
+                    <option key={p.id} value={p.id}>{p.namaLengkap}</option>
+                  ))}
+                </select>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-[60vh] overflow-y-auto pr-2">
