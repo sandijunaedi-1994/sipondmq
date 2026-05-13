@@ -65,31 +65,6 @@ export default function SantriTahfidzModule({ santriId }) {
     } catch (err) {}
   };
 
-  const updateTahapanStatus = async (tahapanId, status) => {
-    try {
-      const token = localStorage.getItem("admin_token");
-      const res = await fetch(`${apiUrl}/api/admin/tahfidz/${santriId}/tahapan`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          tahapanId,
-          status,
-          selesaiTanggal: status === 'SELESAI' ? new Date().toISOString() : null
-        })
-      });
-      const data = await res.json();
-      if (data.success) {
-        alert("Status tahapan diperbarui");
-        fetchTahapan();
-      }
-    } catch (err) {
-      alert("Gagal update status");
-    }
-  };
-
   return (
     <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden mt-4">
       <div className="p-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 flex flex-col sm:flex-row items-center justify-between gap-4">
@@ -140,21 +115,15 @@ export default function SantriTahfidzModule({ santriId }) {
                     <div className="flex-1">
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-1">
                         <h4 className="font-bold text-slate-800 dark:text-white text-sm">{t.nama}</h4>
-                        <div className="flex gap-2">
-                          <select 
-                            value={t.capaian?.status || 'BELUM'} 
-                            onChange={(e) => updateTahapanStatus(t.id, e.target.value)}
-                            className={`text-[10px] font-bold rounded px-2 py-1 uppercase tracking-wider outline-none border-none ${
-                              t.capaian?.status === 'SELESAI' ? 'bg-teal-100 text-teal-700' : 
-                              t.capaian?.status === 'PROSES' ? 'bg-amber-100 text-amber-700' : 
+                          <span 
+                            className={`text-[10px] font-bold rounded px-2 py-1 uppercase tracking-wider ${
+                              t.capaian?.status === 'SELESAI' ? 'bg-teal-100 text-teal-700 dark:bg-teal-900/50 dark:text-teal-400' : 
+                              t.capaian?.status === 'PROSES' ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-400' : 
                               'bg-slate-200 text-slate-600 dark:bg-slate-800 dark:text-slate-400'
                             }`}
                           >
-                            <option value="BELUM">Belum</option>
-                            <option value="PROSES">Proses</option>
-                            <option value="SELESAI">Selesai</option>
-                          </select>
-                        </div>
+                            {t.capaian?.status || 'BELUM'}
+                          </span>
                       </div>
                       <p className="text-xs text-slate-500 dark:text-slate-400 mb-2">{t.deskripsi}</p>
                       {t.capaian?.targetTanggal && (
