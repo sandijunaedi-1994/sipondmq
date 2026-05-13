@@ -3,7 +3,14 @@ const router = express.Router();
 const multer = require('multer');
 const upload = multer({ storage: multer.memoryStorage() });
 
+const fs = require('fs');
 const path = require('path');
+
+const uploadDir = path.join(__dirname, '../../public/uploads/avatars/');
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, path.join(__dirname, '../../public/uploads/avatars/'));
@@ -320,7 +327,7 @@ router.post('/sdm/pegawai', requireAdmin, createPegawai);
 router.put('/sdm/pegawai/:id', requireAdmin, updatePegawai);
 router.delete('/sdm/pegawai/:id', requireAdmin, deletePegawai);
 router.post('/sdm/pegawai/:id/link', requireAdmin, linkAccount);
-router.post('/sdm/pegawai/:id/berkas', uploadDisk.single('file'), uploadPegawaiBerkas);
+router.post('/sdm/pegawai/:id/berkas', requireAdmin, uploadDisk.single('file'), uploadPegawaiBerkas);
 router.delete('/sdm/pegawai/:id/berkas/:berkasId', requireAdmin, deletePegawaiBerkas);
 
 module.exports = router;
