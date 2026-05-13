@@ -485,10 +485,8 @@ model Santri {
   nis          String?      @unique @db.VarChar(30)
   markazId     Int?
   markaz       Markaz?      @relation(fields: [markazId], references: [id])
-  kelas        String?      @db.VarChar(50)
   kelasId      Int?
   kelasRef     Kelas?       @relation(fields: [kelasId], references: [id])
-  asrama       String?      @db.VarChar(100)
   asramaId     Int?
   asramaRef    Asrama?      @relation(fields: [asramaId], references: [id])
   tahunMasuk   Int?

@@ -57,6 +57,8 @@ exports.getSantriAktif = async (req, res) => {
             }
           },
           markaz: true,
+          kelasRef: true,
+          asramaRef: true,
           waliSantri: {
             include: {
               user: {
@@ -80,7 +82,11 @@ exports.getSantriAktif = async (req, res) => {
 
     res.json({
       success: true,
-      santri: santriList,
+      santri: santriList.map(s => ({
+        ...s,
+        kelas: s.kelasRef?.nama || "-",
+        asrama: s.asramaRef?.nama || "-"
+      })),
       pagination: {
         page,
         limit,
@@ -312,6 +318,8 @@ exports.getSantriDetail = async (req, res) => {
           }
         },
         markaz: true,
+        kelasRef: true,
+        asramaRef: true,
         waliSantri: {
           include: {
             user: {
@@ -331,7 +339,14 @@ exports.getSantriDetail = async (req, res) => {
       return res.status(404).json({ success: false, message: "Data santri tidak ditemukan" });
     }
 
-    res.json({ success: true, santri });
+    res.json({ 
+      success: true, 
+      santri: {
+        ...santri,
+        kelas: santri.kelasRef?.nama || "-",
+        asrama: santri.asramaRef?.nama || "-"
+      }
+    });
   } catch (error) {
     console.error("getSantriDetail error:", error);
     res.status(500).json({ success: false, message: "Server Error" });
@@ -556,7 +571,14 @@ exports.getSantriWaliKelas = async (req, res) => {
       }
     });
 
-    res.json({ success: true, santri: santriList });
+    res.json({ 
+      success: true, 
+      santri: santriList.map(s => ({
+        ...s,
+        kelas: s.kelasRef?.nama || "-",
+        asrama: s.asramaRef?.nama || "-"
+      }))
+    });
   } catch (error) {
     console.error("getSantriWaliKelas error:", error);
     res.status(500).json({ success: false, message: "Server Error" });
@@ -566,7 +588,7 @@ exports.getSantriWaliKelas = async (req, res) => {
 exports.updateSantriDetail = async (req, res) => {
   try {
     const { id } = req.params;
-    const { studentName, nis, program, gender, kelas, asrama, nik, nisn, birthPlace, birthDate, status } = req.body;
+    const { studentName, nis, program, gender, kelasId, asramaId, nik, nisn, birthPlace, birthDate, status } = req.body;
 
     const { mergePermissions } = require('../utils/permission');
     
@@ -606,8 +628,8 @@ exports.updateSantriDetail = async (req, res) => {
         where: { id: parseInt(id) },
         data: {
           nis: nis !== undefined ? nis : santri.nis,
-          kelas: kelas !== undefined ? kelas : santri.kelas,
-          asrama: asrama !== undefined ? asrama : santri.asrama,
+          kelasId: kelasId ? parseInt(kelasId) : santri.kelasId,
+          asramaId: asramaId ? parseInt(asramaId) : santri.asramaId,
           status: status !== undefined ? status : santri.status
         }
       });

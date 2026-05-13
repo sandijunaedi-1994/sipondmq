@@ -43,8 +43,8 @@ export default function SantriDetailPage() {
             nis: data.santri.nis || "",
             program: data.santri.registration?.program || "SMP",
             gender: data.santri.registration?.gender || "LAKI_LAKI",
-            kelas: data.santri.kelas || "",
-            asrama: data.santri.asrama || "",
+            kelasId: data.santri.kelasId || "",
+            asramaId: data.santri.asramaId || "",
             status: data.santri.status || "AKTIF",
             nik: data.santri.registration?.registrationData?.nik || "",
             nisn: data.santri.registration?.registrationData?.nisn || "",
@@ -414,19 +414,19 @@ export default function SantriDetailPage() {
                   </div>
                   <div>
                     <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Kelas</label>
-                    <select value={editForm.kelas} onChange={(e) => setEditForm({...editForm, kelas: e.target.value})} className="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-950 focus:ring-2 focus:ring-emerald-500 outline-none">
+                    <select value={editForm.kelasId} onChange={(e) => setEditForm({...editForm, kelasId: e.target.value})} className="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-950 focus:ring-2 focus:ring-emerald-500 outline-none">
                       <option value="">Pilih Kelas</option>
                       {kelasList.map(k => (
-                        <option key={k.id} value={k.nama}>{k.nama}</option>
+                        <option key={k.id} value={k.id}>{k.nama}</option>
                       ))}
                     </select>
                   </div>
                   <div>
                     <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Asrama</label>
-                    <select value={editForm.asrama} onChange={(e) => setEditForm({...editForm, asrama: e.target.value})} className="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-950 focus:ring-2 focus:ring-emerald-500 outline-none">
+                    <select value={editForm.asramaId} onChange={(e) => setEditForm({...editForm, asramaId: e.target.value})} className="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-950 focus:ring-2 focus:ring-emerald-500 outline-none">
                       <option value="">Pilih Asrama</option>
                       {asramaList.map(a => (
-                        <option key={a.id} value={a.nama}>{a.nama}</option>
+                        <option key={a.id} value={a.id}>{a.nama}</option>
                       ))}
                     </select>
                   </div>
