@@ -548,6 +548,10 @@ model SdmPosisi {
   nama        String   @db.VarChar(150)
   isKepala    Boolean  @default(false)
   
+  peran         String?  @db.Text
+  tanggungJawab String?  @db.Text
+  wewenang      String?  @db.Text
+  
   unitId      String
   unit        SdmUnit  @relation(fields: [unitId], references: [id], onDelete: Cascade)
 

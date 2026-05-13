@@ -139,7 +139,7 @@ const deleteUnit = async (req, res) => {
 
 const createPosisi = async (req, res) => {
   try {
-    const { nama, isKepala, unitId, pegawaiId } = req.body;
+    const { nama, isKepala, unitId, pegawaiId, peran, tanggungJawab, wewenang } = req.body;
     
     if (!nama || !unitId) return res.status(400).json({ message: 'Nama dan Unit wajib diisi' });
 
@@ -158,7 +158,10 @@ const createPosisi = async (req, res) => {
         nama,
         isKepala: isKepala || false,
         unitId,
-        pegawaiId: pegawaiId || null
+        pegawaiId: pegawaiId || null,
+        peran: peran || null,
+        tanggungJawab: tanggungJawab || null,
+        wewenang: wewenang || null
       }
     });
 
@@ -181,7 +184,7 @@ const createPosisi = async (req, res) => {
 const updatePosisi = async (req, res) => {
   try {
     const { id } = req.params;
-    const { nama, isKepala, pegawaiId } = req.body;
+    const { nama, isKepala, pegawaiId, peran, tanggungJawab, wewenang } = req.body;
 
     const posisi = await prisma.sdmPosisi.findUnique({ where: { id } });
     if (!posisi) return res.status(404).json({ message: 'Posisi tidak ditemukan' });
@@ -199,9 +202,12 @@ const updatePosisi = async (req, res) => {
     const updatedPosisi = await prisma.sdmPosisi.update({
       where: { id },
       data: {
-        nama,
-        isKepala,
-        pegawaiId: pegawaiId || null
+        ...(nama !== undefined && { nama }),
+        ...(isKepala !== undefined && { isKepala }),
+        ...(pegawaiId !== undefined && { pegawaiId: pegawaiId || null }),
+        ...(peran !== undefined && { peran: peran || null }),
+        ...(tanggungJawab !== undefined && { tanggungJawab: tanggungJawab || null }),
+        ...(wewenang !== undefined && { wewenang: wewenang || null })
       }
     });
 
