@@ -304,6 +304,19 @@ export const PERMISSIONS_SCHEMA = [
     ]
   },
   {
+    kategori: "Organisasi",
+    icon: "🏢",
+    menus: [
+      {
+        nama: "Menu Organisasi",
+        actions: [
+          { id: "ORGANISASI_VIEW", label: "Lihat Organisasi" },
+          { id: "ORGANISASI_EDIT", label: "Kelola Organisasi" }
+        ]
+      }
+    ]
+  },
+  {
     kategori: "Administrator",
     icon: "🛡️",
     menus: [

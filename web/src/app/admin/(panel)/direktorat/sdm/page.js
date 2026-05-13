@@ -10,12 +10,6 @@ export default function ManajemenPegawaiPage() {
 
   return (
     <div className="space-y-6">
-      {/* Global Header */}
-      <div>
-        <h1 className="text-2xl font-black text-slate-800 dark:text-slate-100">Manajemen SDM</h1>
-        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Kelola data seluruh pegawai, proses penggajian, dan pengajuan kasbon.</p>
-      </div>
-
       {/* Global Navigation Tabs */}
       <div className="flex overflow-x-auto gap-2 border-b border-slate-200 dark:border-slate-800 pb-px mb-6 custom-scrollbar">
         {['data-pegawai', 'penggajian', 'kasbon', 'rekrutmen', 'kinerja'].map((tab) => (
