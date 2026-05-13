@@ -367,7 +367,7 @@ export default function TabDataPegawai() {
                     </td>
                     <td className="px-6 py-4 text-center">
                       <div className="flex items-center justify-center gap-2">
-                        <Link href={`/admin/sdm/pegawai/${pegawai.id}`} className="p-2 text-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 rounded-lg transition" title="Lihat Detail Profil">
+                        <Link href={`/admin/direktorat/sdm/${pegawai.id}`} className="p-2 text-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 rounded-lg transition" title="Lihat Detail Profil">
                           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z" /><path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" /></svg>
                         </Link>
                         <button onClick={() => handleOpenModal('edit', pegawai)} className="p-2 text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-500/10 rounded-lg transition" title="Edit Pegawai">
@@ -481,7 +481,7 @@ export default function TabDataPegawai() {
                     </div>
                     <div>
                       <label className="block text-xs font-bold text-slate-500 mb-1.5">Markaz (Tempat Tinggal)</label>
-                      <select value={formData.domisiliMarkaz} onChange={e => setFormData({...formData, domisiliMarkaz: e.target.value})} className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl outline-none focus:ring-2 focus:ring-emerald-500 text-sm dark:text-white">
+                      <select value={formData.domisiliMarkaz || ""} onChange={e => setFormData({...formData, domisiliMarkaz: e.target.value})} className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl outline-none focus:ring-2 focus:ring-emerald-500 text-sm dark:text-white">
                         <option value="">-- Pilih Markaz --</option>
                         <option value="MQBS1">MQBS1</option>
                         <option value="MQBS2">MQBS2</option>
