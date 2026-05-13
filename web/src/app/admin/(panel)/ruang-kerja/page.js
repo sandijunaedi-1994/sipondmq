@@ -251,11 +251,28 @@ export default function DashboardPribadiPage() {
             .hide-scrollbar::-webkit-scrollbar { display: none; }
           `}} />
           
-          {tabs.map(tab => (
+          {/* 5 Item Pertama (Selalu Muncul) */}
+          {tabs.slice(0, 5).map(tab => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
               className={`snap-center shrink-0 flex flex-col items-center gap-3 w-[96px] md:w-32 group transition-all`}
+            >
+              <div className={`w-16 h-16 md:w-20 md:h-20 flex items-center justify-center rounded-2xl border shadow-sm transition-transform duration-300 ${tab.bg} ${tab.color} ${activeTab === tab.id ? 'ring-2 ring-offset-2 ring-emerald-500 dark:ring-offset-slate-900 scale-105' : 'group-hover:scale-105'}`}>
+                {tab.icon}
+              </div>
+              <span className={`text-xs md:text-sm font-bold text-center leading-tight transition-colors ${activeTab === tab.id ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-600 dark:text-slate-400'}`}>
+                {tab.name}
+              </span>
+            </button>
+          ))}
+          
+          {/* Item Sisanya (Sembunyikan di Mobile, Muncul di Desktop) */}
+          {tabs.slice(5).map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`snap-center shrink-0 hidden md:flex flex-col items-center gap-3 w-[96px] md:w-32 group transition-all`}
             >
               <div className={`w-16 h-16 md:w-20 md:h-20 flex items-center justify-center rounded-2xl border shadow-sm transition-transform duration-300 ${tab.bg} ${tab.color} ${activeTab === tab.id ? 'ring-2 ring-offset-2 ring-emerald-500 dark:ring-offset-slate-900 scale-105' : 'group-hover:scale-105'}`}>
                 {tab.icon}
