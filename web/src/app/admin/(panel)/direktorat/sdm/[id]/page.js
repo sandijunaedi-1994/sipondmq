@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
+import Swal from "sweetalert2";
 import TabPayroll from "./components/TabPayroll";
 import TabKasbon from "./components/TabKasbon";
 import TabKoperasi from "./components/TabKoperasi";
@@ -48,18 +49,56 @@ export default function DetailPegawaiPage() {
   };
 
   const handleDeleteBerkas = async (berkasId) => {
-    if (!confirm('Yakin ingin menghapus berkas ini?')) return;
-    try {
-      const token = localStorage.getItem("admin_token");
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"}/api/admin/sdm/pegawai/${id}/berkas/${berkasId}`, {
-        method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      if (!res.ok) throw new Error('Gagal menghapus berkas');
-      fetchPegawaiDetail();
-    } catch (err) {
-      alert(err.message);
-    }
+    Swal.fire({
+      title: 'Hapus Berkas?',
+      text: "Berkas yang dihapus tidak dapat dikembalikan!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#94a3b8',
+      confirmButtonText: 'Ya, Hapus!',
+      cancelButtonText: 'Batal',
+      background: document.documentElement.classList.contains('dark') ? '#0f172a' : '#ffffff',
+      color: document.documentElement.classList.contains('dark') ? '#f1f5f9' : '#0f172a',
+      customClass: {
+        popup: 'rounded-2xl border border-slate-200 dark:border-slate-800',
+        confirmButton: 'rounded-xl px-5 py-2.5 text-sm font-bold',
+        cancelButton: 'rounded-xl px-5 py-2.5 text-sm font-bold'
+      }
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          const token = localStorage.getItem("admin_token");
+          const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"}/api/admin/sdm/pegawai/${id}/berkas/${berkasId}`, {
+            method: 'DELETE',
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          if (!res.ok) throw new Error('Gagal menghapus berkas');
+          
+          Swal.fire({
+            title: 'Terhapus!',
+            text: 'Berkas berhasil dihapus.',
+            icon: 'success',
+            background: document.documentElement.classList.contains('dark') ? '#0f172a' : '#ffffff',
+            color: document.documentElement.classList.contains('dark') ? '#f1f5f9' : '#0f172a',
+            timer: 1500,
+            showConfirmButton: false,
+            customClass: { popup: 'rounded-2xl border border-slate-200 dark:border-slate-800' }
+          });
+          
+          fetchPegawaiDetail();
+        } catch (err) {
+          Swal.fire({
+            title: 'Gagal!',
+            text: err.message,
+            icon: 'error',
+            background: document.documentElement.classList.contains('dark') ? '#0f172a' : '#ffffff',
+            color: document.documentElement.classList.contains('dark') ? '#f1f5f9' : '#0f172a',
+            customClass: { popup: 'rounded-2xl border border-slate-200 dark:border-slate-800' }
+          });
+        }
+      }
+    });
   };
 
   useEffect(() => {
