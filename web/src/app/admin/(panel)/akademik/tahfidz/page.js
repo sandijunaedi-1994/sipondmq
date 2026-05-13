@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { BookOpen, Users, Plus, Edit2, Trash2, FileText, Search, ChevronLeft, Clock } from "lucide-react";
+import Swal from 'sweetalert2';
 import SantriTahfidzModule from "../../santri/data/[id]/components/SantriTahfidzModule";
 
 export default function ManajemenTahfidzPage() {
@@ -80,7 +81,7 @@ export default function ManajemenTahfidzPage() {
       if (dataSantri.success) setSantriList(dataSantri.santri || []);
       if (dataHafalan.success) setGlobalHafalan(dataHafalan.hafalan || []);
     } catch (err) {
-      alert("Gagal memuat data");
+      Swal.fire({ icon: 'error', title: 'Error', text: 'Gagal memuat data' });
     } finally {
       setLoading(false);
     }
@@ -95,13 +96,14 @@ export default function ManajemenTahfidzPage() {
       const data = await res.json();
       if (data.success) {
         setGlobalHafalan(data.hafalan || []);
+        setHalaqohList(data.halaqoh || halaqohList);
       }
     } catch (err) {}
   };
 
   const handleSaveHalaqoh = async (e) => {
     e.preventDefault();
-    if (!formData.nama) return alert("Nama halaqoh harus diisi");
+    if (!formData.nama) return Swal.fire({ icon: 'warning', title: 'Perhatian', text: 'Nama halaqoh harus diisi' });
 
     try {
       const token = localStorage.getItem("admin_token");
@@ -122,19 +124,30 @@ export default function ManajemenTahfidzPage() {
 
       const data = await res.json();
       if (data.success) {
-        alert(data.message);
+        Swal.fire({ icon: 'success', title: 'Berhasil', text: data.message, timer: 2000, showConfirmButton: false });
         setShowModal(false);
-        fetchData();
+        fetchGlobalHafalan();
       } else {
-        alert(data.message);
+        Swal.fire({ icon: 'error', title: 'Gagal', text: data.message });
       }
     } catch (err) {
-      alert("Terjadi kesalahan sistem");
+      Swal.fire({ icon: 'error', title: 'Oops...', text: 'Terjadi kesalahan sistem' });
     }
   };
 
   const handleDeleteHalaqoh = async (id) => {
-    if (!confirm("Apakah Anda yakin ingin menghapus halaqoh ini?")) return;
+    const result = await Swal.fire({
+      icon: 'warning',
+      title: 'Hapus Halaqoh?',
+      text: 'Apakah Anda yakin ingin menghapus halaqoh ini?',
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#64748b',
+      confirmButtonText: 'Ya, Hapus!',
+      cancelButtonText: 'Batal'
+    });
+
+    if (!result.isConfirmed) return;
 
     try {
       const token = localStorage.getItem("admin_token");
@@ -144,20 +157,20 @@ export default function ManajemenTahfidzPage() {
       });
       const data = await res.json();
       if (data.success) {
-        alert(data.message);
-        fetchData();
+        Swal.fire({ icon: 'success', title: 'Terhapus!', text: data.message, timer: 2000, showConfirmButton: false });
+        fetchGlobalHafalan();
       } else {
-        alert(data.message);
+        Swal.fire({ icon: 'error', title: 'Gagal', text: data.message });
       }
     } catch (err) {
-      alert("Terjadi kesalahan sistem");
+      Swal.fire({ icon: 'error', title: 'Oops...', text: 'Terjadi kesalahan sistem' });
     }
   };
 
   const submitHafalan = async (e) => {
     e.preventDefault();
-    if (!hafalanForm.santriId) return alert("Pilih santri terlebih dahulu");
-    if (!hafalanForm.targetHal || !hafalanForm.capaianHal) return alert("Target dan Capaian wajib diisi");
+    if (!hafalanForm.santriId) return Swal.fire({ icon: 'warning', title: 'Perhatian', text: 'Pilih santri terlebih dahulu' });
+    if (!hafalanForm.targetHal || !hafalanForm.capaianHal) return Swal.fire({ icon: 'warning', title: 'Perhatian', text: 'Target dan Capaian wajib diisi' });
 
     try {
       const token = localStorage.getItem("admin_token");
@@ -176,7 +189,7 @@ export default function ManajemenTahfidzPage() {
 
       const data = await res.json();
       if (data.success) {
-        alert(data.message);
+        Swal.fire({ icon: 'success', title: 'Berhasil', text: data.message, timer: 2000, showConfirmButton: false });
         // Reset form except date
         setHafalanForm({
           id: null,
@@ -190,10 +203,10 @@ export default function ManajemenTahfidzPage() {
         setSearchHafalanSantri("");
         fetchGlobalHafalan();
       } else {
-        alert(data.message);
+        Swal.fire({ icon: 'error', title: 'Gagal', text: data.message });
       }
     } catch (err) {
-      alert("Terjadi kesalahan jaringan");
+      Swal.fire({ icon: 'error', title: 'Oops...', text: 'Terjadi kesalahan jaringan' });
     }
   };
 
@@ -210,7 +223,19 @@ export default function ManajemenTahfidzPage() {
   };
 
   const handleDeleteHafalan = async (id) => {
-    if (!confirm("Hapus data hafalan ini?")) return;
+    const result = await Swal.fire({
+      icon: 'warning',
+      title: 'Hapus Hafalan?',
+      text: 'Data hafalan ini akan dihapus permanen.',
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#64748b',
+      confirmButtonText: 'Ya, Hapus!',
+      cancelButtonText: 'Batal'
+    });
+
+    if (!result.isConfirmed) return;
+
     try {
       const token = localStorage.getItem("admin_token");
       const res = await fetch(`${apiUrl}/api/admin/tahfidz/hafalan/${id}`, {
@@ -219,13 +244,13 @@ export default function ManajemenTahfidzPage() {
       });
       const data = await res.json();
       if (data.success) {
-        alert(data.message);
+        Swal.fire({ icon: 'success', title: 'Terhapus!', text: data.message, timer: 2000, showConfirmButton: false });
         fetchGlobalHafalan();
       } else {
-        alert(data.message);
+        Swal.fire({ icon: 'error', title: 'Gagal', text: data.message });
       }
     } catch (err) {
-      alert("Terjadi kesalahan sistem");
+      Swal.fire({ icon: 'error', title: 'Oops...', text: 'Terjadi kesalahan sistem' });
     }
   };
 

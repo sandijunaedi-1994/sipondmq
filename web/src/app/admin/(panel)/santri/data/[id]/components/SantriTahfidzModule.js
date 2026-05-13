@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { BookOpen, Award, Upload } from "lucide-react";
+import { BookOpen, Award, Upload, X } from "lucide-react";
+import Swal from 'sweetalert2';
 
 export default function SantriTahfidzModule({ santriId, isEditable = false }) {
   const [tahapan, setTahapan] = useState([]);
@@ -9,7 +10,7 @@ export default function SantriTahfidzModule({ santriId, isEditable = false }) {
 
   // Modals
   const [showSertifikatModal, setShowSertifikatModal] = useState(false);
-  const [sertifikatForm, setSertifikatForm] = useState({ judul: "", penerbit: "", tanggal: "", tahfidzCapaianId: "", file: null });
+  const [sertifikatForm, setSertifikatForm] = useState({ judul: "", penerbit: "", tanggal: "", tahfidzCapaianId: "", tahapanNama: "", file: null });
 
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
 
@@ -61,17 +62,19 @@ export default function SantriTahfidzModule({ santriId, isEditable = false }) {
       });
       const data = await res.json();
       if (data.success) {
-        alert("Status tahapan diperbarui");
+        Swal.fire({ icon: 'success', title: 'Berhasil', text: "Status tahapan diperbarui", timer: 1500, showConfirmButton: false });
         fetchTahapan();
+      } else {
+        Swal.fire({ icon: 'error', title: 'Gagal', text: data.message || "Gagal update status" });
       }
     } catch (err) {
-      alert("Gagal update status");
+      Swal.fire({ icon: 'error', title: 'Oops...', text: "Gagal update status" });
     }
   };
 
   const submitSertifikat = async (e) => {
     e.preventDefault();
-    if (!sertifikatForm.file) return alert("Pilih file sertifikat terlebih dahulu");
+    if (!sertifikatForm.file) return Swal.fire({ icon: 'warning', title: 'Peringatan', text: "Pilih file sertifikat terlebih dahulu" });
 
     const formData = new FormData();
     formData.append("file", sertifikatForm.file);
@@ -91,15 +94,15 @@ export default function SantriTahfidzModule({ santriId, isEditable = false }) {
       });
       const data = await res.json();
       if (data.success) {
-        alert("Sertifikat berhasil diunggah");
+        Swal.fire({ icon: 'success', title: 'Berhasil', text: "Sertifikat berhasil diunggah", timer: 1500, showConfirmButton: false });
         setShowSertifikatModal(false);
-        setSertifikatForm({ judul: "", penerbit: "", tanggal: "", tahfidzCapaianId: "", file: null });
-        fetchTahapan(); // Refresh tahapan to show the new certificate
+        setSertifikatForm({ judul: "", penerbit: "", tanggal: "", tahfidzCapaianId: "", tahapanNama: "", file: null });
+        fetchTahapan();
       } else {
-        alert(data.message || "Gagal upload sertifikat");
+        Swal.fire({ icon: 'error', title: 'Gagal', text: data.message || "Gagal upload sertifikat" });
       }
     } catch (err) {
-      alert("Terjadi kesalahan jaringan");
+      Swal.fire({ icon: 'error', title: 'Oops...', text: "Terjadi kesalahan jaringan" });
     }
   };
 
