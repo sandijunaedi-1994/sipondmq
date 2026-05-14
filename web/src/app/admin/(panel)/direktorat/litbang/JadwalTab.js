@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { toast } from "react-hot-toast";
 import { Calendar, Settings, FileText, Settings2, Loader2, Play } from "lucide-react";
 
-export default function JadwalPelajaranPage() {
+export default function JadwalTab() {
   const [activeTab, setActiveTab] = useState("mapel");
 
   return (

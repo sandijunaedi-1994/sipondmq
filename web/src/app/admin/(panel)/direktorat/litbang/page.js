@@ -3,7 +3,10 @@
 import { useState, useEffect } from "react";
 import { usePermissions } from "@/hooks/usePermissions";
 
+import JadwalTab from "./JadwalTab";
+
 const ALL_TABS = [
+  { id: 'jadwal', label: 'Jadwal Pelajaran', permission: 'LITBANG_VIEW' },
   { id: 'penelitian', label: 'Penelitian', permission: 'LITBANG_TAB_PENELITIAN' },
   { id: 'sop', label: 'SOP & Panduan', permission: 'LITBANG_TAB_SOP' }
 ];
@@ -59,6 +62,10 @@ export default function LitbangPage() {
 
       {/* Konten Tab */}
       <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
+        {activeTab === 'jadwal' && (
+          <JadwalTab />
+        )}
+
         {activeTab === 'penelitian' && (
           <div className="p-8 text-center bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800">
             <h3 className="text-xl font-bold text-slate-400 dark:text-slate-500">Modul Penelitian</h3>
