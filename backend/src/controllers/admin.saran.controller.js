@@ -44,6 +44,51 @@ const createSaran = async (req, res) => {
       req
     });
 
+    // Create notifications for targets
+    let targetUserIds = [];
+
+    if (targetType === 'SUPERADMIN' || targetType === 'UMUM') {
+      // Find users with MANAJEMEN_ADMIN permission
+      const superAdmins = await prisma.user.findMany({
+        where: {
+          permissions: { contains: 'MANAJEMEN_ADMIN' }
+        }
+      });
+      targetUserIds = superAdmins.map(u => u.id);
+    } else if (targetType === 'KEPALA_UNIT' && targetUnitId) {
+      // Find users who are kepala unit of targetUnitId
+      const kepalaUnitPosisi = await prisma.posisiOrganisasi.findMany({
+        where: { unitId: targetUnitId, isKepala: true },
+        include: { pegawai: true }
+      });
+      
+      targetUserIds = kepalaUnitPosisi
+        .filter(p => p.pegawai && p.pegawai.userId)
+        .map(p => p.pegawai.userId);
+    }
+
+    // Insert notifications
+    if (targetUserIds.length > 0) {
+      const pengirim = await prisma.pegawai.findUnique({
+        where: { userId: req.user.userId },
+        select: { namaLengkap: true }
+      });
+      
+      const namaPengirim = pengirim ? pengirim.namaLengkap : 'Seseorang';
+      
+      const notifications = targetUserIds.map(id => ({
+        userId: id,
+        judul: 'Ada Saran Online Baru!',
+        isi: `Saran baru dari ${namaPengirim} dengan subjek: ${subjek}`,
+        tipe: 'SARAN',
+        urlTarget: '/admin/ruang-kerja' // The page where they can view incoming sarans
+      }));
+
+      await prisma.notifikasi.createMany({
+        data: notifications
+      });
+    }
+
     res.status(201).json({ message: 'Saran berhasil dikirim', saran });
   } catch (error) {
     console.error("Error createSaran:", error);

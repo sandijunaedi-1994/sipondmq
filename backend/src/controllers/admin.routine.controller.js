@@ -4,16 +4,38 @@ const { v4: uuidv4 } = require('uuid');
 
 const getRoutineTasks = async (req, res) => {
   try {
-    const currentUser = await prisma.user.findUnique({ where: { id: req.user.userId } });
+    const currentUser = await prisma.user.findUnique({ 
+      where: { id: req.user.userId },
+      include: { pegawai: true }
+    });
     const isSuperAdmin = currentUser?.permissions?.includes('MANAJEMEN_ADMIN');
     
     let whereClause = {};
     if (!isSuperAdmin) {
-      // Only show tasks created by this user OR assigned to them by name
+      // Cari bawahan
+      const subordinates = await prisma.userHierarchy.findMany({
+        where: { supervisorId: req.user.userId },
+        include: { subordinate: { include: { pegawai: true } } }
+      });
+      
+      const relatedUserIds = [req.user.userId, ...subordinates.map(s => s.subordinateId)];
+      
+      const relatedNames = [];
+      if (currentUser?.pegawai?.namaLengkap) {
+        relatedNames.push(currentUser.pegawai.namaLengkap);
+      }
+      subordinates.forEach(s => {
+        if (s.subordinate?.pegawai?.namaLengkap) {
+          relatedNames.push(s.subordinate.pegawai.namaLengkap);
+        }
+      });
+      
+      const nameConditions = relatedNames.map(name => ({ petugas: { contains: name } }));
+
       whereClause = {
         OR: [
-          { creatorId: req.user.userId },
-          ...(currentUser?.namaLengkap ? [{ petugas: { contains: currentUser.namaLengkap } }] : [])
+          { creatorId: { in: relatedUserIds } },
+          ...nameConditions
         ]
       };
     }

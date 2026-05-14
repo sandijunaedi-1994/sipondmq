@@ -12,7 +12,7 @@ export default function SaranOnline() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [formData, setFormData] = useState({
-    targetType: "UMUM",
+    targetType: "SUPERADMIN",
     targetUnitId: "",
     subjek: "",
     isiSaran: ""
@@ -95,7 +95,7 @@ export default function SaranOnline() {
           text: "Saran Anda telah berhasil dikirim",
           confirmButtonColor: "#10b981"
         });
-        setFormData({ targetType: "UMUM", targetUnitId: "", subjek: "", isiSaran: "" });
+        setFormData({ targetType: "SUPERADMIN", targetUnitId: "", subjek: "", isiSaran: "" });
       } else {
         const err = await res.json();
         throw new Error(err.message || "Gagal mengirim saran");
@@ -165,7 +165,6 @@ export default function SaranOnline() {
               onChange={e => setFormData({ ...formData, targetType: e.target.value, targetUnitId: "" })}
               className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 outline-none"
             >
-              <option value="UMUM">Umum (Manajemen Tertinggi)</option>
               <option value="SUPERADMIN">Superadmin (Teknis/Sistem)</option>
               <option value="KEPALA_UNIT">Kepala Unit Tertentu</option>
             </select>
