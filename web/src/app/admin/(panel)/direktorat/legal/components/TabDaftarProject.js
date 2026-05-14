@@ -31,7 +31,8 @@ export default function TabDaftarProject() {
   const [filterSumberTugas, setFilterSumberTugas] = useState("");
   const [filterPrioritas, setFilterPrioritas] = useState("");
   const [filterKategori, setFilterKategori] = useState("");
-  const [filterTanggal, setFilterTanggal] = useState(""); 
+  const [filterTanggalMulai, setFilterTanggalMulai] = useState(""); 
+  const [filterTanggalSelesai, setFilterTanggalSelesai] = useState(""); 
   const [showFilters, setShowFilters] = useState(false);
 
   // Pagination
@@ -355,23 +356,28 @@ export default function TabDaftarProject() {
       const matchKategori = filterKategori === "" || item.kategori === filterKategori;
       
       let matchTanggal = true;
-      if (filterTanggal && item.kategori === 'JANGKA_PENDEK' && item.tanggalMulai && item.tanggalSelesai) {
-        const d = new Date(filterTanggal);
-        const start = new Date(item.tanggalMulai);
-        const end = new Date(item.tanggalSelesai);
-        matchTanggal = d >= start && d <= end;
-      } else if (filterTanggal && item.kategori === 'JANGKA_PANJANG') {
-        matchTanggal = false; // Filter Date only applies to JANGKA_PENDEK
+      if (filterTanggalMulai || filterTanggalSelesai) {
+        if (item.kategori === 'JANGKA_PENDEK' && item.tanggalMulai && item.tanggalSelesai) {
+          const itemStart = new Date(item.tanggalMulai).getTime();
+          const itemEnd = new Date(item.tanggalSelesai).getTime();
+          const filterStart = filterTanggalMulai ? new Date(filterTanggalMulai).getTime() : -Infinity;
+          const filterEnd = filterTanggalSelesai ? new Date(filterTanggalSelesai).getTime() : Infinity;
+          
+          // Overlap condition
+          matchTanggal = (itemStart <= filterEnd) && (itemEnd >= filterStart);
+        } else {
+          matchTanggal = false; // Filter Date only applies to JANGKA_PENDEK
+        }
       }
 
       return matchSearch && matchMarkaz && matchSumberTugas && matchPrioritas && matchKategori && matchTanggal;
     });
-  }, [data, search, filterMarkaz, filterSumberTugas, filterPrioritas, filterKategori, filterTanggal]);
+  }, [data, search, filterMarkaz, filterSumberTugas, filterPrioritas, filterKategori, filterTanggalMulai, filterTanggalSelesai]);
 
   // Reset page when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [search, filterMarkaz, filterSumberTugas, filterPrioritas, filterKategori, filterTanggal]);
+  }, [search, filterMarkaz, filterSumberTugas, filterPrioritas, filterKategori, filterTanggalMulai, filterTanggalSelesai]);
 
   // Paginated Data
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
@@ -403,9 +409,22 @@ export default function TabDaftarProject() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
+  const handlePrint = () => {
+    window.print();
+  };
+
   return (
     <div className="animate-in fade-in duration-300">
-      <div className="flex flex-col md:flex-row md:justify-between md:items-end gap-4 mb-6">
+      <style dangerouslySetInnerHTML={{__html: `
+        @media print {
+          @page { size: landscape; margin: 1cm; }
+          body * { visibility: hidden; }
+          #print-area, #print-area * { visibility: visible; }
+          #print-area { position: absolute; left: 0; top: 0; width: 100%; }
+          .no-print { display: none !important; }
+        }
+      `}} />
+      <div className="flex flex-col md:flex-row md:justify-between md:items-end gap-4 mb-6 no-print">
         <div>
           <h4 className="font-bold text-lg text-slate-800 dark:text-slate-100">Daftar Project Pembangunan</h4>
           <p className="text-sm text-slate-500">Pantau seluruh rencana pekerjaan, prioritas, dan RAB-nya di sini.</p>
@@ -423,6 +442,9 @@ export default function TabDaftarProject() {
           </div>
           <button onClick={() => setShowFilters(!showFilters)} className={`p-2 rounded-xl border transition-colors flex-shrink-0 ${showFilters ? 'bg-indigo-50 border-indigo-200 text-indigo-600' : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800'}`}>
             <Filter size={18} />
+          </button>
+          <button onClick={handlePrint} className="p-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-600 hover:text-indigo-600 hover:bg-slate-50 transition-colors flex items-center justify-center gap-2">
+            <Printer size={18} /> <span className="hidden md:inline text-sm font-bold">Print</span>
           </button>
           <button onClick={() => openModal()} className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-bold rounded-xl shadow-md transition-colors flex items-center gap-2 whitespace-nowrap">
             <Plus size={16} /> Tambah Project
@@ -467,23 +489,39 @@ export default function TabDaftarProject() {
             </select>
           </div>
           <div>
-            <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Tanggal (Cari Rentang)</label>
-            <input type="date" value={filterTanggal} onChange={e => setFilterTanggal(e.target.value)} className="w-full px-3 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-xs outline-none" />
+            <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Dari Tanggal</label>
+            <input type="date" value={filterTanggalMulai} onChange={e => setFilterTanggalMulai(e.target.value)} className="w-full px-3 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-xs outline-none" />
+          </div>
+          <div>
+            <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Sampai Tanggal</label>
+            <input type="date" value={filterTanggalSelesai} onChange={e => setFilterTanggalSelesai(e.target.value)} className="w-full px-3 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-xs outline-none" />
           </div>
         </div>
       )}
 
-      <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
-        <table className="w-full text-sm text-left">
-          <thead className="bg-slate-50 dark:bg-slate-950 text-slate-500 text-[10px] uppercase font-bold tracking-wider border-b border-slate-200 dark:border-slate-800">
+      <div id="print-area" className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm print:border-none print:shadow-none print:rounded-none">
+        
+        {/* Print Header - Only visible in print mode */}
+        <div className="hidden print:block text-center mb-6">
+          <h1 className="text-2xl font-black text-slate-800">Rencana Pekerjaan Pembangunan & Maintenance</h1>
+          <h2 className="text-xl font-bold text-slate-700">Zamzami Internasional - MQBS</h2>
+          {(filterTanggalMulai || filterTanggalSelesai) && (
+            <p className="text-sm text-slate-600 mt-2 font-medium">
+              Periode: {filterTanggalMulai ? new Date(filterTanggalMulai).toLocaleDateString('id-ID', {day:'2-digit', month:'long', year:'numeric'}) : '-'} sampai {filterTanggalSelesai ? new Date(filterTanggalSelesai).toLocaleDateString('id-ID', {day:'2-digit', month:'long', year:'numeric'}) : '-'}
+            </p>
+          )}
+        </div>
+
+        <table className="w-full text-sm text-left print:border print:border-collapse">
+          <thead className="bg-slate-50 dark:bg-slate-950 text-slate-500 text-[10px] uppercase font-bold tracking-wider border-b border-slate-200 dark:border-slate-800 print:border-b-2 print:border-slate-800 print:text-slate-800">
             <tr>
-              <th className="px-6 py-4">Rencana Pekerjaan</th>
-              <th className="px-6 py-4">Markaz & Keterangan</th>
-              <th className="px-6 py-4">Timeline / Target</th>
-              <th className="px-6 py-4">Prioritas</th>
-              <th className="px-6 py-4">Status</th>
-              <th className="px-6 py-4 text-right">Estimasi RAB</th>
-              <th className="px-6 py-4 text-center">Aksi</th>
+              <th className="px-6 py-4 print:py-2 print:border">Rencana Pekerjaan</th>
+              <th className="px-6 py-4 print:py-2 print:border">Markaz & Keterangan</th>
+              <th className="px-6 py-4 print:py-2 print:border no-print">Timeline / Target</th>
+              <th className="px-6 py-4 print:py-2 print:border">Prioritas</th>
+              <th className="px-6 py-4 print:py-2 print:border">Status</th>
+              <th className="px-6 py-4 print:py-2 print:border text-right">Estimasi RAB</th>
+              <th className="px-6 py-4 print:py-2 print:border text-center no-print">Aksi</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -497,32 +535,32 @@ export default function TabDaftarProject() {
                 const isPendingRequest = item.sumberTugas === 'Request Unit' && item.status === 'REGISTER';
                 return (
                   <tr key={item.id} className={`transition-colors ${isPendingRequest ? 'bg-orange-50/30 hover:bg-orange-50/60 dark:bg-orange-950/10 dark:hover:bg-orange-950/30' : 'hover:bg-slate-50/50 dark:hover:bg-slate-900/50'}`}>
-                    <td className="px-6 py-4">
-                      <div className={`font-bold ${isPendingRequest ? 'text-orange-600 dark:text-orange-400' : 'text-slate-800 dark:text-slate-200'}`}>
+                    <td className="px-6 py-4 print:py-2 print:border">
+                      <div className={`font-bold ${isPendingRequest ? 'text-orange-600 dark:text-orange-400' : 'text-slate-800 dark:text-slate-200'} print:text-slate-800`}>
                         {item.rencanaPekerjaan}
                       </div>
                       <div className="flex gap-2 mt-1.5">
-                        <div className="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-bold bg-slate-100 dark:bg-slate-800 inline-block px-2 py-0.5 rounded-md">
+                        <div className="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-bold bg-slate-100 dark:bg-slate-800 inline-block px-2 py-0.5 rounded-md print:bg-transparent print:border print:border-slate-300">
                           {item.kategori?.replace('_', ' ')}
                         </div>
                         {item.sumberTugas && (
-                          <div className="text-[10px] text-indigo-600 dark:text-indigo-400 uppercase font-bold bg-indigo-50 dark:bg-indigo-900/30 inline-block px-2 py-0.5 rounded-md">
+                          <div className="text-[10px] text-indigo-600 dark:text-indigo-400 uppercase font-bold bg-indigo-50 dark:bg-indigo-900/30 inline-block px-2 py-0.5 rounded-md print:bg-transparent print:border print:border-slate-300 print:text-slate-800">
                             {item.sumberTugas}
                           </div>
                         )}
                       </div>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-6 py-4 print:py-2 print:border">
                       {item.markaz ? (
                         <div className="font-bold text-xs text-slate-700 dark:text-slate-300 mb-1">{item.markaz}</div>
                       ) : <div className="text-xs text-slate-400 italic mb-1">Global</div>}
                       {item.keterangan && (
-                        <div className="text-[11px] text-slate-500 line-clamp-2 max-w-[200px]" title={item.keterangan}>
+                        <div className="text-[11px] text-slate-500 line-clamp-2 max-w-[200px] print:max-w-full" title={item.keterangan}>
                           {item.keterangan}
                         </div>
                       )}
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-6 py-4 print:py-2 print:border no-print">
                       {item.kategori === 'JANGKA_PENDEK' ? (
                         <div className="text-slate-600 dark:text-slate-400 flex items-center gap-1.5 text-xs font-medium">
                           <Calendar size={14} className="text-indigo-500"/>
@@ -536,21 +574,21 @@ export default function TabDaftarProject() {
                         </div>
                       )}
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-6 py-4 print:py-2 print:border">
                       <span className={`px-2.5 py-1 text-[11px] font-bold rounded-md ${
                         item.prioritas === 'Mendesak' ? 'bg-rose-100 text-rose-700' :
                         item.prioritas === 'Tinggi' ? 'bg-orange-100 text-orange-700' :
                         item.prioritas === 'Sedang' ? 'bg-blue-100 text-blue-700' :
                         'bg-slate-100 text-slate-600'
-                      }`}>
+                      } print:bg-transparent print:border print:border-slate-300`}>
                         {item.prioritas}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wide">{item.status?.replace('_', ' ')}</td>
-                    <td className="px-6 py-4 text-right font-bold text-emerald-600 dark:text-emerald-400">
+                    <td className="px-6 py-4 print:py-2 print:border text-xs font-bold text-slate-500 uppercase tracking-wide print:text-slate-800">{item.status?.replace('_', ' ')}</td>
+                    <td className="px-6 py-4 print:py-2 print:border text-right font-bold text-emerald-600 dark:text-emerald-400 print:text-slate-800">
                       {totalRab > 0 ? `Rp ${totalRab.toLocaleString('id-ID')}` : '-'}
                     </td>
-                    <td className="px-6 py-4 text-center">
+                    <td className="px-6 py-4 print:py-2 print:border text-center no-print">
                       <div className="flex items-center justify-center gap-1">
                         <button onClick={() => openDetailModal(item)} className="p-1.5 text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 rounded-lg" title="Detail Project"><Eye size={16} /></button>
                         <button onClick={() => openRabModal(item)} className="p-1.5 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 rounded-lg" title="Kelola RAB"><DollarSign size={16} /></button>
