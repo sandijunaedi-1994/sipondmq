@@ -8,21 +8,121 @@ export const PERMISSIONS_SCHEMA = [
     icon: "📊",
     menus: [
       {
-        nama: "Dashboard Utama",
+        nama: "Dashboard Organisasi",
         actions: [
-          { id: "DASHBOARD_UTAMA_VIEW", label: "Lihat Dashboard Utama" }
+          { id: "DASHBOARD_ORGANISASI_VIEW", label: "Lihat Dashboard Organisasi" }
         ]
       },
       {
-        nama: "Dashboard SPMB",
+        nama: "Dashboard Santri",
         actions: [
-          { id: "DASHBOARD_SPMB_VIEW", label: "Lihat Statistik SPMB" }
+          { id: "DASHBOARD_SANTRI_VIEW", label: "Lihat Dashboard Santri" }
+        ]
+      }
+    ]
+  },
+  {
+    kategori: "Ruang Kerja Saya",
+    icon: "💼",
+    menus: [
+      {
+        nama: "Ruang Kerja",
+        actions: [
+          { id: "RUANGKERJA_CATATAN_VIEW", label: "Lihat Catatan" },
+          { id: "RUANGKERJA_CATATAN_EDIT", label: "Kelola Catatan" },
+          { id: "RUANGKERJA_RUTIN_VIEW", label: "Lihat Aktivitas Rutin" },
+          { id: "RUANGKERJA_RUTIN_EDIT", label: "Tambah/Edit Aktivitas Rutin" }
+        ]
+      }
+    ]
+  },
+  {
+    kategori: "Organisasi",
+    icon: "🏢",
+    menus: [
+      {
+        nama: "Menu Organisasi",
+        actions: [
+          { id: "ORGANISASI_VIEW", label: "Akses Menu Organisasi" },
+          { id: "ORGANISASI_EDIT", label: "Kelola Organisasi" },
+          { id: "ORGANISASI_TAB_OKR", label: "Tab: OKR & KPI" },
+          { id: "ORGANISASI_TAB_STRUKTUR", label: "Tab: Struktur & Jobdesk" },
+          { id: "ORGANISASI_TAB_PIVOT", label: "Tab: PIVOT" },
+          { id: "ORGANISASI_TAB_PROJECT", label: "Tab: Manajemen Project" },
+          { id: "ORGANISASI_TAB_RAPAT", label: "Tab: Rapat" }
+        ]
+      }
+    ]
+  },
+  {
+    kategori: "Direktorat Pusat",
+    icon: "🏛️",
+    menus: [
+      {
+        nama: "Sekretariat",
+        actions: [
+          { id: "SEKRETARIAT_VIEW", label: "Akses Menu Sekretariat" },
+          { id: "SEKRETARIAT_EDIT", label: "Kelola Surat/Arsip" },
+          { id: "SEKRETARIAT_TAB_SURAT", label: "Tab: Surat Menyurat" },
+          { id: "SEKRETARIAT_TAB_ARSIP", label: "Tab: Arsip Dokumen" }
         ]
       },
       {
-        nama: "Dashboard Keuangan",
+        nama: "Manajemen SDM",
         actions: [
-          { id: "DASHBOARD_KEUANGAN_VIEW", label: "Lihat Statistik Keuangan" }
+          { id: "SDM_VIEW", label: "Akses Menu SDM" },
+          { id: "SDM_EDIT", label: "Kelola Data SDM" },
+          { id: "SDM_TAB_PEGAWAI", label: "Tab: Data Pegawai" },
+          { id: "SDM_TAB_PENGGAJIAN", label: "Tab: Penggajian / Payroll" },
+          { id: "SDM_TAB_KASBON", label: "Tab: Manajemen Kasbon" },
+          { id: "SDM_TAB_REKRUTMEN", label: "Tab: Rekrutmen" },
+          { id: "SDM_TAB_KINERJA", label: "Tab: Penilaian Kinerja" }
+        ]
+      },
+      {
+        nama: "Litbang & Budaya",
+        actions: [
+          { id: "LITBANG_VIEW", label: "Akses Menu Litbang" },
+          { id: "LITBANG_EDIT", label: "Kelola Litbang" },
+          { id: "LITBANG_TAB_PENELITIAN", label: "Tab: Penelitian & Inovasi" },
+          { id: "LITBANG_TAB_SOP", label: "Tab: Penyusunan SOP" }
+        ]
+      },
+      {
+        nama: "Pengelolaan Keuangan",
+        actions: [
+          { id: "KEUANGAN_ANGGARAN_VIEW", label: "Akses Menu Keuangan Pusat" },
+          { id: "KEUANGAN_PENGGAJIAN_VIEW", label: "Lihat Penggajian" },
+          { id: "KEUANGAN_ANGGARAN_EDIT", label: "Kelola Anggaran" },
+          { id: "KEUANGAN_TAB_ANGGARAN", label: "Tab: Anggaran Tahunan" },
+          { id: "KEUANGAN_TAB_PENGGAJIAN", label: "Tab: Penggajian & Insentif" }
+        ]
+      },
+      {
+        nama: "Legal & Aset",
+        actions: [
+          { id: "LEGAL_VIEW", label: "Akses Menu Legal" },
+          { id: "LEGAL_EDIT", label: "Kelola Aset/Legal" },
+          { id: "PEMBANGUNAN_VIEW", label: "Lihat Daftar Proyek" },
+          { id: "PEMBANGUNAN_CREATE", label: "Tambah/Edit Proyek" },
+          { id: "PEMBANGUNAN_APPROVE", label: "Setujui Request Unit" },
+          { id: "PEMBANGUNAN_DELETE", label: "Hapus Proyek" },
+          { id: "LEGAL_TAB_PEMBANGUNAN", label: "Tab: Daftar Project Pembangunan" },
+          { id: "LEGAL_TAB_INVENTARIS", label: "Tab: Inventaris & Aset" },
+          { id: "LEGAL_TAB_IZIN", label: "Tab: Izin & Legalitas" }
+        ]
+      }
+    ]
+  },
+  {
+    kategori: "Administrasi Pembelajaran",
+    icon: "📖",
+    menus: [
+      {
+        nama: "Kurikulum & Jadwal",
+        actions: [
+          { id: "AKADEMIK_ADMIN_VIEW", label: "Lihat Jadwal/Kurikulum" },
+          { id: "AKADEMIK_ADMIN_EDIT", label: "Kelola Jadwal/Kurikulum" }
         ]
       }
     ]
@@ -128,92 +228,6 @@ export const PERMISSIONS_SCHEMA = [
     ]
   },
   {
-    kategori: "Sekretariat",
-    icon: "📁",
-    menus: [
-      {
-        nama: "Surat Menyurat & Arsip",
-        actions: [
-          { id: "SEKRETARIAT_VIEW", label: "Akses Menu Sekretariat" },
-          { id: "SEKRETARIAT_EDIT", label: "Kelola Surat/Arsip" },
-          { id: "SEKRETARIAT_TAB_SURAT", label: "Tab: Surat Menyurat" },
-          { id: "SEKRETARIAT_TAB_ARSIP", label: "Tab: Arsip Dokumen" }
-        ]
-      }
-    ]
-  },
-  {
-    kategori: "Manajemen SDM",
-    icon: "👥",
-    menus: [
-      {
-        nama: "Data Pegawai & Kinerja",
-        actions: [
-          { id: "SDM_VIEW", label: "Akses Menu SDM" },
-          { id: "SDM_EDIT", label: "Kelola Data SDM" },
-          { id: "SDM_TAB_PEGAWAI", label: "Tab: Data Pegawai" },
-          { id: "SDM_TAB_PENGGAJIAN", label: "Tab: Penggajian / Payroll" },
-          { id: "SDM_TAB_KASBON", label: "Tab: Manajemen Kasbon" },
-          { id: "SDM_TAB_REKRUTMEN", label: "Tab: Rekrutmen" },
-          { id: "SDM_TAB_KINERJA", label: "Tab: Penilaian Kinerja" }
-        ]
-      }
-    ]
-  },
-  {
-    kategori: "Litbang & Budaya",
-    icon: "🔬",
-    menus: [
-      {
-        nama: "Penelitian & SOP",
-        actions: [
-          { id: "LITBANG_VIEW", label: "Akses Menu Litbang" },
-          { id: "LITBANG_EDIT", label: "Kelola Litbang" },
-          { id: "LITBANG_TAB_PENELITIAN", label: "Tab: Penelitian & Inovasi" },
-          { id: "LITBANG_TAB_SOP", label: "Tab: Penyusunan SOP" }
-        ]
-      }
-    ]
-  },
-  {
-    kategori: "Administrasi Pembelajaran",
-    icon: "📖",
-    menus: [
-      {
-        nama: "Kurikulum & Jadwal",
-        actions: [
-          { id: "AKADEMIK_ADMIN_VIEW", label: "Lihat Jadwal/Kurikulum" },
-          { id: "AKADEMIK_ADMIN_EDIT", label: "Kelola Jadwal/Kurikulum" }
-        ]
-      }
-    ]
-  },
-  {
-    kategori: "Legal & Aset",
-    icon: "⚖️",
-    menus: [
-      {
-        nama: "Inventaris & Izin Lembaga",
-        actions: [
-          { id: "LEGAL_VIEW", label: "Akses Menu Legal" },
-          { id: "LEGAL_EDIT", label: "Kelola Aset/Legal" }
-        ]
-      },
-      {
-        nama: "Pembangunan & Maintenance",
-        actions: [
-          { id: "PEMBANGUNAN_VIEW", label: "Lihat Daftar Proyek" },
-          { id: "PEMBANGUNAN_CREATE", label: "Tambah/Edit Proyek" },
-          { id: "PEMBANGUNAN_APPROVE", label: "Setujui Request Unit" },
-          { id: "PEMBANGUNAN_DELETE", label: "Hapus Proyek" },
-          { id: "LEGAL_TAB_PEMBANGUNAN", label: "Tab: Daftar Project Pembangunan" },
-          { id: "LEGAL_TAB_INVENTARIS", label: "Tab: Inventaris & Aset" },
-          { id: "LEGAL_TAB_IZIN", label: "Tab: Izin & Legalitas" }
-        ]
-      }
-    ]
-  },
-  {
     kategori: "Keuangan",
     icon: "💳",
     menus: [
@@ -244,16 +258,6 @@ export const PERMISSIONS_SCHEMA = [
         actions: [
           { id: "KEUANGAN_DONASI_VIEW", label: "Lihat Donasi" },
           { id: "KEUANGAN_DONASI_EDIT", label: "Kelola Donasi" }
-        ]
-      },
-      {
-        nama: "Pengelolaan Internal (Anggaran & Gaji)",
-        actions: [
-          { id: "KEUANGAN_ANGGARAN_VIEW", label: "Akses Menu Keuangan Pusat" },
-          { id: "KEUANGAN_PENGGAJIAN_VIEW", label: "Lihat Penggajian" },
-          { id: "KEUANGAN_ANGGARAN_EDIT", label: "Kelola Anggaran" },
-          { id: "KEUANGAN_TAB_ANGGARAN", label: "Tab: Anggaran Tahunan" },
-          { id: "KEUANGAN_TAB_PENGGAJIAN", label: "Tab: Penggajian & Insentif" }
         ]
       }
     ]
@@ -318,41 +322,9 @@ export const PERMISSIONS_SCHEMA = [
     ]
   },
   {
-    kategori: "Organisasi",
-    icon: "🏢",
-    menus: [
-      {
-        nama: "Menu Organisasi",
-        actions: [
-          { id: "ORGANISASI_VIEW", label: "Akses Menu Organisasi" },
-          { id: "ORGANISASI_EDIT", label: "Kelola Organisasi" },
-          { id: "ORGANISASI_TAB_OKR", label: "Tab: OKR & KPI" },
-          { id: "ORGANISASI_TAB_STRUKTUR", label: "Tab: Struktur & Jobdesk" },
-          { id: "ORGANISASI_TAB_PIVOT", label: "Tab: PIVOT" },
-          { id: "ORGANISASI_TAB_PROJECT", label: "Tab: Manajemen Project" },
-          { id: "ORGANISASI_TAB_RAPAT", label: "Tab: Rapat" }
-        ]
-      }
-    ]
-  },
-  {
     kategori: "Administrator",
     icon: "🛡️",
     menus: [
-      {
-        nama: "Ruang Kerja Saya",
-        actions: [
-          { id: "RUANGKERJA_CATATAN_VIEW", label: "Lihat Catatan" },
-          { id: "RUANGKERJA_CATATAN_EDIT", label: "Kelola Catatan" }
-        ]
-      },
-      {
-        nama: "Aktivitas Rutin",
-        actions: [
-          { id: "RUANGKERJA_RUTIN_VIEW", label: "Lihat Aktivitas Rutin" },
-          { id: "RUANGKERJA_RUTIN_EDIT", label: "Tambah/Edit Aktivitas Rutin" }
-        ]
-      },
       {
         nama: "Manajemen Aplikasi",
         actions: [
