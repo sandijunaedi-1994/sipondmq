@@ -23,7 +23,7 @@ export default function AktivitasRutin() {
   });
 
   const [tipeFrekuensi, setTipeFrekuensi] = useState("HARIAN");
-  const [hariPekanan, setHariPekanan] = useState("TIDAK TERTENTU");
+  const [hariPekanan, setHariPekanan] = useState(["TIDAK TERTENTU"]);
 
   useEffect(() => {
     // Ambil info user dari token dan permissions
@@ -82,13 +82,13 @@ export default function AktivitasRutin() {
       if (f.startsWith("PEKANAN")) {
         setTipeFrekuensi("PEKANAN");
         if (f.includes("-")) {
-          setHariPekanan(f.split("-")[1]);
+          setHariPekanan(f.split("-")[1].split(",").map(s => s.trim()));
         } else {
-          setHariPekanan("TIDAK TERTENTU");
+          setHariPekanan(["TIDAK TERTENTU"]);
         }
       } else {
         setTipeFrekuensi(f);
-        setHariPekanan("TIDAK TERTENTU");
+        setHariPekanan(["TIDAK TERTENTU"]);
       }
     } else {
       setFormData({
@@ -101,7 +101,7 @@ export default function AktivitasRutin() {
         deskripsi: ""
       });
       setTipeFrekuensi("HARIAN");
-      setHariPekanan("TIDAK TERTENTU");
+      setHariPekanan(["TIDAK TERTENTU"]);
       setIsEditing(false);
     }
     setShowModal(true);
@@ -112,7 +112,7 @@ export default function AktivitasRutin() {
     
     let finalFrekuensi = tipeFrekuensi;
     if (tipeFrekuensi === "PEKANAN") {
-      finalFrekuensi = `PEKANAN-${hariPekanan}`;
+      finalFrekuensi = `PEKANAN-${hariPekanan.join(",")}`;
     }
     
     const payload = { ...formData, frekuensi: finalFrekuensi };
@@ -264,9 +264,13 @@ export default function AktivitasRutin() {
                   </td>
                   <td className="px-6 py-4 text-sm font-medium text-slate-600 dark:text-slate-300">
                     {task.frekuensi.startsWith('PEKANAN') ? (
-                      <span className="px-2.5 py-1 bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400 border border-amber-200 dark:border-amber-500/20 rounded-md text-[10px] font-bold tracking-wide">
-                        {task.frekuensi.split('-')[1] || 'TIDAK TERTENTU'}
-                      </span>
+                      <div className="flex flex-wrap gap-1 max-w-[200px]">
+                        {(task.frekuensi.split('-')[1] || 'TIDAK TERTENTU').split(',').map(h => (
+                          <span key={h} className="px-2 py-0.5 bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400 border border-amber-200 dark:border-amber-500/20 rounded-md text-[9px] font-bold tracking-wide">
+                            {h}
+                          </span>
+                        ))}
+                      </div>
                     ) : '-'}
                   </td>
                   <td className="px-6 py-4 text-sm font-medium text-slate-600 dark:text-slate-300">
@@ -350,23 +354,30 @@ export default function AktivitasRutin() {
                   </div>
 
                   {tipeFrekuensi === "PEKANAN" && (
-                    <div>
-                      <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Pilih Hari *</label>
-                      <select 
-                        required
-                        value={hariPekanan}
-                        onChange={e => setHariPekanan(e.target.value)}
-                        className="w-full px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50 dark:text-white"
-                      >
-                        <option value="TIDAK TERTENTU">TIDAK TERTENTU</option>
-                        <option value="SENIN">SENIN</option>
-                        <option value="SELASA">SELASA</option>
-                        <option value="RABU">RABU</option>
-                        <option value="KAMIS">KAMIS</option>
-                        <option value="JUMAT">JUMAT</option>
-                        <option value="SABTU">SABTU</option>
-                        <option value="MINGGU">MINGGU</option>
-                      </select>
+                    <div className="col-span-1 md:col-span-2 mt-2">
+                      <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Pilih Hari (Bisa lebih dari 1) *</label>
+                      <div className="flex flex-wrap gap-2">
+                        {["SENIN", "SELASA", "RABU", "KAMIS", "JUMAT", "SABTU", "MINGGU"].map((hari) => (
+                          <label key={hari} className={`flex items-center gap-2 px-4 py-2.5 border rounded-xl cursor-pointer transition-all ${hariPekanan.includes(hari) ? 'bg-emerald-50 border-emerald-200 dark:bg-emerald-500/10 dark:border-emerald-500/30 ring-1 ring-emerald-500/50' : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800'}`}>
+                            <input 
+                              type="checkbox" 
+                              checked={hariPekanan.includes(hari)}
+                              onChange={(e) => {
+                                if (e.target.checked) {
+                                  setHariPekanan(prev => prev.filter(h => h !== "TIDAK TERTENTU").concat(hari));
+                                } else {
+                                  setHariPekanan(prev => {
+                                    const next = prev.filter(h => h !== hari);
+                                    return next.length === 0 ? ["TIDAK TERTENTU"] : next;
+                                  });
+                                }
+                              }}
+                              className="w-4 h-4 text-emerald-500 border-slate-300 rounded focus:ring-emerald-500 dark:bg-slate-800 dark:border-slate-600 dark:checked:bg-emerald-500"
+                            />
+                            <span className={`text-sm font-medium ${hariPekanan.includes(hari) ? 'text-emerald-700 dark:text-emerald-400' : 'text-slate-700 dark:text-slate-300'}`}>{hari}</span>
+                          </label>
+                        ))}
+                      </div>
                     </div>
                   )}
                 </div>
