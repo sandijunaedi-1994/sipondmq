@@ -27,6 +27,7 @@ const { requireAdmin } = require('../middleware/auth.middleware');
 const dokumenController = require('../controllers/admin.dokumen.controller');
 const broadcastController = require('../controllers/admin.broadcast.controller');
 const sdmOrganisasiController = require('../controllers/admin.sdm.organisasi.controller');
+const literasiController = require('../controllers/admin.literasi.controller');
 
 const {
   getDashboardStats,
@@ -345,5 +346,11 @@ router.use('/saran', requireAdmin, saranRouter);
 
 const notifikasiRouter = require('./admin.notifikasi.routes');
 router.use('/notifikasi', notifikasiRouter);
+
+// SPMB Literasi (NotebookLM)
+router.post('/spmb/literasi/upload', requireAdmin, literasiController.uploadMiddleware, literasiController.uploadDocument);
+router.get('/spmb/literasi/documents', requireAdmin, literasiController.getDocuments);
+router.delete('/spmb/literasi/documents/:id', requireAdmin, literasiController.deleteDocument);
+router.post('/spmb/literasi/chat', requireAdmin, literasiController.chatWithDocument);
 
 module.exports = router;

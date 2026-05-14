@@ -42,6 +42,7 @@ model User {
   catatanAdmin       CatatanAdmin[]
   riwayatGantiKartu  RiwayatKartu[]
   saranTerkirim      SaranOnline[]   @relation("SaranPengirim")
+  literasiDocs       SpmbLiterasiDocument[] @relation("UserLiterasi")
 
   @@index([role])
 }
@@ -1692,4 +1693,18 @@ model SaranOnline {
   
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
+}
+
+model SpmbLiterasiDocument {
+  id          String   @id @default(uuid())
+  title       String
+  fileName    String
+  fileUrl     String
+  fileType    String   
+  textContent String?  @db.LongText 
+  uploadedBy  String   
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  uploader    User     @relation("UserLiterasi", fields: [uploadedBy], references: [id], onDelete: Cascade)
 }

@@ -130,7 +130,8 @@ export default function AdminLayout({ children }) {
       subItems: [
         { name: "Data Peserta", path: "/admin/ppdb/peserta", permission: "SPMB_PESERTA_VIEW" },
         { name: "Data Survey", path: "/admin/ppdb/survey", permission: "SPMB_SURVEY_VIEW" },
-        { name: "Pengaturan SPMB", path: "/admin/ppdb/settings", permission: "SPMB_SETTINGS_VIEW" }
+        { name: "Pengaturan SPMB", path: "/admin/ppdb/settings", permission: "SPMB_SETTINGS_VIEW" },
+        { name: "Literasi (NotebookLM)", path: "/admin/ppdb/literasi", permission: "SPMB_LITERASI_VIEW" }
       ]
     },
     { 
