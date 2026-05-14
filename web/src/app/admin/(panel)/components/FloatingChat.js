@@ -14,6 +14,14 @@ export default function FloatingChat() {
   // Store previous message count to detect new unread messages
   const prevMsgCountRef = useRef(0);
 
+  useEffect(() => {
+    // Initialize last read count from localStorage
+    const savedLastRead = localStorage.getItem("admin_last_read_chat_count");
+    if (savedLastRead) {
+      prevMsgCountRef.current = parseInt(savedLastRead, 10);
+    }
+  }, []);
+
   const fetchChat = async (isInitial = false) => {
     try {
       const token = localStorage.getItem("admin_token");
@@ -27,11 +35,14 @@ export default function FloatingChat() {
         setChatMessages(data);
         
         // Calculate unread count based on difference in message length
-        if (!isOpen && !isInitial && data.length > prevMsgCountRef.current) {
-          setUnreadCount(prev => prev + (data.length - prevMsgCountRef.current));
+        if (!isOpen && data.length > prevMsgCountRef.current) {
+          setUnreadCount(data.length - prevMsgCountRef.current);
+        } else if (isOpen) {
+          // If open, update the read counter immediately
+          prevMsgCountRef.current = data.length;
+          localStorage.setItem("admin_last_read_chat_count", data.length.toString());
+          setUnreadCount(0);
         }
-        
-        prevMsgCountRef.current = data.length;
       }
     } catch (error) {
       console.error("Failed to fetch chat", error);
@@ -80,7 +91,11 @@ export default function FloatingChat() {
       <button 
         onClick={() => {
           setIsOpen(!isOpen);
-          if (!isOpen) setUnreadCount(0);
+          if (!isOpen) {
+            setUnreadCount(0);
+            prevMsgCountRef.current = chatMessages.length;
+            localStorage.setItem("admin_last_read_chat_count", chatMessages.length.toString());
+          }
         }}
         className={`fixed bottom-6 right-6 p-4 rounded-full shadow-2xl transition-all transform hover:scale-105 z-50 flex items-center justify-center ${
           isOpen 

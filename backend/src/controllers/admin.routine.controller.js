@@ -629,6 +629,35 @@ const deleteRoutineSchedule = async (req, res) => {
   }
 };
 
+const getSubordinates = async (req, res) => {
+  try {
+    const subordinates = await prisma.userHierarchy.findMany({
+      where: { supervisorId: req.user.userId },
+      include: { 
+        subordinate: { 
+          include: { 
+            pegawai: {
+              select: { namaLengkap: true }
+            } 
+          } 
+        } 
+      }
+    });
+
+    const result = subordinates
+      .filter(s => s.subordinate)
+      .map(s => ({
+        id: s.subordinateId,
+        namaLengkap: s.subordinate.namaLengkap || (s.subordinate.pegawai && s.subordinate.pegawai.length > 0 ? s.subordinate.pegawai[0].namaLengkap : null) || s.subordinate.email || 'Bawahan'
+      }));
+
+    res.status(200).json(result);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
 module.exports = {
   getRoutineTasks,
   createRoutineTask,
@@ -642,5 +671,6 @@ module.exports = {
   getDashboardTasks,
   updateUserTaskStatus,
   deleteUserTask,
-  deleteRoutineSchedule
+  deleteRoutineSchedule,
+  getSubordinates
 };

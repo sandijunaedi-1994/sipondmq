@@ -11,6 +11,7 @@ export default function AktivitasRutin() {
   const [filterFrekuensi, setFilterFrekuensi] = useState("");
   const [currentUserId, setCurrentUserId] = useState("");
   const [isSuperAdmin, setIsSuperAdmin] = useState(false);
+  const [subordinates, setSubordinates] = useState([]);
   
   const [showModal, setShowModal] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -41,7 +42,24 @@ export default function AktivitasRutin() {
       setIsSuperAdmin(perms.includes("MANAJEMEN_ADMIN"));
     } catch (e) {}
     fetchTasks();
+    fetchSubordinates();
   }, []);
+
+  const fetchSubordinates = async () => {
+    try {
+      const token = localStorage.getItem("admin_token");
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"}/api/admin/hierarchy/subordinates`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        // The endpoint returns an array of subordinates [{ id, namaLengkap, email }]
+        setSubordinates(data || []);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -441,8 +459,17 @@ export default function AktivitasRutin() {
                     value={formData.petugas || ''}
                     onChange={e => setFormData({...formData, petugas: e.target.value})}
                     placeholder="Nama yang bertanggung jawab"
+                    list="subordinates-list"
                     className="w-full px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50 dark:text-white"
                   />
+                  {subordinates.length > 0 && (
+                    <datalist id="subordinates-list">
+                      <option value="Diri Sendiri (Me)" />
+                      {subordinates.map(sub => (
+                        <option key={sub.id} value={sub.namaLengkap || sub.email} />
+                      ))}
+                    </datalist>
+                  )}
                 </div>
 
                 <div>
