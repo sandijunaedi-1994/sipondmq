@@ -602,6 +602,22 @@ export default function TabDaftarProject() {
             )}
           </tbody>
         </table>
+
+        {/* Signature Block - Only visible in print mode */}
+        <div className="hidden print:flex justify-between items-end mt-16 px-12 text-center text-sm font-bold text-slate-800">
+          <div>
+            <p className="mb-24">Dibuat oleh,</p>
+            <p className="underline decoration-slate-800 underline-offset-4">PJ Pembangunan</p>
+          </div>
+          <div>
+            <p className="mb-24">Diperiksa oleh,</p>
+            <p className="underline decoration-slate-800 underline-offset-4">Kabid. Legal & Aset</p>
+          </div>
+          <div>
+            <p className="mb-24">Disetujui oleh,</p>
+            <p className="underline decoration-slate-800 underline-offset-4">Ketua Yayasan</p>
+          </div>
+        </div>
       </div>
 
       {/* Pagination Footer */}
