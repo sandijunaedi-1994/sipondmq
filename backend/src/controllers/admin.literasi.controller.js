@@ -160,10 +160,15 @@ exports.chatWithDocument = async (req, res) => {
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
     // Format chat history for Gemini
-    const formattedHistory = history.map(h => ({
+    let formattedHistory = history.map(h => ({
       role: h.role === 'user' ? 'user' : 'model',
       parts: [{ text: h.content }]
     }));
+
+    // Gemini requires history to start with a 'user' role
+    if (formattedHistory.length > 0 && formattedHistory[0].role === 'model') {
+      formattedHistory.shift();
+    }
 
     // Start Chat Session
     const chat = model.startChat({

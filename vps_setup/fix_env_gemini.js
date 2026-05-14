@@ -9,15 +9,9 @@ const config = {
 };
 
 conn.on('ready', () => {
-  console.log('Connected! Updating .env on VPS...');
-  
-  const envPath = '/root/api-mymq/.env';
-  const appendCmd = `echo 'GEMINI_API_KEY="AIzaSyDnXSA762zSuOzddUp7dkMpdHHlcFgQWdA"' >> ${envPath} && npx pm2 restart api-mymq --update-env`;
-
-  conn.exec(appendCmd, (err, stream) => {
+  conn.exec('npx pm2 logs api-mymq --lines 50 --nostream', (err, stream) => {
     if (err) throw err;
     stream.on('close', (code) => {
-      console.log(`\nUpdated and restarted with exit code: ${code}`);
       conn.end();
     })
     .on('data', d => process.stdout.write(d.toString()))
