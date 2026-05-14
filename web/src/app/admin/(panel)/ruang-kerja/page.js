@@ -128,7 +128,7 @@ export default function DashboardPribadiPage() {
 
   let tabs = [
     { id: "ringkasan", name: "Ringkasan", icon: <BarChart2 size={18} strokeWidth={2.5} />, color: "text-blue-500", bg: "bg-blue-50 dark:bg-blue-500/10 border-blue-100 dark:border-blue-500/20" },
-    { id: "aktivitas_rutin", name: "Aktivitas Rutin", icon: <ClipboardList size={18} strokeWidth={2.5} />, color: "text-orange-500", bg: "bg-orange-50 dark:bg-orange-500/10 border-orange-100 dark:border-orange-500/20" },
+    { id: "aktivitas_rutin", name: "Aktivitas Saya", icon: <ClipboardList size={18} strokeWidth={2.5} />, color: "text-orange-500", bg: "bg-orange-50 dark:bg-orange-500/10 border-orange-100 dark:border-orange-500/20" },
     { id: "catatan", name: "Catatan", icon: <Edit3 size={18} strokeWidth={2.5} />, color: "text-teal-500", bg: "bg-teal-50 dark:bg-teal-500/10 border-teal-100 dark:border-teal-500/20" },
     { id: "master_time", name: "Master Time", icon: <CalendarDays size={18} strokeWidth={2.5} />, color: "text-rose-500", bg: "bg-rose-50 dark:bg-rose-500/10 border-rose-100 dark:border-rose-500/20" },
     { id: "saran_online", name: "Saran Online", icon: <MessageSquare size={18} strokeWidth={2.5} />, color: "text-pink-500", bg: "bg-pink-50 dark:bg-pink-500/10 border-pink-100 dark:border-pink-500/20" },
@@ -151,7 +151,7 @@ export default function DashboardPribadiPage() {
       case "ringkasan": return "Ringkasan Harian";
       case "wali_kelas": return "Ruang Wali Kelas";
       case "muhaffidz": return "Ruang Muhaffidz";
-      case "aktivitas_rutin": return "Aktivitas Rutin";
+      case "aktivitas_rutin": return "Aktivitas Saya";
       case "catatan": return "Catatan Pribadi";
       case "master_time": return "Master Time: Calendar";
       case "saran_online": return "Saran Online";

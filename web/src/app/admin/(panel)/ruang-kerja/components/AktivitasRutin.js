@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus, Edit2, Trash2, Search, X } from "lucide-react";
+import { Plus, Edit2, Trash2, Search, X, Clock, CheckCircle2, Circle } from "lucide-react";
+import AddActivityModal from "./AddActivityModal";
 
 export default function AktivitasRutin() {
   const [tasks, setTasks] = useState([]);
@@ -13,6 +14,11 @@ export default function AktivitasRutin() {
   const [isSuperAdmin, setIsSuperAdmin] = useState(false);
   const [subordinates, setSubordinates] = useState([]);
   const [viewMode, setViewMode] = useState("table"); // "table" or "visual"
+  
+  // Daily Tasks state
+  const [dailyTasks, setDailyTasks] = useState([]);
+  const [loadingDaily, setLoadingDaily] = useState(true);
+  const [showAddModal, setShowAddModal] = useState(false);
   
   const [showModal, setShowModal] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -44,6 +50,7 @@ export default function AktivitasRutin() {
     } catch (e) {}
     fetchTasks();
     fetchSubordinates();
+    fetchDailyTasks();
   }, []);
 
   const fetchSubordinates = async () => {
@@ -225,7 +232,117 @@ export default function AktivitasRutin() {
   });
 
   return (
-    <div className="bg-white dark:bg-slate-900 p-4 md:p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 transition-colors w-full max-w-full overflow-hidden">
+    <div className="space-y-6">
+      {/* Daftar Tugas Hari Ini */}
+      <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 flex flex-col h-[400px] md:h-[500px]">
+        <div className="p-5 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 rounded-t-2xl flex justify-between items-start">
+          <div>
+            <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
+              <Clock className="text-emerald-500" size={20} />
+              Daftar Tugas Hari Ini
+            </h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+              Tugas yang tertunda dan harus diselesaikan hari ini.
+            </p>
+          </div>
+          <button 
+            onClick={() => setShowAddModal(true)}
+            className="p-2 bg-emerald-100 text-emerald-600 hover:bg-emerald-200 dark:bg-emerald-900/40 dark:text-emerald-400 dark:hover:bg-emerald-800/60 rounded-lg transition-colors flex shrink-0"
+            title="Tambah Aktivitas"
+          >
+            <Plus size={20} />
+          </button>
+        </div>
+        <div className="flex-1 p-5 overflow-y-auto custom-scrollbar space-y-3">
+          {loadingDaily ? (
+            <div className="animate-pulse space-y-3">
+              {[1, 2, 3].map(i => <div key={i} className="h-16 bg-slate-100 dark:bg-slate-800 rounded-xl w-full"></div>)}
+            </div>
+          ) : dailyTasks.length === 0 ? (
+            <div className="flex flex-col items-center justify-center h-full text-center">
+              <span className="text-4xl mb-3">🎉</span>
+              <p className="text-slate-500 dark:text-slate-400 font-medium">Luar biasa! Tidak ada tugas yang tertunda.</p>
+            </div>
+          ) : (
+            dailyTasks.map(task => {
+              const isDone = task.status === 'SELESAI' || task.status === 'COMPLETED';
+              const getLocalDateString = (d) => {
+                const date = new Date(d);
+                const y = date.getFullYear();
+                const m = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                return `${y}-${m}-${day}`;
+              };
+              const todayStr = getLocalDateString(new Date());
+              const taskDateStr = getLocalDateString(task.taskDate);
+              const isOverdue = taskDateStr < todayStr;
+              
+              return (
+                <div 
+                  key={task.id} 
+                  onClick={() => {
+                    if (isOverdue) {
+                      alert("Aktivitas yang sudah lewat tanggalnya tidak dapat diubah.");
+                      return;
+                    }
+                    toggleDailyTaskStatus(task.id, task.status, task.isUserTask);
+                  }}
+                  className={`p-4 rounded-xl border transition-all flex items-start gap-3 group ${
+                    isOverdue ? 'cursor-not-allowed opacity-75' : 'cursor-pointer'
+                  } ${
+                    isDone 
+                      ? 'bg-slate-50 border-slate-200 dark:bg-slate-800/50 dark:border-slate-800 opacity-60' 
+                      : isOverdue
+                        ? 'bg-red-50 border-red-200 dark:bg-red-900/10 dark:border-red-800'
+                        : 'bg-white border-emerald-100 hover:border-emerald-300 dark:bg-slate-900 dark:border-emerald-900'
+                  }`}
+                >
+                  <div className="mt-0.5">
+                    {isDone ? (
+                      <CheckCircle2 size={18} className="text-emerald-500" />
+                    ) : (
+                      <Circle size={18} className={`transition-colors ${isOverdue ? 'text-red-400' : 'text-slate-300 group-hover:text-emerald-400'}`} />
+                    )}
+                  </div>
+                  <div className="flex-1">
+                    <h4 className={`text-sm font-bold transition-colors ${isDone ? 'text-slate-500 line-through' : isOverdue ? 'text-red-700 dark:text-red-400' : 'text-slate-800 dark:text-slate-100'}`}>
+                      {task.McRoutineTask?.aktivitas || task.title}
+                    </h4>
+                    <div className="flex items-center gap-2 mt-1.5">
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md border ${
+                        isDone 
+                          ? 'bg-slate-100 text-slate-500 border-slate-200 dark:bg-slate-800 dark:border-slate-700' 
+                          : isOverdue
+                            ? 'bg-red-100 text-red-600 border-red-200 dark:bg-red-800/30 dark:text-red-400 dark:border-red-700'
+                            : 'bg-emerald-50 text-emerald-600 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20'
+                      }`}>
+                        {task.isUserTask ? 'Tugas / Inisiatif' : 'Rutinitas'}
+                      </span>
+                      {isOverdue && !isDone && (
+                        <span className="text-[10px] font-bold text-red-500 flex items-center gap-1">
+                          Terlewat! ({new Date(task.taskDate).toLocaleDateString('id-ID')})
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  {!isOverdue && (
+                    <button 
+                      onClick={(e) => deleteDailyTask(task.id, task.isUserTask, e)}
+                      className="opacity-0 group-hover:opacity-100 p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all"
+                      title="Hapus Tugas"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  )}
+                </div>
+              );
+            })
+          )}
+        </div>
+      </div>
+
+      {/* Master Aktivitas Rutin */}
+      <div className="bg-white dark:bg-slate-900 p-4 md:p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 transition-colors w-full max-w-full overflow-hidden">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
         <div>
           <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100 transition-colors">Aktivitas Rutin</h2>
@@ -719,6 +836,16 @@ function RoutineVisualizer({ filteredTasks }) {
           </tbody>
         </table>
       </div>
+      
+      {showAddModal && (
+        <AddActivityModal 
+          onClose={() => setShowAddModal(false)}
+          onSuccess={() => {
+            setShowAddModal(false);
+            fetchDailyTasks(); // Refresh list after adding
+          }}
+        />
+      )}
     </div>
   );
 }
