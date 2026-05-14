@@ -21,7 +21,7 @@ export default function SaranOnline() {
   const fetchUnits = async () => {
     try {
       const token = localStorage.getItem("admin_token");
-      const res = await fetch("/api/admin/saran/units", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/admin/saran/units`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.ok) {
@@ -37,7 +37,7 @@ export default function SaranOnline() {
     try {
       setIsLoading(true);
       const token = localStorage.getItem("admin_token");
-      const res = await fetch("/api/admin/saran/inbox", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/admin/saran/inbox`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.ok) {
@@ -53,7 +53,7 @@ export default function SaranOnline() {
     try {
       setIsLoading(true);
       const token = localStorage.getItem("admin_token");
-      const res = await fetch("/api/admin/saran/sent", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/admin/saran/sent`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.ok) {
@@ -79,7 +79,7 @@ export default function SaranOnline() {
     setIsSubmitting(true);
     try {
       const token = localStorage.getItem("admin_token");
-      const res = await fetch("/api/admin/saran", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/admin/saran`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -115,7 +115,7 @@ export default function SaranOnline() {
   const handleUpdateStatus = async (id, status) => {
     try {
       const token = localStorage.getItem("admin_token");
-      const res = await fetch(`/api/admin/saran/${id}/status`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/admin/saran/${id}/status`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
