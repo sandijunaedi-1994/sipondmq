@@ -157,7 +157,7 @@ exports.chatWithDocument = async (req, res) => {
       return res.status(404).json({ message: 'Dokumen tidak ditemukan' });
     }
 
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
     // Format chat history for Gemini
     let formattedHistory = history.map(h => ({
