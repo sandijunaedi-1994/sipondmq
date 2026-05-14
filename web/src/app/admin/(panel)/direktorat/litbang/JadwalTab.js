@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { toast } from "react-hot-toast";
-import { Calendar, Settings, FileText, Settings2, Loader2, Play } from "lucide-react";
+import { Calendar, Settings, FileText, Settings2, Loader2, Play, BarChart2 } from "lucide-react";
 
 export default function JadwalTab() {
   const [activeTab, setActiveTab] = useState("mapel");
@@ -19,6 +19,7 @@ export default function JadwalTab() {
           { id: "mapel", label: "Master Mapel", icon: FileText },
           { id: "jam", label: "Waktu Jam Pelajaran", icon: Settings },
           { id: "plotting", label: "Aturan & Plotting", icon: Settings2 },
+          { id: "ringkasan", label: "Ringkasan Beban JP", icon: BarChart2 },
           { id: "hasil", label: "Generate & Hasil", icon: Calendar }
         ].map(tab => (
           <button
@@ -39,8 +40,9 @@ export default function JadwalTab() {
       <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm">
         {activeTab === "mapel" && <TabMapel />}
         {activeTab === "jam" && <TabJam />}
-        {activeTab === "plotting" && <TabPlotting />}
-        {activeTab === "hasil" && <TabHasil />}
+        { activeTab === "plotting" && <TabPlotting /> }
+        { activeTab === "ringkasan" && <TabRingkasan /> }
+        { activeTab === "hasil" && <TabHasil /> }
       </div>
     </div>
   );
@@ -377,6 +379,82 @@ function TabPlotting() {
                 <span className="bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 px-2 py-1 rounded">{p.totalJpMingguan} JP/Mgg</span>
                 <span className="bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300 px-2 py-1 rounded">Pecah: {p.formatPecahan}</span>
               </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function TabRingkasan() {
+  const [plots, setPlots] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchPlotting();
+  }, []);
+
+  const fetchPlotting = async () => {
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/admin/litbang/jadwal/plotting`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("admin_token")}` }
+      });
+      if (res.ok) setPlots(await res.json());
+    } catch (e) {}
+    setLoading(false);
+  };
+
+  const rekapGuru = {};
+  const rekapKelas = {};
+
+  plots.forEach(p => {
+    const namaGuru = p.guru?.namaLengkap || p.guru?.nama || "Tidak Diketahui";
+    const namaKelas = p.kelas?.nama || "Tidak Diketahui";
+    
+    if (!rekapGuru[namaGuru]) rekapGuru[namaGuru] = 0;
+    rekapGuru[namaGuru] += p.totalJpMingguan;
+
+    if (!rekapKelas[namaKelas]) rekapKelas[namaKelas] = 0;
+    rekapKelas[namaKelas] += p.totalJpMingguan;
+  });
+
+  const sortedGuru = Object.entries(rekapGuru).sort((a, b) => b[1] - a[1]);
+  const sortedKelas = Object.entries(rekapKelas).sort((a, b) => a[0].localeCompare(b[0]));
+
+  if (loading) return <div className="p-8 text-center text-slate-500">Memuat data...</div>;
+
+  return (
+    <div className="flex flex-col md:flex-row gap-8">
+      <div className="flex-1">
+        <h3 className="font-bold text-lg mb-4 text-slate-800 dark:text-slate-100 border-b pb-2 dark:border-slate-800">
+          Ringkasan Per Guru
+        </h3>
+        <div className="space-y-3">
+          {sortedGuru.length === 0 && <p className="text-slate-500 text-sm">Belum ada plotting.</p>}
+          {sortedGuru.map(([nama, total]) => (
+            <div key={nama} className="flex justify-between items-center bg-slate-50 dark:bg-slate-800 p-3 rounded-xl border border-slate-200 dark:border-slate-700">
+              <span className="font-medium text-sm">{nama}</span>
+              <span className="bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400 font-bold px-3 py-1 rounded-lg text-sm">
+                {total} JP
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="flex-1">
+        <h3 className="font-bold text-lg mb-4 text-slate-800 dark:text-slate-100 border-b pb-2 dark:border-slate-800">
+          Ringkasan Per Kelas
+        </h3>
+        <div className="space-y-3">
+          {sortedKelas.length === 0 && <p className="text-slate-500 text-sm">Belum ada plotting.</p>}
+          {sortedKelas.map(([nama, total]) => (
+            <div key={nama} className="flex justify-between items-center bg-slate-50 dark:bg-slate-800 p-3 rounded-xl border border-slate-200 dark:border-slate-700">
+              <span className="font-medium text-sm">Kelas {nama}</span>
+              <span className="bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-400 font-bold px-3 py-1 rounded-lg text-sm">
+                {total} JP
+              </span>
             </div>
           ))}
         </div>
