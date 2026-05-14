@@ -847,5 +847,6 @@ function RoutineVisualizer({ filteredTasks }) {
         />
       )}
     </div>
+    </div>
   );
 }
