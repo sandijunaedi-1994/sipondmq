@@ -339,4 +339,7 @@ router.post('/sdm/organisasi/posisi', requireAdmin, sdmOrganisasiController.crea
 router.put('/sdm/organisasi/posisi/:id', requireAdmin, sdmOrganisasiController.updatePosisi);
 router.delete('/sdm/organisasi/posisi/:id', requireAdmin, sdmOrganisasiController.deletePosisi);
 
+const saranRouter = require('./admin.saran.routes');
+router.use('/saran', requireAdmin, saranRouter);
+
 module.exports = router;

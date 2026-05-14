@@ -41,6 +41,7 @@ model User {
   pegawai            Pegawai?
   catatanAdmin       CatatanAdmin[]
   riwayatGantiKartu  RiwayatKartu[]
+  saranTerkirim      SaranOnline[]   @relation("SaranPengirim")
 
   @@index([role])
 }
@@ -541,6 +542,7 @@ model SdmUnit {
   children  SdmUnit[] @relation("UnitHierarchy")
 
   posisi    SdmPosisi[]
+  saranDiterima SaranOnline[] @relation("SaranTargetUnit")
 }
 
 model SdmPosisi {
@@ -1655,4 +1657,33 @@ model RiwayatKartu {
   tanggalGanti   DateTime    @default(now())
   diurusOlehId   String?
   diurusOleh     User?       @relation(fields: [diurusOlehId], references: [id])
+}
+
+enum TargetSaran {
+  SUPERADMIN
+  KEPALA_UNIT
+  UMUM
+}
+
+enum StatusSaran {
+  TERKIRIM
+  DIBACA
+  DITINDAKLANJUTI
+}
+
+model SaranOnline {
+  id           String      @id @default(uuid())
+  pengirimId   String
+  pengirim     User        @relation("SaranPengirim", fields: [pengirimId], references: [id], onDelete: Cascade)
+  
+  targetType   TargetSaran
+  targetUnitId String?
+  targetUnit   SdmUnit?    @relation("SaranTargetUnit", fields: [targetUnitId], references: [id], onDelete: SetNull)
+  
+  subjek       String      @db.VarChar(200)
+  isiSaran     String      @db.Text
+  status       StatusSaran @default(TERKIRIM)
+  
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
 }
