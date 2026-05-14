@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { User, Briefcase, MapPin, Phone, Mail, Award, Users, BookOpen, Clock, Building, Wallet, Receipt, Landmark, X, FileText, CheckCircle2, ChevronRight, Eye, EyeOff } from "lucide-react";
+import Swal from 'sweetalert2';
 
 export default function ProfilPribadi() {
   const [data, setData] = useState(null);
@@ -50,9 +51,26 @@ export default function ProfilPribadi() {
           }
         };
       });
-      alert("Foto profil berhasil diunggah!");
+      Swal.fire({
+        icon: 'success',
+        title: 'Berhasil!',
+        text: 'Foto profil berhasil diunggah!',
+        timer: 2000,
+        showConfirmButton: false,
+        customClass: {
+          popup: 'rounded-2xl',
+          title: 'text-slate-800 dark:text-slate-100',
+        }
+      });
     } catch (err) {
-      alert(err.message);
+      Swal.fire({
+        icon: 'error',
+        title: 'Gagal!',
+        text: err.message || 'Gagal mengunggah foto profil',
+        customClass: {
+          popup: 'rounded-2xl',
+        }
+      });
     } finally {
       setIsUploadingAvatar(false);
     }

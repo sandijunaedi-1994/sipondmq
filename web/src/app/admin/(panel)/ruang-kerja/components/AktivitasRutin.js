@@ -239,6 +239,7 @@ export default function AktivitasRutin() {
               <tr>
                 <th className="px-6 py-4">Aktivitas</th>
                 <th className="px-6 py-4">Frekuensi</th>
+                <th className="px-6 py-4">Hari</th>
                 <th className="px-6 py-4">Waktu</th>
                 <th className="px-6 py-4">Petugas</th>
                 <th className="px-6 py-4 text-right">Aksi</th>
@@ -246,9 +247,9 @@ export default function AktivitasRutin() {
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
             {loading ? (
-              <tr><td colSpan="5" className="px-6 py-8 text-center text-slate-500"><div className="w-6 h-6 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto"></div></td></tr>
+              <tr><td colSpan="6" className="px-6 py-8 text-center text-slate-500"><div className="w-6 h-6 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto"></div></td></tr>
             ) : filteredTasks.length === 0 ? (
-              <tr><td colSpan="5" className="px-6 py-8 text-center text-slate-500 dark:text-slate-400">Tidak ada data aktivitas rutin.</td></tr>
+              <tr><td colSpan="6" className="px-6 py-8 text-center text-slate-500 dark:text-slate-400">Tidak ada data aktivitas rutin.</td></tr>
             ) : (
               filteredTasks.map((task) => (
                 <tr key={task.id} className="hover:bg-slate-50 dark:hover:bg-slate-950/50 transition-colors group">
@@ -258,8 +259,15 @@ export default function AktivitasRutin() {
                   </td>
                   <td className="px-6 py-4">
                     <span className="px-2.5 py-1 bg-purple-50 text-purple-600 dark:bg-purple-500/10 dark:text-purple-400 border border-purple-200 dark:border-purple-500/20 rounded-md text-[10px] font-bold tracking-wide">
-                      {task.frekuensi}
+                      {task.frekuensi.split('-')[0]}
                     </span>
+                  </td>
+                  <td className="px-6 py-4 text-sm font-medium text-slate-600 dark:text-slate-300">
+                    {task.frekuensi.startsWith('PEKANAN') ? (
+                      <span className="px-2.5 py-1 bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400 border border-amber-200 dark:border-amber-500/20 rounded-md text-[10px] font-bold tracking-wide">
+                        {task.frekuensi.split('-')[1] || 'TIDAK TERTENTU'}
+                      </span>
+                    ) : '-'}
                   </td>
                   <td className="px-6 py-4 text-sm font-medium text-slate-600 dark:text-slate-300">
                     {(task.jamMulai || task.jamSelesai) ? `${task.jamMulai || '--:--'} s/d ${task.jamSelesai || '--:--'}` : 'Sepanjang Hari'}
