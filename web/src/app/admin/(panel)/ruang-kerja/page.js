@@ -5,8 +5,6 @@ import RingkasanPribadi from "./components/RingkasanPribadi";
 import LogAktivitas from "./components/LogAktivitas";
 import AktivitasRutin from "./components/AktivitasRutin";
 import MasterTime from "./components/MasterTime";
-import CatatanPribadi from "./components/CatatanPribadi";
-import ProfilPribadi from "./components/ProfilPribadi";
 import RuangWaliKelas from "./components/RuangWaliKelas";
 import RuangMuhaffidz from "./components/RuangMuhaffidz";
 import SaranOnline from "./components/SaranOnline";
@@ -131,7 +129,6 @@ export default function DashboardPribadiPage() {
     { id: "ringkasan", name: "Ringkasan", icon: <BarChart2 size={18} strokeWidth={2.5} />, color: "text-blue-500", bg: "bg-blue-50 dark:bg-blue-500/10 border-blue-100 dark:border-blue-500/20" },
     { id: "aktivitas_rutin", name: "Aktivitas Rutin", icon: <ClipboardList size={18} strokeWidth={2.5} />, color: "text-orange-500", bg: "bg-orange-50 dark:bg-orange-500/10 border-orange-100 dark:border-orange-500/20" },
     { id: "master_time", name: "Master Time", icon: <CalendarDays size={18} strokeWidth={2.5} />, color: "text-rose-500", bg: "bg-rose-50 dark:bg-rose-500/10 border-rose-100 dark:border-rose-500/20" },
-    { id: "catatan_pribadi", name: "Catatan Pribadi", icon: <Edit3 size={18} strokeWidth={2.5} />, color: "text-amber-500", bg: "bg-amber-50 dark:bg-amber-500/10 border-amber-100 dark:border-amber-500/20" },
     { id: "saran_online", name: "Saran Online", icon: <MessageSquare size={18} strokeWidth={2.5} />, color: "text-pink-500", bg: "bg-pink-50 dark:bg-pink-500/10 border-pink-100 dark:border-pink-500/20" },
     { id: "log_aktivitas", name: "Log Aktivitas", icon: <History size={18} strokeWidth={2.5} />, color: "text-purple-500", bg: "bg-purple-50 dark:bg-purple-500/10 border-purple-100 dark:border-purple-500/20" }
   ];
@@ -156,10 +153,8 @@ export default function DashboardPribadiPage() {
       case "ringkasan": return "Ringkasan Harian";
       case "wali_kelas": return "Ruang Wali Kelas";
       case "muhaffidz": return "Ruang Muhaffidz";
-      case "profil": return "Profil Pribadi";
       case "aktivitas_rutin": return "Aktivitas Rutin";
       case "master_time": return "Master Time: Calendar";
-      case "catatan_pribadi": return "Catatan Pribadi";
       case "saran_online": return "Saran Online";
       case "log_aktivitas": return "Log Aktivitas";
       default: return "";
@@ -307,10 +302,8 @@ export default function DashboardPribadiPage() {
           {activeTab === "ringkasan" && <RingkasanPribadi />}
           {activeTab === "wali_kelas" && <RuangWaliKelas />}
           {activeTab === "muhaffidz" && <RuangMuhaffidz />}
-          {activeTab === "profil" && <ProfilPribadi />}
           {activeTab === "aktivitas_rutin" && <AktivitasRutin />}
           {activeTab === "master_time" && <MasterTime />}
-          {activeTab === "catatan_pribadi" && <CatatanPribadi />}
           {activeTab === "saran_online" && <SaranOnline />}
           {activeTab === "log_aktivitas" && <LogAktivitas />}
         </div>

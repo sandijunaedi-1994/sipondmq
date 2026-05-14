@@ -1181,6 +1181,9 @@ enum TipeNotifikasi {
   PRESTASI
   TAHFIDZ
   KEHADIRAN
+  TUGAS
+  SARAN
+  INFO
   UMUM
 }
 

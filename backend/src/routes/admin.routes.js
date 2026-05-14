@@ -342,4 +342,7 @@ router.delete('/sdm/organisasi/posisi/:id', requireAdmin, sdmOrganisasiControlle
 const saranRouter = require('./admin.saran.routes');
 router.use('/saran', requireAdmin, saranRouter);
 
+const notifikasiRouter = require('./admin.notifikasi.routes');
+router.use('/notifikasi', notifikasiRouter);
+
 module.exports = router;

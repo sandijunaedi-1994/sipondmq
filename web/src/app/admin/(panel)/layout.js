@@ -14,10 +14,12 @@ export default function AdminLayout({ children }) {
   
   const [loading, setLoading] = useState(true);
   const [permissions, setPermissions] = useState([]);
-  const [adminProfile, setAdminProfile] = useState({ name: "Admin", email: "admin@mqbs.com", initial: "AD" });
+  const [adminProfile, setAdminProfile] = useState({ name: "Admin", email: "admin@mqbs.com", initial: "AD", fotoUrl: null });
   const [expandedMenus, setExpandedMenus] = useState({});
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+  const [showNotifDropdown, setShowNotifDropdown] = useState(false);
 
   // Verifikasi admin_token
   useEffect(() => {
@@ -31,11 +33,52 @@ export default function AdminLayout({ children }) {
       const email = localStorage.getItem("admin_email") || "admin@mqbs.com";
       const initial = name.substring(0, 2).toUpperCase();
       
-      setAdminProfile({ name, email, initial });
+      setAdminProfile({ name, email, initial, fotoUrl: null });
       setPermissions(perms);
       setLoading(false);
+
+      // Ambil foto profil
+      fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/admin/sdm/pegawai/me`, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.pegawai && data.pegawai.fotoUrl) {
+          setAdminProfile(prev => ({ ...prev, fotoUrl: data.pegawai.fotoUrl }));
+        }
+      })
+      .catch(() => {});
+
+      // Ambil notifikasi
+      fetchNotifications(token);
     }
   }, [router]);
+
+  const fetchNotifications = (token) => {
+    fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/admin/notifikasi`, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (Array.isArray(data)) setNotifications(data);
+    })
+    .catch(() => {});
+  };
+
+  const markNotifAsRead = async (id, urlTarget) => {
+    const token = localStorage.getItem("admin_token");
+    try {
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/admin/notifikasi/${id}/read`, {
+        method: "PUT",
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      fetchNotifications(token);
+      setShowNotifDropdown(false);
+      if (urlTarget) {
+        router.push(urlTarget);
+      }
+    } catch (e) {}
+  };
 
   // Close sidebar when clicking a link on mobile
   useEffect(() => {
@@ -301,22 +344,64 @@ export default function AdminLayout({ children }) {
               </button>
             )}
 
-            <button className="relative p-2 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-800 rounded-full transition-colors">
-              <Bell size={20} />
-              <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white dark:border-slate-950"></span>
-            </button>
+            <div className="relative">
+              <button 
+                onClick={() => setShowNotifDropdown(!showNotifDropdown)}
+                className="relative p-2 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-800 rounded-full transition-colors"
+              >
+                <Bell size={20} />
+                {notifications.filter(n => !n.dibaca).length > 0 && (
+                  <span className="absolute top-1 right-1.5 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white dark:border-slate-950"></span>
+                )}
+              </button>
+
+              {/* Dropdown Notifikasi */}
+              {showNotifDropdown && (
+                <div className="absolute right-0 mt-2 w-80 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2">
+                  <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50 dark:bg-slate-800/50">
+                    <h3 className="font-bold text-sm text-slate-800 dark:text-slate-200">Notifikasi</h3>
+                    <span className="text-xs bg-emerald-100 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400 px-2 py-0.5 rounded-full font-semibold">
+                      {notifications.filter(n => !n.dibaca).length} Baru
+                    </span>
+                  </div>
+                  <div className="max-h-[350px] overflow-y-auto custom-scrollbar">
+                    {notifications.length === 0 ? (
+                      <div className="p-6 text-center text-sm text-slate-500">Tidak ada notifikasi</div>
+                    ) : (
+                      notifications.map(notif => (
+                        <div 
+                          key={notif.id}
+                          onClick={() => markNotifAsRead(notif.id, notif.urlTarget)}
+                          className={`p-4 border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition cursor-pointer ${!notif.dibaca ? 'bg-blue-50/50 dark:bg-blue-900/10' : ''}`}
+                        >
+                          <h4 className={`text-sm ${!notif.dibaca ? 'font-bold text-slate-800 dark:text-slate-200' : 'font-medium text-slate-600 dark:text-slate-400'}`}>
+                            {notif.judul}
+                          </h4>
+                          {notif.isi && <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 line-clamp-2">{notif.isi}</p>}
+                          <p className="text-[10px] text-slate-400 mt-2">{new Date(notif.createdAt).toLocaleDateString('id-ID', { hour: '2-digit', minute: '2-digit' })}</p>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
             
             <div className="h-8 w-px bg-slate-200 dark:bg-slate-800"></div>
             
-            <div className="flex items-center gap-3">
+            <Link href="/admin/profil" className="flex items-center gap-3 hover:bg-slate-50 dark:hover:bg-slate-800/50 p-1.5 pr-3 rounded-full transition-colors cursor-pointer border border-transparent hover:border-slate-200 dark:hover:border-slate-700">
               <div className="text-right hidden sm:block">
                 <p className="text-sm font-bold text-slate-700 dark:text-slate-200 leading-tight">{adminProfile.name}</p>
                 <p className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">{adminProfile.email}</p>
               </div>
-              <div className="w-9 h-9 bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 rounded-full flex items-center justify-center font-bold text-sm border border-emerald-200 dark:border-emerald-500/30">
-                {adminProfile.initial}
-              </div>
-            </div>
+              {adminProfile.fotoUrl ? (
+                <img src={adminProfile.fotoUrl} alt={adminProfile.name} className="w-9 h-9 rounded-full object-cover border border-emerald-200 dark:border-emerald-500/30" />
+              ) : (
+                <div className="w-9 h-9 bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 rounded-full flex items-center justify-center font-bold text-sm border border-emerald-200 dark:border-emerald-500/30">
+                  {adminProfile.initial}
+                </div>
+              )}
+            </Link>
           </div>
         </header>
 

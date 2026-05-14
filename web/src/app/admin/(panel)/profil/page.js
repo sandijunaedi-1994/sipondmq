@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { User, Briefcase, MapPin, Phone, Mail, Award, Users, BookOpen, Clock, Building, Wallet, Receipt, Landmark, X, FileText, CheckCircle2, ChevronRight, Eye, EyeOff } from "lucide-react";
 import Swal from 'sweetalert2';
 
-export default function ProfilPribadi() {
+export default function ProfilPage() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
