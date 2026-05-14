@@ -9,7 +9,7 @@ const config = {
 };
 
 conn.on('ready', () => {
-  conn.exec('npx pm2 logs api-mymq --lines 50 --nostream', (err, stream) => {
+  conn.exec('systemctl start nginx && systemctl status nginx --no-pager', (err, stream) => {
     if (err) throw err;
     stream.on('close', (code) => {
       conn.end();

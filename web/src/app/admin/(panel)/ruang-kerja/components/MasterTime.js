@@ -59,7 +59,7 @@ export default function MasterTime() {
 
   const toggleStatus = async (scheduleId, currentStatus, isUserTask) => {
     try {
-      const newStatus = currentStatus === "SELESAI" ? "PENDING" : "SELESAI";
+      const newStatus = currentStatus === "SELESAI" || currentStatus === "COMPLETED" ? "PENDING" : "SELESAI";
       const token = localStorage.getItem("admin_token");
       
       let url = `${process.env.NEXT_PUBLIC_API_URL || `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"}`}/api/admin/routines/schedules/${scheduleId}/status`;
@@ -186,12 +186,12 @@ export default function MasterTime() {
               <div 
                 key={sch.id} 
                 className={`text-[10px] p-1.5 rounded-md border transition-colors flex items-start gap-1.5 ${
-                  sch.status === 'SELESAI' 
+                  (sch.status === 'SELESAI' || sch.status === 'COMPLETED') 
                     ? 'bg-emerald-50 border-emerald-200 text-emerald-700 dark:bg-emerald-500/10 dark:border-emerald-500/20 dark:text-emerald-400 opacity-60' 
                     : 'bg-white border-slate-200 text-slate-700 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300'
                 }`}
               >
-                {sch.status === 'SELESAI' ? (
+                {(sch.status === 'SELESAI' || sch.status === 'COMPLETED') ? (
                   <CheckCircle2 size={12} className="shrink-0 mt-0.5 text-emerald-500" />
                 ) : (
                   <Circle size={12} className="shrink-0 mt-0.5 text-slate-400" />
@@ -254,11 +254,11 @@ export default function MasterTime() {
             )}
             {daySchedules.slice(0, 3).map(sch => (
               <div key={sch.id} className={`text-[10px] px-1.5 py-1 rounded border truncate flex items-center gap-1 ${
-                  sch.status === 'SELESAI' 
+                  (sch.status === 'SELESAI' || sch.status === 'COMPLETED') 
                     ? 'bg-emerald-50 border-emerald-100 text-emerald-600 dark:bg-emerald-500/10 dark:border-emerald-500/20 dark:text-emerald-500 opacity-60' 
                     : 'bg-white border-slate-200 text-slate-600 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-400'
                 }`}>
-                {sch.status === 'SELESAI' && <CheckCircle2 size={10} className="shrink-0" />}
+                {(sch.status === 'SELESAI' || sch.status === 'COMPLETED') && <CheckCircle2 size={10} className="shrink-0" />}
                 <span className="truncate">{sch.McRoutineTask?.aktivitas}</span>
               </div>
             ))}
@@ -632,7 +632,7 @@ function DayDetailModal({ date, onClose, schedules, events, onToggle, onDelete, 
 
 // Sub-component for Daily & Weekly Views and Modal
 function ScheduleCard({ schedule, onToggle, onDelete, size = "sm" }) {
-  const isDone = schedule.status === 'SELESAI';
+  const isDone = schedule.status === 'SELESAI' || schedule.status === 'COMPLETED';
   const task = schedule.McRoutineTask;
   
   // Cek apakah tanggal jadwal sudah lewat (sebelum hari ini)

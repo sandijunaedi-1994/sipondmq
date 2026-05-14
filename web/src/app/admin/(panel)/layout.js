@@ -113,16 +113,21 @@ export default function AdminLayout({ children }) {
       subItems: [
         { name: "Sekretariat", path: "/admin/direktorat/sekretariat", permission: "SEKRETARIAT_VIEW" },
         { name: "Manajemen SDM", path: "/admin/direktorat/sdm", permission: "SDM_VIEW" },
-        { name: "Litbang & Budaya", path: "/admin/direktorat/litbang", permission: "LITBANG_VIEW" },
         { name: "Pengelolaan Keuangan", path: "/admin/direktorat/keuangan", permission: "KEUANGAN_ANGGARAN_VIEW" },
         { name: "Legal & Aset", path: "/admin/direktorat/legal", permission: "LEGAL_VIEW" }
+      ]
+    },
+    {
+      name: "Litbang & Budaya", icon: "🔬", permission: null,
+      subItems: [
+        { name: "Beranda Litbang", path: "/admin/direktorat/litbang", permission: "LITBANG_VIEW" },
+        { name: "Jadwal Pelajaran", path: "/admin/litbang/jadwal", permission: "LITBANG_VIEW" }
       ]
     },
     { 
       name: "Administrasi Pembelajaran", icon: "📖", permission: null,
       subItems: [
-        { name: "Kurikulum", path: "/admin/pembelajaran/kurikulum", permission: "AKADEMIK_ADMIN_VIEW" },
-        { name: "Jadwal Pelajaran", path: "/admin/pembelajaran/jadwal", permission: "AKADEMIK_ADMIN_VIEW" }
+        { name: "Kurikulum", path: "/admin/pembelajaran/kurikulum", permission: "AKADEMIK_ADMIN_VIEW" }
       ]
     },
     { 

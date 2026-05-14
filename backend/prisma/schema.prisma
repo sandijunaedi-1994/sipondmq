@@ -513,6 +513,9 @@ model Pegawai {
   asramaMusyrif      Asrama[]             @relation("MusyrifAsrama")
   halaqoh            Halaqoh[]            @relation("MuhaffidzHalaqoh")
   kehadiranMuhaffidz KehadiranMuhaffidz[]
+  
+  jadwalPlotting     JadwalAturanPlotting[]
+  jadwalPelajaran    JadwalPelajaranSlot[]
 }
 
 model Markaz {
@@ -1623,6 +1626,8 @@ model Kelas {
   updatedAt   DateTime @updatedAt
 
   santri Santri[]
+  jadwalPlotting JadwalAturanPlotting[]
+  jadwalPelajaran JadwalPelajaranSlot[]
 }
 
 model Asrama {
@@ -1708,3 +1713,74 @@ model SpmbLiterasiDocument {
   
   uploader    User     @relation("UserLiterasi", fields: [uploadedBy], references: [id], onDelete: Cascade)
 }
+
+// ==========================================
+// LITBANG & BUDAYA: JADWAL PELAJARAN
+// ==========================================
+
+model MataPelajaran {
+  id        String   @id @default(uuid())
+  kode      String   @unique @db.VarChar(50)
+  nama      String   @db.VarChar(150)
+  kategori  String?  @db.VarChar(100)
+  aktif     Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  plotting  JadwalAturanPlotting[]
+  jadwal    JadwalPelajaranSlot[]
+}
+
+model JadwalPengaturanJam {
+  id         String   @id @default(uuid())
+  hari       String   @db.VarChar(20) // Senin, Selasa, dll
+  jpKe       Int      // 1, 2, 3...
+  jamMulai   String   @db.VarChar(10) // 07:00
+  jamSelesai String   @db.VarChar(10) // 07:45
+  isIstirahat Boolean @default(false)
+  aktif      Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  jadwal     JadwalPelajaranSlot[]
+
+  @@unique([hari, jpKe])
+}
+
+model JadwalAturanPlotting {
+  id              String   @id @default(uuid())
+  mapelId         String
+  mapel           MataPelajaran @relation(fields: [mapelId], references: [id])
+  guruId          String
+  guru            Pegawai  @relation(fields: [guruId], references: [id])
+  kelasId         Int
+  kelas           Kelas    @relation(fields: [kelasId], references: [id])
+  
+  totalJpMingguan Int      // Jumlah JP total per minggu
+  maxConsecutive  Int      @default(2) // Maksimal JP berturut-turut (misal blok 2 JP)
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model JadwalPelajaranSlot {
+  id              String   @id @default(uuid())
+  pengaturanJamId String
+  pengaturanJam   JadwalPengaturanJam @relation(fields: [pengaturanJamId], references: [id], onDelete: Cascade)
+  
+  mapelId         String
+  mapel           MataPelajaran @relation(fields: [mapelId], references: [id], onDelete: Cascade)
+  
+  guruId          String
+  guru            Pegawai  @relation(fields: [guruId], references: [id], onDelete: Cascade)
+  
+  kelasId         Int
+  kelas           Kelas    @relation(fields: [kelasId], references: [id], onDelete: Cascade)
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@unique([pengaturanJamId, kelasId]) // Satu kelas hanya punya 1 pelajaran di waktu yang sama
+  @@unique([pengaturanJamId, guruId]) // Satu guru hanya bisa mengajar 1 kelas di waktu yang sama
+}
+

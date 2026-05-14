@@ -28,6 +28,7 @@ const dokumenController = require('../controllers/admin.dokumen.controller');
 const broadcastController = require('../controllers/admin.broadcast.controller');
 const sdmOrganisasiController = require('../controllers/admin.sdm.organisasi.controller');
 const literasiController = require('../controllers/admin.literasi.controller');
+const jadwalController = require('../controllers/admin.jadwal.controller');
 
 const {
   getDashboardStats,
@@ -352,5 +353,22 @@ router.post('/spmb/literasi/upload', requireAdmin, literasiController.uploadMidd
 router.get('/spmb/literasi/documents', requireAdmin, literasiController.getDocuments);
 router.delete('/spmb/literasi/documents/:id', requireAdmin, literasiController.deleteDocument);
 router.post('/spmb/literasi/chat', requireAdmin, literasiController.chatWithDocument);
+
+// Litbang & Budaya: Jadwal Pelajaran
+router.get('/litbang/jadwal/mapel', requireAdmin, jadwalController.getMapel);
+router.post('/litbang/jadwal/mapel', requireAdmin, jadwalController.createMapel);
+router.put('/litbang/jadwal/mapel/:id', requireAdmin, jadwalController.updateMapel);
+router.delete('/litbang/jadwal/mapel/:id', requireAdmin, jadwalController.deleteMapel);
+
+router.get('/litbang/jadwal/jam', requireAdmin, jadwalController.getJam);
+router.post('/litbang/jadwal/jam', requireAdmin, jadwalController.createJam);
+router.delete('/litbang/jadwal/jam/:id', requireAdmin, jadwalController.deleteJam);
+
+router.get('/litbang/jadwal/plotting', requireAdmin, jadwalController.getPlotting);
+router.post('/litbang/jadwal/plotting', requireAdmin, jadwalController.createPlotting);
+router.delete('/litbang/jadwal/plotting/:id', requireAdmin, jadwalController.deletePlotting);
+
+router.get('/litbang/jadwal/generate', requireAdmin, jadwalController.getJadwal);
+router.post('/litbang/jadwal/generate', requireAdmin, jadwalController.generateJadwal);
 
 module.exports = router;
