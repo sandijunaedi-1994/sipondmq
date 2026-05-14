@@ -126,6 +126,85 @@ const updateRoutineTask = async (req, res) => {
     console.error(error);
     res.status(500).json({ message: 'Internal server error' });
   }
+  }
+};
+
+const getDashboardSummary = async (req, res) => {
+  try {
+    const today = new Date();
+    // Reset "today" variable safely
+    const now = new Date();
+    
+    // Get Monday of current week
+    const day = now.getDay();
+    const diff = now.getDate() - day + (day === 0 ? -6 : 1);
+    const startOfWeek = new Date(now.setDate(diff));
+    startOfWeek.setHours(0, 0, 0, 0);
+
+    const endOfWeek = new Date(startOfWeek);
+    endOfWeek.setDate(startOfWeek.getDate() + 6);
+    endOfWeek.setHours(23, 59, 59, 999);
+
+    const user = await prisma.user.findUnique({ where: { id: req.user.userId } });
+
+    // 1. Tasks Summary (This week)
+    const routineSchedules = await prisma.mcRoutineSchedule.findMany({
+      where: {
+        petugas: { contains: user?.namaLengkap || 'Unknown' },
+        taskDate: { gte: startOfWeek, lte: endOfWeek }
+      }
+    });
+
+    const userTasksRaw = await prisma.userTask.findMany({
+      where: {
+        assigneeId: req.user.userId,
+        dueDate: { gte: startOfWeek, lte: endOfWeek }
+      }
+    });
+
+    let tasksCompleted = 0;
+    let tasksPending = 0;
+
+    routineSchedules.forEach(t => {
+      if (t.status === 'SELESAI') tasksCompleted++;
+      else tasksPending++;
+    });
+
+    userTasksRaw.forEach(t => {
+      if (t.status === 'COMPLETED') tasksCompleted++;
+      else tasksPending++;
+    });
+
+    const tasksTotal = tasksCompleted + tasksPending;
+
+    // 2. Saran Summary
+    const saranAll = await prisma.saranOnline.findMany({
+      where: { pengirimId: req.user.userId }
+    });
+    
+    let saranBelumDibaca = 0;
+    let saranSelesai = 0;
+    let saranTotal = saranAll.length;
+
+    saranAll.forEach(s => {
+      if (s.status === 'BELUM_DIBACA') saranBelumDibaca++;
+      else if (s.status === 'SELESAI') saranSelesai++;
+    });
+
+    // 3. Catatan Summary
+    const catatanArr = await prisma.$queryRaw`SELECT COUNT(*) as count FROM CatatanAdmin WHERE userId = ${req.user.userId}`;
+    // Handle BigInt from COUNT(*)
+    const catatanTotal = Number(catatanArr[0]?.count || 0);
+
+    res.status(200).json({
+      tasks: { total: tasksTotal, completed: tasksCompleted, pending: tasksPending },
+      saran: { total: saranTotal, belumDibaca: saranBelumDibaca, selesai: saranSelesai },
+      catatan: { total: catatanTotal }
+    });
+  } catch (error) {
+    console.error("Error in getDashboardSummary:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
 };
 
 const deleteRoutineTask = async (req, res) => {
@@ -669,6 +748,7 @@ module.exports = {
   addAdhocRoutine,
   addInitiativeTask,
   getDashboardTasks,
+  getDashboardSummary,
   updateUserTaskStatus,
   deleteUserTask,
   deleteRoutineSchedule,

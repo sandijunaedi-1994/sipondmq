@@ -7,6 +7,8 @@ import AddActivityModal from "./AddActivityModal";
 export default function RingkasanPribadi() {
   const [tasks, setTasks] = useState([]);
   const [loadingTasks, setLoadingTasks] = useState(true);
+  const [summary, setSummary] = useState(null);
+  const [loadingSummary, setLoadingSummary] = useState(true);
 
   const [showAddModal, setShowAddModal] = useState(false);
 
@@ -25,7 +27,26 @@ export default function RingkasanPribadi() {
     }
 
     fetchTasks();
+    fetchSummary();
   }, []);
+
+  const fetchSummary = async () => {
+    try {
+      setLoadingSummary(true);
+      const token = localStorage.getItem("admin_token");
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"}/api/admin/dashboard/summary`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setSummary(data);
+      }
+    } catch (error) {
+      console.error("Failed to fetch summary:", error);
+    } finally {
+      setLoadingSummary(false);
+    }
+  };
 
   const fetchTasks = async () => {
     try {
@@ -149,6 +170,80 @@ export default function RingkasanPribadi() {
 
   return (
     <div className="space-y-6">
+      {/* Top Summary Cards */}
+      {!loadingSummary && summary && (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+          {/* Card 1: Tugas Pekan Ini */}
+          <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 hover:shadow-md transition-shadow">
+            <h4 className="text-slate-500 dark:text-slate-400 font-bold mb-4 text-sm flex items-center gap-2">
+              <span className="w-8 h-8 rounded-full bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center text-emerald-600">📊</span>
+              Pekerjaan Pekan Ini
+            </h4>
+            <div className="flex items-end justify-between">
+              <div className="text-3xl font-black text-slate-800 dark:text-white">{summary.tasks.total} <span className="text-sm font-medium text-slate-500">tugas</span></div>
+              <div className="text-emerald-600 font-bold text-sm bg-emerald-50 dark:bg-emerald-500/10 px-2.5 py-1 rounded-lg">
+                {summary.tasks.total > 0 ? Math.round((summary.tasks.completed / summary.tasks.total) * 100) : 0}% Selesai
+              </div>
+            </div>
+            <div className="mt-4 w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2.5 overflow-hidden">
+              <div className="bg-gradient-to-r from-emerald-400 to-emerald-600 h-full rounded-full transition-all duration-1000 ease-out relative" style={{ width: `${summary.tasks.total > 0 ? (summary.tasks.completed / summary.tasks.total) * 100 : 0}%` }}>
+                <div className="absolute inset-0 bg-white/20 animate-pulse"></div>
+              </div>
+            </div>
+            <div className="flex justify-between text-xs mt-3 text-slate-500 font-medium">
+              <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-emerald-500"></span>{summary.tasks.completed} Selesai</span>
+              <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-slate-300 dark:bg-slate-600"></span>{summary.tasks.pending} Tertunda</span>
+            </div>
+          </div>
+
+          {/* Card 2: Saran Online */}
+          <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 hover:shadow-md transition-shadow">
+            <h4 className="text-slate-500 dark:text-slate-400 font-bold mb-4 text-sm flex items-center gap-2">
+              <span className="w-8 h-8 rounded-full bg-blue-50 dark:bg-blue-500/10 flex items-center justify-center text-blue-600">💡</span>
+              Saran Terkirim
+            </h4>
+            <div className="text-3xl font-black text-slate-800 dark:text-white mb-4">{summary.saran.total} <span className="text-sm font-medium text-slate-500">saran</span></div>
+            <div className="flex items-center gap-2 mt-4">
+              <div className="flex-1 bg-slate-100 dark:bg-slate-800 h-2.5 rounded-full overflow-hidden flex">
+                <div className="bg-fuchsia-500 h-full transition-all duration-1000" style={{ width: `${summary.saran.total > 0 ? (summary.saran.belumDibaca / summary.saran.total) * 100 : 0}%` }} title="Belum Dibaca"></div>
+                <div className="bg-blue-500 h-full transition-all duration-1000" style={{ width: `${summary.saran.total > 0 ? ((summary.saran.total - summary.saran.belumDibaca - summary.saran.selesai) / summary.saran.total) * 100 : 0}%` }} title="Diproses"></div>
+                <div className="bg-emerald-500 h-full transition-all duration-1000" style={{ width: `${summary.saran.total > 0 ? (summary.saran.selesai / summary.saran.total) * 100 : 0}%` }} title="Selesai"></div>
+              </div>
+            </div>
+            <div className="flex justify-between text-[11px] mt-3 text-slate-500 font-medium px-1">
+              <span className="flex items-center gap-1 truncate" title="Baru / Belum Dibaca"><span className="w-1.5 h-1.5 rounded-full bg-fuchsia-500 shrink-0"></span>{summary.saran.belumDibaca} Baru</span>
+              <span className="flex items-center gap-1 truncate" title="Sedang Diproses"><span className="w-1.5 h-1.5 rounded-full bg-blue-500 shrink-0"></span>{summary.saran.total - summary.saran.belumDibaca - summary.saran.selesai} Proses</span>
+              <span className="flex items-center gap-1 truncate" title="Selesai"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0"></span>{summary.saran.selesai} Selesai</span>
+            </div>
+          </div>
+
+          {/* Card 3: Catatan */}
+          <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 flex flex-col justify-between relative overflow-hidden group hover:shadow-md transition-shadow">
+            <div className="absolute -right-6 -bottom-6 w-32 h-32 bg-amber-500/10 rounded-full blur-2xl group-hover:bg-amber-500/20 group-hover:scale-150 transition-all duration-700"></div>
+            <div>
+              <h4 className="text-slate-500 dark:text-slate-400 font-bold mb-4 text-sm relative z-10 flex items-center gap-2">
+                <span className="w-8 h-8 rounded-full bg-amber-50 dark:bg-amber-500/10 flex items-center justify-center text-amber-600">📝</span>
+                Catatan Pribadi
+              </h4>
+              <div className="text-3xl font-black text-slate-800 dark:text-white relative z-10">{summary.catatan.total} <span className="text-sm font-medium text-slate-500">dokumen</span></div>
+            </div>
+            <div className="mt-4 relative z-10">
+              <p className="text-xs text-slate-500 dark:text-slate-400 font-medium leading-relaxed">
+                Anda telah membuat total <strong className="text-slate-700 dark:text-slate-300">{summary.catatan.total} catatan</strong> untuk membantu mengingat tugas dan ide penting.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {loadingSummary && (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-pulse">
+          {[1,2,3].map(i => (
+            <div key={i} className="bg-slate-100 dark:bg-slate-800/50 h-40 rounded-2xl"></div>
+          ))}
+        </div>
+      )}
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Left Column: Daftar Tugas */}
         <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 flex flex-col h-[400px] md:h-[500px]">

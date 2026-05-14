@@ -76,7 +76,7 @@ const {
 const {
   getRoutineTasks, createRoutineTask, updateRoutineTask, deleteRoutineTask,
   getRoutineSchedules, updateRoutineScheduleStatus, generateSchedules, deleteRoutineSchedule,
-  addAdhocRoutine, addInitiativeTask, getDashboardTasks, updateUserTaskStatus, deleteUserTask
+  addAdhocRoutine, addInitiativeTask, getDashboardTasks, getDashboardSummary, updateUserTaskStatus, deleteUserTask
 } = require('../controllers/admin.routine.controller');
 
 const { getTodayChat, sendChatMessage } = require('../controllers/admin.chat.controller');
@@ -114,6 +114,7 @@ router.delete('/routines/schedules/:id', deleteRoutineSchedule);
 
 // Dashboard Tasks
 router.get('/dashboard/tasks', getDashboardTasks);
+router.get('/dashboard/summary', getDashboardSummary);
 
 // Group Chat
 router.get('/group-chat', getTodayChat);
