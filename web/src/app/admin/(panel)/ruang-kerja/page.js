@@ -16,6 +16,7 @@ export default function DashboardPribadiPage() {
   const [showAllMenu, setShowAllMenu] = useState(false);
   const [isSuperAdmin, setIsSuperAdmin] = useState(false);
   const [isWaliKelas, setIsWaliKelas] = useState(false);
+  const [isMuhaffidz, setIsMuhaffidz] = useState(false);
   
   const [adminName, setAdminName] = useState("");
   const [greeting, setGreeting] = useState("");
@@ -35,6 +36,7 @@ export default function DashboardPribadiPage() {
       const perms = JSON.parse(localStorage.getItem("admin_permissions") || "[]");
       setIsSuperAdmin(perms.includes("MANAJEMEN_ADMIN"));
       setIsWaliKelas(perms.includes("WALI_KELAS_VIEW"));
+      setIsMuhaffidz(perms.includes("MUHAFFIDZ_VIEW"));
     } catch (e) {}
 
     // Tanggal Hijriyah
@@ -138,8 +140,10 @@ export default function DashboardPribadiPage() {
     insertIndex++;
   }
   
-  tabs.splice(insertIndex, 0, { id: "muhaffidz", name: "Ruang Muhaffidz", icon: <BookOpen size={18} strokeWidth={2.5} />, color: "text-emerald-500", bg: "bg-emerald-50 dark:bg-emerald-500/10 border-emerald-100 dark:border-emerald-500/20" });
-  insertIndex++;
+  if (isMuhaffidz) {
+    tabs.splice(insertIndex, 0, { id: "muhaffidz", name: "Ruang Muhaffidz", icon: <BookOpen size={18} strokeWidth={2.5} />, color: "text-emerald-500", bg: "bg-emerald-50 dark:bg-emerald-500/10 border-emerald-100 dark:border-emerald-500/20" });
+    insertIndex++;
+  }
   
   if (!isSuperAdmin) {
     tabs.splice(insertIndex, 0, { id: "profil", name: "Profil", icon: <UserCircle size={18} strokeWidth={2.5} />, color: "text-indigo-500", bg: "bg-indigo-50 dark:bg-indigo-500/10 border-indigo-100 dark:border-indigo-500/20" });

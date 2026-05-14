@@ -33,6 +33,13 @@ export const PERMISSIONS_SCHEMA = [
           { id: "RUANGKERJA_RUTIN_VIEW", label: "Lihat Aktivitas Rutin" },
           { id: "RUANGKERJA_RUTIN_EDIT", label: "Tambah/Edit Aktivitas Rutin" }
         ]
+      },
+      {
+        nama: "Ruang Khusus",
+        actions: [
+          { id: "WALI_KELAS_VIEW", label: "Akses Ruang Wali Kelas" },
+          { id: "MUHAFFIDZ_VIEW", label: "Akses Ruang Muhaffidz" }
+        ]
       }
     ]
   },

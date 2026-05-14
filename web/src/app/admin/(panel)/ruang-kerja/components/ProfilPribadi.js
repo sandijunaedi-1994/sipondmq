@@ -262,7 +262,7 @@ export default function ProfilPribadi() {
           
           <div className="mt-3">
             <p className="text-2xl lg:text-3xl font-black text-emerald-700 dark:text-emerald-400 tracking-tight">
-              {showMoney ? <><span className="text-lg opacity-70 mr-1">Rp</span>4.500.000</> : "••••••••"}
+              {showMoney ? <><span className="text-lg opacity-70 mr-1">Rp</span>0</> : "••••••••"}
             </p>
           </div>
           
@@ -290,13 +290,13 @@ export default function ProfilPribadi() {
           
           <div className="mt-3">
             <p className="text-2xl lg:text-3xl font-black text-rose-700 dark:text-rose-400 tracking-tight">
-              {showMoney ? <><span className="text-lg opacity-70 mr-1">Rp</span>500.000</> : "••••••"}
+              {showMoney ? <><span className="text-lg opacity-70 mr-1">Rp</span>0</> : "••••••"}
             </p>
           </div>
           
           <div className="mt-4 pt-4 border-t border-rose-200/50 dark:border-rose-800/30 flex justify-between items-center text-xs">
             <span className="text-slate-500 dark:text-slate-400">Batas Maksimal</span>
-            <span className="font-bold text-slate-700 dark:text-slate-300">{showMoney ? "Rp 1.500.000" : "••••••"}</span>
+            <span className="font-bold text-slate-700 dark:text-slate-300">{showMoney ? "Rp 0" : "••••••"}</span>
           </div>
         </div>
 
@@ -315,13 +315,13 @@ export default function ProfilPribadi() {
           
           <div className="mt-3">
             <p className="text-2xl lg:text-3xl font-black text-indigo-700 dark:text-indigo-400 tracking-tight">
-              {showMoney ? <><span className="text-lg opacity-70 mr-1">Rp</span>2.350.000</> : "••••••••"}
+              {showMoney ? <><span className="text-lg opacity-70 mr-1">Rp</span>0</> : "••••••••"}
             </p>
           </div>
           
           <div className="mt-4 pt-4 border-t border-indigo-200/50 dark:border-indigo-800/30 flex justify-between items-center text-xs">
             <span className="text-slate-500 dark:text-slate-400">Bagi Hasil YTD</span>
-            <span className="font-bold text-emerald-600 dark:text-emerald-400">{showMoney ? "+Rp 120.000" : "••••"}</span>
+            <span className="font-bold text-emerald-600 dark:text-emerald-400">{showMoney ? "+Rp 0" : "••••"}</span>
           </div>
         </div>
 
@@ -476,13 +476,7 @@ export default function ProfilPribadi() {
 
             <div className="p-5 overflow-y-auto custom-scrollbar flex-1">
               <div className="space-y-4">
-                {[
-                  { bulan: 'April', tahun: '2026', nominal: '4.500.000', status: 'Telah Ditransfer', date: '25 Apr 2026', isLatest: true },
-                  { bulan: 'Maret', tahun: '2026', nominal: '4.500.000', status: 'Telah Ditransfer', date: '25 Mar 2026', isLatest: false },
-                  { bulan: 'Februari', tahun: '2026', nominal: '4.200.000', status: 'Telah Ditransfer', date: '25 Feb 2026', isLatest: false },
-                  { bulan: 'Januari', tahun: '2026', nominal: '4.200.000', status: 'Telah Ditransfer', date: '25 Jan 2026', isLatest: false },
-                  { bulan: 'Desember', tahun: '2025', nominal: '4.200.000', status: 'Telah Ditransfer', date: '25 Des 2025', isLatest: false },
-                ].map((item, idx) => (
+                {[].map((item, idx) => (
                   <div key={idx} className={`p-4 rounded-2xl border ${item.isLatest ? 'bg-emerald-50/50 dark:bg-emerald-900/10 border-emerald-200 dark:border-emerald-800/50' : 'bg-white dark:bg-slate-800/50 border-slate-200 dark:border-slate-700'} relative overflow-hidden group transition-all hover:shadow-md`}>
                     
                     <div className="flex justify-between items-start mb-3">
