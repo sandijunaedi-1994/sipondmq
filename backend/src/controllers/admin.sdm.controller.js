@@ -380,7 +380,7 @@ const uploadFotoProfil = async (req, res) => {
       return res.status(400).json({ message: 'Tidak ada file yang diunggah' });
     }
 
-    const userId = req.user.id;
+    const userId = req.user.userId;
     const fileUrl = `/uploads/avatars/${req.file.filename}`;
 
     // Update Pegawai
