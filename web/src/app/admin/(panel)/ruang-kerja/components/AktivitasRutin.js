@@ -12,6 +12,7 @@ export default function AktivitasRutin() {
   const [currentUserId, setCurrentUserId] = useState("");
   const [isSuperAdmin, setIsSuperAdmin] = useState(false);
   const [subordinates, setSubordinates] = useState([]);
+  const [viewMode, setViewMode] = useState("table"); // "table" or "visual"
   
   const [showModal, setShowModal] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -280,7 +281,23 @@ export default function AktivitasRutin() {
         </select>
       </div>
 
-      {/* Table */}
+      {/* View Mode Toggle */}
+      <div className="mb-4 flex gap-2">
+        <button 
+          onClick={() => setViewMode("table")}
+          className={`px-4 py-2 text-xs font-bold rounded-xl transition-colors ${viewMode === "table" ? 'bg-slate-800 text-white dark:bg-slate-100 dark:text-slate-900' : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'}`}
+        >
+          Tampilan Tabel
+        </button>
+        <button 
+          onClick={() => setViewMode("visual")}
+          className={`px-4 py-2 text-xs font-bold rounded-xl transition-colors ${viewMode === "visual" ? 'bg-slate-800 text-white dark:bg-slate-100 dark:text-slate-900' : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'}`}
+        >
+          Visualisasi Pekanan
+        </button>
+      </div>
+
+      {viewMode === "table" ? (
       <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 transition-colors w-full overflow-hidden">
         <div className="overflow-x-auto w-full max-w-full">
           <table className="w-full text-left text-sm">
@@ -357,6 +374,9 @@ export default function AktivitasRutin() {
         </table>
         </div>
       </div>
+      ) : (
+        <RoutineVisualizer filteredTasks={filteredTasks} />
+      )}
 
       {/* Modal */}
       {showModal && (
@@ -602,6 +622,103 @@ export default function AktivitasRutin() {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+// Komponen Visualisasi Pekanan
+function RoutineVisualizer({ filteredTasks }) {
+  const days = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu"];
+  const hours = Array.from({ length: 24 }, (_, i) => i); // 0 to 23
+
+  // Filter hanya HARIAN dan PEKANAN yang punya jam mulai
+  const visualTasks = filteredTasks.filter(t => 
+    (t.frekuensi === 'HARIAN' || t.frekuensi.startsWith('PEKANAN')) && 
+    t.jamMulai
+  );
+
+  const getTaskColor = (petugas) => {
+    // Generate simple stable color based on string
+    if (!petugas) return "bg-emerald-100 border-emerald-200 text-emerald-800 dark:bg-emerald-900/30 dark:border-emerald-800 dark:text-emerald-300";
+    let hash = 0;
+    for (let i = 0; i < petugas.length; i++) hash = petugas.charCodeAt(i) + ((hash << 5) - hash);
+    const colors = [
+      "bg-emerald-100 border-emerald-200 text-emerald-800 dark:bg-emerald-900/30 dark:border-emerald-800 dark:text-emerald-300",
+      "bg-blue-100 border-blue-200 text-blue-800 dark:bg-blue-900/30 dark:border-blue-800 dark:text-blue-300",
+      "bg-indigo-100 border-indigo-200 text-indigo-800 dark:bg-indigo-900/30 dark:border-indigo-800 dark:text-indigo-300",
+      "bg-purple-100 border-purple-200 text-purple-800 dark:bg-purple-900/30 dark:border-purple-800 dark:text-purple-300",
+      "bg-rose-100 border-rose-200 text-rose-800 dark:bg-rose-900/30 dark:border-rose-800 dark:text-rose-300",
+      "bg-orange-100 border-orange-200 text-orange-800 dark:bg-orange-900/30 dark:border-orange-800 dark:text-orange-300",
+      "bg-amber-100 border-amber-200 text-amber-800 dark:bg-amber-900/30 dark:border-amber-800 dark:text-amber-300"
+    ];
+    return colors[Math.abs(hash) % colors.length];
+  };
+
+  const getTasksForSlot = (day, hour) => {
+    return visualTasks.filter(t => {
+      // Check day
+      let matchDay = false;
+      if (t.frekuensi === 'HARIAN') matchDay = true;
+      else if (t.frekuensi.startsWith('PEKANAN')) {
+        const pekananDays = (t.frekuensi.split('-')[1] || "").split(',').map(d => d.trim());
+        if (pekananDays.includes(day)) matchDay = true;
+      }
+      if (!matchDay) return false;
+
+      // Check hour
+      const startH = parseInt(t.jamMulai.split(':')[0]);
+      const endH = t.jamSelesai ? parseInt(t.jamSelesai.split(':')[0]) : startH;
+      
+      // task spanning hours
+      return hour >= startH && hour <= endH;
+    });
+  };
+
+  return (
+    <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 transition-colors w-full overflow-hidden">
+      <div className="overflow-x-auto w-full max-w-full">
+        <table className="w-full text-left text-sm border-collapse">
+          <thead className="bg-slate-50 dark:bg-slate-950 text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider text-[10px] border-b border-slate-200 dark:border-slate-800">
+            <tr>
+              <th className="p-3 border-r border-slate-200 dark:border-slate-800 w-20 text-center sticky left-0 bg-slate-50 dark:bg-slate-950 z-10">Jam</th>
+              {days.map(d => (
+                <th key={d} className="p-3 min-w-[150px] border-r border-slate-200 dark:border-slate-800 text-center">{d}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-slate-100 dark:divide-slate-800 relative">
+            {hours.map(h => (
+              <tr key={h} className="group">
+                <td className="p-2 border-r border-slate-200 dark:border-slate-800 text-center text-xs font-semibold text-slate-500 sticky left-0 bg-white dark:bg-slate-900 z-10">
+                  {h.toString().padStart(2, '0')}:00
+                </td>
+                {days.map(d => {
+                  const tasksInSlot = getTasksForSlot(d, h);
+                  return (
+                    <td key={`${d}-${h}`} className="p-1.5 border-r border-slate-200 dark:border-slate-800 align-top hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                      <div className="flex flex-col gap-1.5">
+                        {tasksInSlot.map(t => (
+                          <div 
+                            key={t.id} 
+                            className={`p-2 rounded-lg border text-xs shadow-sm ${getTaskColor(t.petugas)}`}
+                            title={`${t.aktivitas}\n${t.jamMulai} - ${t.jamSelesai || 'Selesai'}\nPetugas: ${t.petugas || '-'}`}
+                          >
+                            <div className="font-bold leading-tight mb-1 line-clamp-2">{t.aktivitas}</div>
+                            <div className="flex items-center justify-between gap-1 opacity-80 text-[10px]">
+                              <span className="font-semibold">{t.jamMulai}</span>
+                              <span className="truncate">{t.petugas || "Semua"}</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </td>
+                  );
+                })}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
