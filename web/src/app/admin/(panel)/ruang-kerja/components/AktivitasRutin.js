@@ -847,8 +847,6 @@ function RoutineVisualizer({ filteredTasks }) {
           </tbody>
         </table>
       </div>
-      
-      </div>
     </div>
   );
 }
