@@ -69,6 +69,77 @@ export default function AktivitasRutin() {
     }
   };
 
+  const fetchDailyTasks = async () => {
+    try {
+      setLoadingDaily(true);
+      const token = localStorage.getItem("admin_token");
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"}/api/admin/dashboard/tasks`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setDailyTasks(data);
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoadingDaily(false);
+    }
+  };
+
+  const toggleDailyTaskStatus = async (taskId, currentStatus, isUserTask) => {
+    // Optimistic UI
+    const newStatus = isUserTask 
+      ? (currentStatus === "SELESAI" ? "PENDING" : "SELESAI")
+      : (currentStatus === "COMPLETED" || currentStatus === "SELESAI" ? "PENDING" : "COMPLETED");
+      
+    setDailyTasks(dailyTasks.map(t => t.id === taskId ? { ...t, status: newStatus } : t));
+    
+    try {
+      const token = localStorage.getItem("admin_token");
+      const endpoint = isUserTask ? `/api/admin/routines/usertask/${taskId}` : `/api/admin/routines/schedules/${taskId}`;
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"}${endpoint}`, {
+        method: "PATCH",
+        headers: { 
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}` 
+        },
+        body: JSON.stringify({ status: newStatus })
+      });
+      
+      if (!res.ok) {
+        // Revert on failure
+        fetchDailyTasks();
+      }
+    } catch (error) {
+      console.error(error);
+      fetchDailyTasks();
+    }
+  };
+
+  const deleteDailyTask = async (taskId, isUserTask, e) => {
+    e.stopPropagation();
+    if (!confirm("Hapus aktivitas ini?")) return;
+    
+    try {
+      const token = localStorage.getItem("admin_token");
+      const endpoint = isUserTask ? `/api/admin/routines/usertask/${taskId}` : `/api/admin/routines/schedules/${taskId}`;
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"}${endpoint}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      if (res.ok) {
+        fetchDailyTasks();
+      } else {
+        alert("Gagal menghapus aktivitas.");
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Terjadi kesalahan.");
+    }
+  };
+
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === "Escape") {
