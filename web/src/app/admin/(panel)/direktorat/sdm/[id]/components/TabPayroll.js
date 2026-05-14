@@ -1,11 +1,7 @@
 import { FileText, Download, CheckCircle2, AlertCircle } from "lucide-react";
 
 export default function TabPayroll() {
-  const riwayatGaji = [
-    { periode: "April 2026", pokok: 3000000, tunjangan: 1500000, potongan: 0, bersih: 4500000, status: "DITRANSFER", tanggal: "25 Apr 2026" },
-    { periode: "Maret 2026", pokok: 3000000, tunjangan: 1500000, potongan: 0, bersih: 4500000, status: "DITRANSFER", tanggal: "25 Mar 2026" },
-    { periode: "Februari 2026", pokok: 3000000, tunjangan: 1200000, potongan: 0, bersih: 4200000, status: "DITRANSFER", tanggal: "25 Feb 2026" },
-  ];
+  const riwayatGaji = [];
 
   return (
     <div className="space-y-6">
@@ -15,12 +11,12 @@ export default function TabPayroll() {
           <div>
             <p className="text-sm font-bold text-emerald-800/60 dark:text-emerald-400/60 uppercase tracking-widest mb-1">Gaji Bulan Ini</p>
             <h2 className="text-3xl md:text-4xl font-black text-emerald-700 dark:text-emerald-400 tracking-tight">
-              <span className="text-xl md:text-2xl mr-1 opacity-70">Rp</span>4.500.000
+              <span className="text-xl md:text-2xl mr-1 opacity-70">Rp</span>0
             </h2>
             <div className="flex items-center gap-2 mt-2">
-              <span className="px-2.5 py-1 bg-emerald-100 dark:bg-emerald-800/50 text-emerald-700 dark:text-emerald-300 text-[10px] font-bold rounded-full">April 2026</span>
+              <span className="px-2.5 py-1 bg-emerald-100 dark:bg-emerald-800/50 text-emerald-700 dark:text-emerald-300 text-[10px] font-bold rounded-full">-</span>
               <span className="flex items-center gap-1 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
-                <CheckCircle2 size={12} /> Telah Ditransfer
+                Belum ada data
               </span>
             </div>
           </div>

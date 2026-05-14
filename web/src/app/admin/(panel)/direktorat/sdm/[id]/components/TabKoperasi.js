@@ -1,13 +1,7 @@
 import { Landmark, ArrowUpRight, ArrowDownRight, Activity } from "lucide-react";
 
 export default function TabKoperasi() {
-  const riwayatSimpanan = [
-    { tanggal: "25 Apr 2026", jenis: "SIMPANAN_WAJIB", nominal: 50000, tipe: "IN", saldoAkhir: 2350000 },
-    { tanggal: "25 Mar 2026", jenis: "SIMPANAN_WAJIB", nominal: 50000, tipe: "IN", saldoAkhir: 2300000 },
-    { tanggal: "01 Mar 2026", jenis: "BAGI_HASIL", nominal: 120000, tipe: "IN", saldoAkhir: 2250000 },
-    { tanggal: "25 Feb 2026", jenis: "SIMPANAN_WAJIB", nominal: 50000, tipe: "IN", saldoAkhir: 2130000 },
-    { tanggal: "10 Feb 2026", jenis: "PENARIKAN", nominal: 500000, tipe: "OUT", saldoAkhir: 2080000 },
-  ];
+  const riwayatSimpanan = [];
 
   return (
     <div className="space-y-6">
@@ -19,7 +13,7 @@ export default function TabKoperasi() {
             <div>
               <p className="text-sm font-bold text-indigo-800/60 dark:text-indigo-400/60 uppercase tracking-widest mb-1">Total Saldo Simpanan</p>
               <h2 className="text-3xl md:text-5xl font-black text-indigo-700 dark:text-indigo-400 tracking-tight mt-2">
-                <span className="text-xl md:text-2xl mr-1 opacity-70">Rp</span>2.350.000
+                <span className="text-xl md:text-2xl mr-1 opacity-70">Rp</span>0
               </h2>
             </div>
             <div className="w-16 h-16 rounded-2xl bg-indigo-100 dark:bg-indigo-800/50 flex items-center justify-center text-indigo-600 dark:text-indigo-400 shadow-inner">
@@ -30,15 +24,15 @@ export default function TabKoperasi() {
           <div className="mt-8 pt-5 border-t border-indigo-200/50 dark:border-indigo-800/30 flex gap-8">
             <div>
               <p className="text-[10px] font-bold text-indigo-600/70 dark:text-indigo-400/70 uppercase">Simpanan Pokok</p>
-              <p className="text-sm font-bold text-indigo-800 dark:text-indigo-200 mt-1">Rp 100.000</p>
+              <p className="text-sm font-bold text-indigo-800 dark:text-indigo-200 mt-1">Rp 0</p>
             </div>
             <div>
               <p className="text-[10px] font-bold text-indigo-600/70 dark:text-indigo-400/70 uppercase">Simpanan Wajib</p>
-              <p className="text-sm font-bold text-indigo-800 dark:text-indigo-200 mt-1">Rp 1.850.000</p>
+              <p className="text-sm font-bold text-indigo-800 dark:text-indigo-200 mt-1">Rp 0</p>
             </div>
             <div>
               <p className="text-[10px] font-bold text-indigo-600/70 dark:text-indigo-400/70 uppercase">SHU / Bagi Hasil</p>
-              <p className="text-sm font-bold text-emerald-600 dark:text-emerald-400 mt-1">+ Rp 400.000</p>
+              <p className="text-sm font-bold text-emerald-600 dark:text-emerald-400 mt-1">+ Rp 0</p>
             </div>
           </div>
         </div>

@@ -1,11 +1,7 @@
 import { Plus, Receipt, AlertTriangle } from "lucide-react";
 
 export default function TabKasbon() {
-  const riwayatKasbon = [
-    { tanggal: "10 Mar 2026", nominal: 500000, keterangan: "Keperluan keluarga", status: "BELUM_LUNAS" },
-    { tanggal: "05 Feb 2026", nominal: 1000000, keterangan: "Biaya sekolah anak", status: "LUNAS" },
-    { tanggal: "12 Des 2025", nominal: 300000, keterangan: "Service kendaraan", status: "LUNAS" },
-  ];
+  const riwayatKasbon = [];
 
   return (
     <div className="space-y-6">
@@ -15,7 +11,7 @@ export default function TabKasbon() {
             <div>
               <p className="text-sm font-bold text-rose-800/60 dark:text-rose-400/60 uppercase tracking-widest mb-1">Sisa Kasbon Aktif</p>
               <h2 className="text-3xl md:text-4xl font-black text-rose-700 dark:text-rose-400 tracking-tight">
-                <span className="text-xl md:text-2xl mr-1 opacity-70">Rp</span>500.000
+                <span className="text-xl md:text-2xl mr-1 opacity-70">Rp</span>0
               </h2>
             </div>
             <div className="w-12 h-12 rounded-xl bg-rose-100 dark:bg-rose-800/50 flex items-center justify-center text-rose-600 dark:text-rose-400">
@@ -25,10 +21,10 @@ export default function TabKasbon() {
           <div className="pt-4 border-t border-rose-200/50 dark:border-rose-800/30">
             <div className="flex justify-between items-center text-sm">
               <span className="text-rose-600/80 dark:text-rose-400/80 font-medium">Batas Maksimal Kasbon</span>
-              <span className="font-bold text-rose-700 dark:text-rose-300">Rp 1.500.000</span>
+              <span className="font-bold text-rose-700 dark:text-rose-300">Rp 0</span>
             </div>
             <div className="w-full bg-rose-100 dark:bg-rose-950 rounded-full h-2 mt-3">
-              <div className="bg-rose-500 h-2 rounded-full" style={{ width: '33%' }}></div>
+              <div className="bg-rose-500 h-2 rounded-full" style={{ width: '0%' }}></div>
             </div>
           </div>
         </div>
