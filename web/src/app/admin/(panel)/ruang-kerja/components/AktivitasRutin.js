@@ -97,9 +97,9 @@ export default function AktivitasRutin() {
     
     try {
       const token = localStorage.getItem("admin_token");
-      const endpoint = isUserTask ? `/api/admin/routines/usertask/${taskId}` : `/api/admin/routines/schedules/${taskId}`;
+      const endpoint = isUserTask ? `/api/admin/routines/initiative/${taskId}/status` : `/api/admin/routines/schedules/${taskId}/status`;
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"}${endpoint}`, {
-        method: "PATCH",
+        method: "PUT",
         headers: { 
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}` 
@@ -123,7 +123,7 @@ export default function AktivitasRutin() {
     
     try {
       const token = localStorage.getItem("admin_token");
-      const endpoint = isUserTask ? `/api/admin/routines/usertask/${taskId}` : `/api/admin/routines/schedules/${taskId}`;
+      const endpoint = isUserTask ? `/api/admin/routines/initiative/${taskId}` : `/api/admin/routines/schedules/${taskId}`;
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"}${endpoint}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` }
