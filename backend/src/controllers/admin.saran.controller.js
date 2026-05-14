@@ -128,9 +128,16 @@ const updateStatusSaran = async (req, res) => {
     const { id } = req.params;
     const { status } = req.body;
 
+    const data = { status };
+    if (status === 'DIBACA') {
+      data.dibacaAt = new Date();
+    } else if (status === 'DITINDAKLANJUTI') {
+      data.ditindaklanjutiAt = new Date();
+    }
+
     const saran = await prisma.saranOnline.update({
       where: { id },
-      data: { status }
+      data
     });
 
     await logActivity({

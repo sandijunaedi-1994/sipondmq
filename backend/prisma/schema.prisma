@@ -1684,6 +1684,9 @@ model SaranOnline {
   isiSaran     String      @db.Text
   status       StatusSaran @default(TERKIRIM)
   
+  dibacaAt          DateTime?
+  ditindaklanjutiAt DateTime?
+  
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
 }

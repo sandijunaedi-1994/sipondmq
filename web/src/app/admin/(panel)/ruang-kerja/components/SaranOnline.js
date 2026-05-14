@@ -248,6 +248,12 @@ export default function SaranOnline() {
                 <div className="bg-white dark:bg-slate-900 p-3 rounded-xl border border-slate-100 dark:border-slate-800 text-sm text-slate-600 dark:text-slate-300 mt-3 whitespace-pre-wrap">
                   {s.isiSaran}
                 </div>
+                {(s.dibacaAt || s.ditindaklanjutiAt) && (
+                  <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-[10px] text-slate-500 bg-slate-100 dark:bg-slate-800/80 px-3 py-2 rounded-lg">
+                    {s.dibacaAt && <span><span className="font-semibold text-slate-600 dark:text-slate-400">Dibaca:</span> {new Date(s.dibacaAt).toLocaleString("id-ID")}</span>}
+                    {s.ditindaklanjutiAt && <span><span className="font-semibold text-slate-600 dark:text-slate-400">Selesai:</span> {new Date(s.ditindaklanjutiAt).toLocaleString("id-ID")}</span>}
+                  </div>
+                )}
                 <div className="mt-4 flex gap-2">
                   {s.status === 'TERKIRIM' && (
                     <button onClick={() => handleUpdateStatus(s.id, 'DIBACA')} className="px-3 py-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg text-xs font-semibold transition-colors">
@@ -295,6 +301,12 @@ export default function SaranOnline() {
                 <div className="mt-3 p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl text-sm text-slate-600 dark:text-slate-300 border border-slate-100 dark:border-slate-800 whitespace-pre-wrap">
                   {s.isiSaran}
                 </div>
+                {(s.dibacaAt || s.ditindaklanjutiAt) && (
+                  <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-[10px] text-slate-500 bg-slate-50 dark:bg-slate-800 px-3 py-2 rounded-lg border border-slate-100 dark:border-slate-700">
+                    {s.dibacaAt && <span><span className="font-semibold text-slate-600 dark:text-slate-400">Dibaca:</span> {new Date(s.dibacaAt).toLocaleString("id-ID")}</span>}
+                    {s.ditindaklanjutiAt && <span><span className="font-semibold text-slate-600 dark:text-slate-400">Selesai:</span> {new Date(s.ditindaklanjutiAt).toLocaleString("id-ID")}</span>}
+                  </div>
+                )}
               </div>
             ))
           )}
