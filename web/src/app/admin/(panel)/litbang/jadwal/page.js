@@ -261,8 +261,7 @@ function TabPlotting() {
   const [gurus, setGurus] = useState([]);
   const [mapels, setMapels] = useState([]);
   const [kelas, setKelas] = useState([]);
-  
-  const [form, setForm] = useState({ guruId: "", mapelId: "", kelasId: "", totalJpMingguan: 4, maxConsecutive: 2 });
+  const [form, setForm] = useState({ guruId: "", mapelId: "", kelasId: "", totalJpMingguan: 4, formatPecahan: "2,2" });
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -350,12 +349,16 @@ function TabPlotting() {
           </div>
           <div className="flex gap-4">
             <div className="flex-1">
-              <label className="block text-sm font-semibold mb-1">Total JP / Mgg</label>
-              <input type="number" min="1" required value={form.totalJpMingguan} onChange={e => setForm({...form, totalJpMingguan: e.target.value})} className="w-full p-2.5 bg-slate-50 border border-slate-200 dark:bg-slate-800 dark:border-slate-700 rounded-xl" />
+              <label className="block text-sm font-semibold mb-1">Format Pecahan</label>
+              <input type="text" required value={form.formatPecahan} onChange={e => {
+                const val = e.target.value;
+                const total = val.split(',').map(n => parseInt(n.trim())).filter(n => !isNaN(n)).reduce((a, b) => a + b, 0);
+                setForm({...form, formatPecahan: val, totalJpMingguan: total > 0 ? total : 0});
+              }} placeholder="Misal: 2,2 atau 3,1" className="w-full p-2.5 bg-slate-50 border border-slate-200 dark:bg-slate-800 dark:border-slate-700 rounded-xl" />
             </div>
             <div className="flex-1">
-              <label className="block text-sm font-semibold mb-1">Max Rentet</label>
-              <input type="number" min="1" required value={form.maxConsecutive} onChange={e => setForm({...form, maxConsecutive: e.target.value})} className="w-full p-2.5 bg-slate-50 border border-slate-200 dark:bg-slate-800 dark:border-slate-700 rounded-xl" />
+              <label className="block text-sm font-semibold mb-1">Total JP / Mgg</label>
+              <input type="number" readOnly value={form.totalJpMingguan} className="w-full p-2.5 bg-slate-100 border border-slate-200 text-slate-500 dark:bg-slate-900 dark:border-slate-800 rounded-xl cursor-not-allowed" />
             </div>
           </div>
           <button type="submit" disabled={loading} className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl">Plotting Guru</button>
@@ -372,7 +375,7 @@ function TabPlotting() {
               <div className="flex items-center gap-2 mt-3 text-xs">
                 <span className="bg-slate-200 dark:bg-slate-700 px-2 py-1 rounded">Kelas {p.kelas?.nama}</span>
                 <span className="bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 px-2 py-1 rounded">{p.totalJpMingguan} JP/Mgg</span>
-                <span className="bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300 px-2 py-1 rounded">Max {p.maxConsecutive} Rentet</span>
+                <span className="bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300 px-2 py-1 rounded">Pecah: {p.formatPecahan}</span>
               </div>
             </div>
           ))}

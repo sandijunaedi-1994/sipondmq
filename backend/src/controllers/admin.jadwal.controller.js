@@ -110,14 +110,19 @@ const getPlotting = async (req, res) => {
 
 const createPlotting = async (req, res) => {
   try {
-    const { mapelId, guruId, kelasId, totalJpMingguan, maxConsecutive } = req.body;
+    const { mapelId, guruId, kelasId, formatPecahan } = req.body;
+    
+    // Hitung total JP otomatis dari format pecahan
+    const blockSizes = (formatPecahan || "1").split(',').map(n => parseInt(n.trim())).filter(n => !isNaN(n));
+    const totalJpMingguan = blockSizes.reduce((sum, n) => sum + n, 0);
+
     const plot = await prisma.jadwalAturanPlotting.create({
       data: {
         mapelId,
         guruId,
         kelasId: parseInt(kelasId),
-        totalJpMingguan: parseInt(totalJpMingguan),
-        maxConsecutive: parseInt(maxConsecutive || 2)
+        totalJpMingguan,
+        formatPecahan: formatPecahan || "1"
       },
       include: { mapel: true, guru: true, kelas: true }
     });
@@ -196,27 +201,86 @@ const generateJadwal = async (req, res) => {
 
     // Loop masing-masing plot
     for (const plot of plottings) {
-      let jpRemaining = plot.totalJpMingguan;
-      
+      const blockSizes = plot.formatPecahan.split(',').map(n => parseInt(n.trim())).filter(n => !isNaN(n));
       const days = Object.keys(grid);
       let dayIndex = 0;
+
+      // Track days already used by this plot to distribute blocks to different days if possible
+      const usedDays = new Set();
       
-      while (jpRemaining > 0) {
-        let placedThisRound = false;
+      for (const blockSize of blockSizes) {
+        let placedThisBlock = false;
         
         for (let i = 0; i < days.length; i++) {
           const day = days[(dayIndex + i) % days.length];
-          const dailyJams = Object.values(grid[day]); // Urut berdasarkan jpKe (karena fetch order by jpKe asc)
+          if (usedDays.has(day)) continue; // Try to use a different day first
+
+          const dailyJams = Object.values(grid[day]);
           
-          let currentConsecutive = 0;
-          
-          for (const jam of dailyJams) {
-            if (jpRemaining <= 0) break;
+          // Cari urutan blok kosong di hari ini yang panjangnya memenuhi blockSize
+          let foundStartIndex = -1;
+          for (let j = 0; j <= dailyJams.length - blockSize; j++) {
+            let canFit = true;
+            for (let k = 0; k < blockSize; k++) {
+              const jam = dailyJams[j + k];
+              if (jam.kelasUsed.has(plot.kelasId) || jam.guruUsed.has(plot.guruId)) {
+                canFit = false;
+                break;
+              }
+            }
+            if (canFit) {
+              foundStartIndex = j;
+              break;
+            }
+          }
+
+          if (foundStartIndex !== -1) {
+            // Plot blok ini!
+            for (let k = 0; k < blockSize; k++) {
+              const jam = dailyJams[foundStartIndex + k];
+              jam.kelasUsed.add(plot.kelasId);
+              jam.guruUsed.add(plot.guruId);
+              
+              slotsToInsert.push({
+                pengaturanJamId: jam.jamId,
+                mapelId: plot.mapelId,
+                guruId: plot.guruId,
+                kelasId: plot.kelasId
+              });
+            }
+            usedDays.add(day);
+            placedThisBlock = true;
+            dayIndex = (dayIndex + i + 1) % days.length; // Mulai cari dari hari berikutnya
+            break;
+          }
+        }
+        
+        // Jika tidak bisa diletakkan di hari yang berbeda, coba abaikan usedDays
+        if (!placedThisBlock) {
+          for (let i = 0; i < days.length; i++) {
+            const day = days[(dayIndex + i) % days.length];
+            const dailyJams = Object.values(grid[day]);
             
-            // Cek apakah kelas sedang kosong dan guru sedang kosong di jam ini
-            if (!jam.kelasUsed.has(plot.kelasId) && !jam.guruUsed.has(plot.guruId)) {
-              if (currentConsecutive < plot.maxConsecutive) {
-                // Plot!
+            let foundStartIndex = -1;
+            for (let j = 0; j <= dailyJams.length - blockSize; j++) {
+              let canFit = true;
+              for (let k = 0; k < blockSize; k++) {
+                const jam = dailyJams[j + k];
+                if (jam.kelasUsed.has(plot.kelasId) || jam.guruUsed.has(plot.guruId)) {
+                  canFit = false;
+                  break;
+                }
+              }
+              if (canFit) {
+                foundStartIndex = j;
+                break;
+              }
+            }
+  
+            if (foundStartIndex !== -1) {
+              // Plot blok ini!
+              for (let k = 0; k < blockSize; k++) {
+                const jam = dailyJams[foundStartIndex + k];
                 jam.kelasUsed.add(plot.kelasId);
                 jam.guruUsed.add(plot.guruId);
                 
@@ -226,25 +290,16 @@ const generateJadwal = async (req, res) => {
                   guruId: plot.guruId,
                   kelasId: plot.kelasId
                 });
-                
-                jpRemaining--;
-                currentConsecutive++;
-                placedThisRound = true;
-              } else {
-                // Harus putus jamnya agar tidak melebihi maxConsecutive
-                currentConsecutive = 0;
               }
-            } else {
-              // Terpotong oleh pelajaran/guru lain (atau jam istirahat)
-              currentConsecutive = 0;
+              placedThisBlock = true;
+              dayIndex = (dayIndex + i + 1) % days.length;
+              break;
             }
           }
         }
-        
-        dayIndex++;
-        if (!placedThisRound) {
-          // Jadwal penuh / constraint macet
-          break; 
+
+        if (!placedThisBlock) {
+          console.warn(`Gagal memplot mapel ${plot.mapelId} untuk kelas ${plot.kelasId} blok ukuran ${blockSize}`);
         }
       }
     }

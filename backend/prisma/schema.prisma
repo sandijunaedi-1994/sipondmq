@@ -1757,7 +1757,7 @@ model JadwalAturanPlotting {
   kelas           Kelas    @relation(fields: [kelasId], references: [id])
   
   totalJpMingguan Int      // Jumlah JP total per minggu
-  maxConsecutive  Int      @default(2) // Maksimal JP berturut-turut (misal blok 2 JP)
+  formatPecahan   String   @default("1") @db.VarChar(50) // Format pertemuan, misal "2,2" untuk 4 JP yang dipecah jadi 2 pertemuan
   
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
