@@ -92,12 +92,25 @@ const getPegawaiList = async (req, res) => {
 
     await sortPosisiOrganisasi(pegawaiList);
 
+    const now = new Date();
+    const oneYearAgo = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
+    const threeYearsAgo = new Date(now.getFullYear() - 3, now.getMonth(), now.getDate());
+    const fiveYearsAgo = new Date(now.getFullYear() - 5, now.getMonth(), now.getDate());
+
     const stats = {
       total: totalData,
       tetap: await prisma.pegawai.count({ where: { statusPegawai: 'TETAP' } }),
       kontrak: await prisma.pegawai.count({ where: { statusPegawai: 'KONTRAK' } }),
       pusat: await prisma.pegawai.count({ where: { penempatan: 'DIREKTORAT_PUSAT' } }),
       markaz: await prisma.pegawai.count({ where: { penempatan: 'MARKAZ' } }),
+      komplek: await prisma.pegawai.count({ where: { tinggalDiKomplek: true } }),
+      luarKomplek: await prisma.pegawai.count({ where: { tinggalDiKomplek: false } }),
+      masaKerja: {
+        kurangDariSatu: await prisma.pegawai.count({ where: { tanggalMasuk: { gt: oneYearAgo } } }),
+        satuTiga: await prisma.pegawai.count({ where: { tanggalMasuk: { lte: oneYearAgo, gt: threeYearsAgo } } }),
+        tigaLima: await prisma.pegawai.count({ where: { tanggalMasuk: { lte: threeYearsAgo, gt: fiveYearsAgo } } }),
+        lebihDariLima: await prisma.pegawai.count({ where: { tanggalMasuk: { lte: fiveYearsAgo } } }),
+      }
     };
 
     res.status(200).json({ 

@@ -44,6 +44,20 @@ export default function TabSdm() {
     { name: 'Markaz', value: stats.markaz || 0 }
   ] : [];
 
+  const COLORS_KOMPLEK = ['#f43f5e', '#14b8a6'];
+  const komplekData = stats ? [
+    { name: 'Di Komplek', value: stats.komplek || 0 },
+    { name: 'Luar Komplek', value: stats.luarKomplek || 0 }
+  ] : [];
+
+  const COLORS_MASA_KERJA = ['#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b'];
+  const masaKerjaData = stats && stats.masaKerja ? [
+    { name: '< 1 Tahun', value: stats.masaKerja.kurangDariSatu || 0 },
+    { name: '1 - 3 Tahun', value: stats.masaKerja.satuTiga || 0 },
+    { name: '3 - 5 Tahun', value: stats.masaKerja.tigaLima || 0 },
+    { name: '> 5 Tahun', value: stats.masaKerja.lebihDariLima || 0 },
+  ] : [];
+
   if (loading) return (
     <div className="animate-pulse space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -144,6 +158,58 @@ export default function TabSdm() {
                 <Bar dataKey="value" name="Jumlah" fill="#8b5cf6" radius={[0, 6, 6, 0]}>
                   {placementData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS_PLACEMENT[index % COLORS_PLACEMENT.length]} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Tempat Tinggal */}
+        <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm transition-colors">
+          <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100 uppercase tracking-widest mb-6">Tempat Tinggal</h3>
+          <div className="h-64 w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={komplekData}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={60}
+                  outerRadius={80}
+                  paddingAngle={5}
+                  dataKey="value"
+                >
+                  {komplekData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS_KOMPLEK[index % COLORS_KOMPLEK.length]} />
+                  ))}
+                </Pie>
+                <Tooltip 
+                  contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                  itemStyle={{ color: '#0f172a', fontWeight: 'bold' }}
+                />
+                <Legend iconType="circle" wrapperStyle={{ fontSize: '12px' }} />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Masa Kerja */}
+        <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm transition-colors">
+          <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100 uppercase tracking-widest mb-6">Masa Kerja Pegawai</h3>
+          <div className="h-64 w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={masaKerjaData} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                <XAxis dataKey="name" tick={{fontSize: 11, fill: '#64748b', fontWeight: '600'}} tickLine={false} axisLine={false} />
+                <YAxis tick={{fontSize: 12, fill: '#64748b'}} tickLine={false} axisLine={false} />
+                <Tooltip 
+                  cursor={{fill: '#f8fafc'}}
+                  contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                />
+                <Bar dataKey="value" name="Jumlah" radius={[6, 6, 0, 0]}>
+                  {masaKerjaData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS_MASA_KERJA[index % COLORS_MASA_KERJA.length]} />
                   ))}
                 </Bar>
               </BarChart>

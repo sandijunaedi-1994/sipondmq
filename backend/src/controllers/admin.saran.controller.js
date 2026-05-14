@@ -51,7 +51,7 @@ const createSaran = async (req, res) => {
       // Find users with MANAJEMEN_ADMIN permission
       const superAdmins = await prisma.user.findMany({
         where: {
-          permissions: { contains: 'MANAJEMEN_ADMIN' }
+          permissions: { array_contains: 'MANAJEMEN_ADMIN' }
         }
       });
       targetUserIds = superAdmins.map(u => u.id);
