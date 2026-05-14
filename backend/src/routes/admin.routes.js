@@ -85,6 +85,10 @@ const { getTodayChat, sendChatMessage } = require('../controllers/admin.chat.con
 
 const { getHierarchy, assignSupervisors, getMySubordinates } = require('../controllers/admin.hierarchy.controller');
 
+const {
+  getTugasMasuk, getTugasKeluar, createTugas, updateTugasStatus, deleteTugas
+} = require('../controllers/admin.tugas.controller');
+
 // Semua rute admin butuh role ADMIN_PUSAT
 router.use(requireAdmin);
 
@@ -117,6 +121,13 @@ router.delete('/routines/schedules/:id', deleteRoutineSchedule);
 // Dashboard Tasks
 router.get('/dashboard/tasks', getDashboardTasks);
 router.get('/dashboard/summary', getDashboardSummary);
+
+// Penugasan & Delegasi
+router.get('/tugas/inbox', getTugasMasuk);
+router.get('/tugas/outbox', getTugasKeluar);
+router.post('/tugas', createTugas);
+router.put('/tugas/:id/status', updateTugasStatus);
+router.delete('/tugas/:id', deleteTugas);
 
 // Group Chat
 router.get('/group-chat', getTodayChat);

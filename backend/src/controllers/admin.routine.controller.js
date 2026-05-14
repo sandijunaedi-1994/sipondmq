@@ -163,6 +163,7 @@ const getDashboardSummary = async (req, res) => {
 
     let tasksCompleted = 0;
     let tasksPending = 0;
+    let delegatedPending = 0;
 
     routineSchedules.forEach(t => {
       if (t.status === 'SELESAI' || t.status === 'COMPLETED') tasksCompleted++;
@@ -170,8 +171,14 @@ const getDashboardSummary = async (req, res) => {
     });
 
     userTasksRaw.forEach(t => {
-      if (t.status === 'COMPLETED' || t.status === 'SELESAI') tasksCompleted++;
-      else tasksPending++;
+      if (t.status === 'COMPLETED' || t.status === 'SELESAI') {
+        tasksCompleted++;
+      } else {
+        tasksPending++;
+        if (t.sourceType === 'MANUAL_DELEGATION' || t.taskType === 'MANUAL_DELEGATION') {
+          delegatedPending++;
+        }
+      }
     });
 
     const tasksTotal = tasksCompleted + tasksPending;
@@ -196,7 +203,7 @@ const getDashboardSummary = async (req, res) => {
     const catatanTotal = Number(catatanArr[0]?.count || 0);
 
     res.status(200).json({
-      tasks: { total: tasksTotal, completed: tasksCompleted, pending: tasksPending },
+      tasks: { total: tasksTotal, completed: tasksCompleted, pending: tasksPending, delegatedPending },
       saran: { total: saranTotal, belumDibaca: saranBelumDibaca, selesai: saranSelesai },
       catatan: { total: catatanTotal }
     });

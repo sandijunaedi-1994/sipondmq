@@ -106,6 +106,12 @@ export default function RingkasanPribadi() {
               <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-emerald-500"></span>{summary.tasks.completed} Selesai</span>
               <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-slate-300 dark:bg-slate-600"></span>{summary.tasks.pending} Tertunda</span>
             </div>
+            {summary.tasks.delegatedPending > 0 && (
+              <div className="mt-2 text-xs font-bold text-indigo-600 bg-indigo-50 px-2.5 py-1.5 rounded-lg border border-indigo-100 flex items-center justify-between">
+                <span>Dari Atasan (Tugas Khusus)</span>
+                <span className="bg-indigo-600 text-white px-2 py-0.5 rounded-md">{summary.tasks.delegatedPending}</span>
+              </div>
+            )}
           </div>
 
           {/* Card 2: Saran Online */}
