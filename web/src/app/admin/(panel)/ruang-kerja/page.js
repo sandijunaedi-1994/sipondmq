@@ -143,10 +143,6 @@ export default function DashboardPribadiPage() {
     tabs.splice(insertIndex, 0, { id: "muhaffidz", name: "Ruang Muhaffidz", icon: <BookOpen size={18} strokeWidth={2.5} />, color: "text-emerald-500", bg: "bg-emerald-50 dark:bg-emerald-500/10 border-emerald-100 dark:border-emerald-500/20" });
     insertIndex++;
   }
-  
-  if (!isSuperAdmin) {
-    tabs.splice(insertIndex, 0, { id: "profil", name: "Profil", icon: <UserCircle size={18} strokeWidth={2.5} />, color: "text-indigo-500", bg: "bg-indigo-50 dark:bg-indigo-500/10 border-indigo-100 dark:border-indigo-500/20" });
-  }
 
   const getActiveTabTitle = () => {
     switch(activeTab) {

@@ -395,7 +395,7 @@ export default function AdminLayout({ children }) {
                 <p className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">{adminProfile.email}</p>
               </div>
               {adminProfile.fotoUrl ? (
-                <img src={adminProfile.fotoUrl} alt={adminProfile.name} className="w-9 h-9 rounded-full object-cover border border-emerald-200 dark:border-emerald-500/30" />
+                <img src={adminProfile.fotoUrl.startsWith('http') ? adminProfile.fotoUrl : `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}${adminProfile.fotoUrl}`} alt={adminProfile.name} className="w-9 h-9 rounded-full object-cover border border-emerald-200 dark:border-emerald-500/30" />
               ) : (
                 <div className="w-9 h-9 bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 rounded-full flex items-center justify-center font-bold text-sm border border-emerald-200 dark:border-emerald-500/30">
                   {adminProfile.initial}

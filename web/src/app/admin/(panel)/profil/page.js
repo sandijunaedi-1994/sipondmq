@@ -13,6 +13,9 @@ export default function ProfilPage() {
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
   const fileInputRef = useRef(null);
 
+  const [passwordForm, setPasswordForm] = useState({ oldPassword: "", newPassword: "" });
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
+
   const handleAvatarClick = () => {
     if (fileInputRef.current) {
       fileInputRef.current.click();
@@ -110,6 +113,39 @@ export default function ProfilPage() {
     fetchProfile();
   }, []);
 
+  const handleChangePassword = async (e) => {
+    e.preventDefault();
+    if (!passwordForm.oldPassword || !passwordForm.newPassword) {
+      Swal.fire({ icon: 'warning', title: 'Perhatian', text: 'Semua kolom password harus diisi' });
+      return;
+    }
+
+    setIsChangingPassword(true);
+    try {
+      const token = localStorage.getItem("admin_token");
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/auth/password`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify(passwordForm)
+      });
+      const data = await res.json();
+      
+      if (res.ok) {
+        Swal.fire({ icon: 'success', title: 'Berhasil', text: 'Password berhasil diubah!' });
+        setPasswordForm({ oldPassword: "", newPassword: "" });
+      } else {
+        throw new Error(data.message || 'Gagal mengubah password');
+      }
+    } catch (err) {
+      Swal.fire({ icon: 'error', title: 'Gagal', text: err.message });
+    } finally {
+      setIsChangingPassword(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="bg-white dark:bg-slate-900 p-8 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 transition-colors w-full min-w-0 flex justify-center items-center h-64">
@@ -163,7 +199,7 @@ export default function ProfilPage() {
                 <div className="w-8 h-8 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin z-10"></div>
               ) : pegawai?.fotoUrl ? (
                 <img 
-                  src={`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"}${pegawai.fotoUrl}`} 
+                  src={pegawai.fotoUrl.startsWith('http') ? pegawai.fotoUrl : `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}${pegawai.fotoUrl}`} 
                   alt={pegawai.namaLengkap} 
                   className="w-full h-full object-cover"
                 />
@@ -464,6 +500,46 @@ export default function ProfilPage() {
           </div>
         </div>
         
+      </div>
+
+      {/* Pengaturan Keamanan */}
+      <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 p-5 md:p-6 transition-colors mt-6">
+        <div className="flex items-center gap-2 mb-6 pb-4 border-b border-slate-100 dark:border-slate-800">
+          <CheckCircle2 size={20} className="text-rose-500" />
+          <h3 className="font-bold text-slate-800 dark:text-slate-100">Ganti Password</h3>
+        </div>
+        
+        <form onSubmit={handleChangePassword} className="max-w-md space-y-4">
+          <div>
+            <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Password Lama</label>
+            <input 
+              type="password" 
+              required
+              value={passwordForm.oldPassword}
+              onChange={e => setPasswordForm({...passwordForm, oldPassword: e.target.value})}
+              className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              placeholder="Masukkan password saat ini"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Password Baru</label>
+            <input 
+              type="password" 
+              required
+              value={passwordForm.newPassword}
+              onChange={e => setPasswordForm({...passwordForm, newPassword: e.target.value})}
+              className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              placeholder="Masukkan password baru"
+            />
+          </div>
+          <button 
+            type="submit" 
+            disabled={isChangingPassword}
+            className="px-6 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-sm transition-colors disabled:opacity-70"
+          >
+            {isChangingPassword ? "Menyimpan..." : "Simpan Password"}
+          </button>
+        </form>
       </div>
 
       {/* Modal Riwayat Gaji */}
