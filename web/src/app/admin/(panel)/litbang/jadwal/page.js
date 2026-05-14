@@ -283,13 +283,13 @@ function TabPlotting() {
     const headers = { Authorization: `Bearer ${localStorage.getItem("admin_token")}` };
     const p1 = fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/admin/sdm/pegawai`, { headers }).then(r=>r.json());
     const p2 = fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/admin/litbang/jadwal/mapel`, { headers }).then(r=>r.json());
-    const p3 = fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/admin/kelas`, { headers }).then(r=>r.json());
+    const p3 = fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/admin/santri-settings/kelas`, { headers }).then(r=>r.json());
     
     try {
       const [g, m, k] = await Promise.all([p1, p2, p3]);
-      setGurus(g);
-      setMapels(m);
-      setKelas(k);
+      setGurus(g.data || []);
+      setMapels(Array.isArray(m) ? m : []);
+      setKelas(k.kelas || []);
     } catch (e) { console.error(e) }
   };
 
@@ -331,7 +331,7 @@ function TabPlotting() {
             <label className="block text-sm font-semibold mb-1">Guru</label>
             <select required value={form.guruId} onChange={e => setForm({...form, guruId: e.target.value})} className="w-full p-2.5 bg-slate-50 border border-slate-200 dark:bg-slate-800 dark:border-slate-700 rounded-xl">
               <option value="">-- Pilih Guru --</option>
-              {gurus.map(g => <option key={g.id} value={g.id}>{g.nama}</option>)}
+              {gurus.map(g => <option key={g.id} value={g.id}>{g.namaLengkap || g.nama}</option>)}
             </select>
           </div>
           <div>
@@ -368,7 +368,7 @@ function TabPlotting() {
             <div key={p.id} className="p-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl relative">
               <button onClick={() => handleDelete(p.id)} className="absolute top-3 right-3 text-red-400 hover:text-red-600"><Settings2 size={16} /></button>
               <div className="font-bold text-emerald-600 dark:text-emerald-400">{p.mapel?.nama}</div>
-              <div className="text-sm font-semibold mt-1">{p.guru?.nama}</div>
+              <div className="text-sm font-semibold mt-1">{p.guru?.namaLengkap || p.guru?.nama}</div>
               <div className="flex items-center gap-2 mt-3 text-xs">
                 <span className="bg-slate-200 dark:bg-slate-700 px-2 py-1 rounded">Kelas {p.kelas?.nama}</span>
                 <span className="bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 px-2 py-1 rounded">{p.totalJpMingguan} JP/Mgg</span>
@@ -404,10 +404,11 @@ function TabHasil() {
 
   const fetchKelas = async () => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/admin/kelas`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/admin/santri-settings/kelas`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("admin_token")}` }
       });
-      if (res.ok) setKelas(await res.json());
+      const data = await res.json();
+      if (res.ok) setKelas(data.kelas || []);
     } catch (e) {}
   };
 
@@ -502,7 +503,7 @@ function TabHasil() {
                               {scheduleGrid[hari][jpKe].map(slot => (
                                 <div key={slot.id} className="text-xs bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3 py-2 rounded-lg shadow-sm">
                                   <div className="font-bold text-emerald-600 dark:text-emerald-400">{slot.mapel?.nama}</div>
-                                  <div className="mt-1 text-slate-600 dark:text-slate-400">{slot.guru?.nama}</div>
+                                  <div className="mt-1 text-slate-600 dark:text-slate-400">{slot.guru?.namaLengkap || slot.guru?.nama}</div>
                                   {selectedKelas === "ALL" && (
                                     <div className="mt-1 text-[10px] bg-slate-100 dark:bg-slate-900 inline-block px-1.5 py-0.5 rounded font-bold">Kls {slot.kelas?.nama}</div>
                                   )}
