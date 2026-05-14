@@ -106,7 +106,7 @@ export default function AdminLayout({ children }) {
         { name: "Dashboard Santri", path: "/admin/dashboard/santri", permission: "DASHBOARD_SANTRI_VIEW" }
       ]
     },
-    { name: "Ruang Kerja Saya", path: "/admin/ruang-kerja", icon: "💼", permission: null },
+    { name: "Ruang Kerja & Tugas", path: "/admin/ruang-kerja", icon: "💼", permission: null },
     { name: "Organisasi", path: "/admin/organisasi", icon: "🏢", permission: "ORGANISASI_VIEW" },
     { 
       name: "Direktorat Pusat", icon: "🏛️", permission: null,
