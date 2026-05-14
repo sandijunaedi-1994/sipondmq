@@ -739,7 +739,18 @@ export default function AktivitasRutin() {
           </div>
         </div>
       )}
+
+      {showAddModal && (
+        <AddActivityModal 
+          onClose={() => setShowAddModal(false)}
+          onSuccess={() => {
+            setShowAddModal(false);
+            fetchDailyTasks(); // Refresh list after adding
+          }}
+        />
+      )}
     </div>
+  </div>
   );
 }
 
@@ -837,16 +848,7 @@ function RoutineVisualizer({ filteredTasks }) {
         </table>
       </div>
       
-      {showAddModal && (
-        <AddActivityModal 
-          onClose={() => setShowAddModal(false)}
-          onSuccess={() => {
-            setShowAddModal(false);
-            fetchDailyTasks(); // Refresh list after adding
-          }}
-        />
-      )}
-    </div>
+      </div>
     </div>
   );
 }
