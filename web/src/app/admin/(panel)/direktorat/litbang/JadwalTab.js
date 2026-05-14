@@ -14,7 +14,7 @@ export default function JadwalTab() {
         <p className="text-slate-500 mt-1">Konfigurasi dan hasilkan jadwal mata pelajaran tanpa bentrok.</p>
       </div>
 
-      <div className="flex border-b border-slate-200 dark:border-slate-800 mb-6 overflow-x-auto hide-scrollbar">
+      <div className="flex gap-3 mb-6 overflow-x-auto hide-scrollbar p-1">
         {[
           { id: "mapel", label: "Master Mapel", icon: FileText },
           { id: "jam", label: "Waktu Jam Pelajaran", icon: Settings },
@@ -25,10 +25,10 @@ export default function JadwalTab() {
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`flex items-center gap-2 px-6 py-3 font-semibold text-sm transition-colors whitespace-nowrap border-b-2 ${
+            className={`flex items-center gap-2 px-4 py-2.5 font-semibold text-sm transition-all rounded-xl whitespace-nowrap ${
               activeTab === tab.id 
-                ? "border-emerald-500 text-emerald-600 dark:text-emerald-400" 
-                : "border-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
+                ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400 shadow-sm border border-emerald-200 dark:border-emerald-500/30" 
+                : "bg-white text-slate-500 border border-slate-200 hover:bg-slate-50 dark:bg-slate-900 dark:border-slate-800 dark:text-slate-400 dark:hover:bg-slate-800"
             }`}
           >
             <tab.icon size={16} />
