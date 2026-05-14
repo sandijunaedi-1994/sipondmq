@@ -190,7 +190,8 @@ const generateJadwal = async (req, res) => {
       grid[jam.hari][jam.jpKe] = { 
         jamId: jam.id,
         kelasUsed: new Set(),
-        guruUsed: new Set()
+        guruUsed: new Set(),
+        guruKelasMap: new Map()
       };
     }
 
@@ -229,6 +230,31 @@ const generateJadwal = async (req, res) => {
               }
             }
             if (canFit) {
+              let maxConsecutiveGuruKelas = 0;
+              let currentConsecutiveGuruKelas = 0;
+              for (let m = 0; m < dailyJams.length; m++) {
+                let isTeaching = false;
+                if (m >= j && m < j + blockSize) {
+                   isTeaching = true;
+                } else if (dailyJams[m].guruKelasMap.get(plot.guruId) === plot.kelasId) {
+                   isTeaching = true;
+                }
+                
+                if (isTeaching) {
+                   currentConsecutiveGuruKelas++;
+                   if (currentConsecutiveGuruKelas > maxConsecutiveGuruKelas) {
+                      maxConsecutiveGuruKelas = currentConsecutiveGuruKelas;
+                   }
+                } else {
+                   currentConsecutiveGuruKelas = 0;
+                }
+              }
+              if (maxConsecutiveGuruKelas > 3) {
+                 canFit = false;
+              }
+            }
+
+            if (canFit) {
               foundStartIndex = j;
               break;
             }
@@ -240,6 +266,7 @@ const generateJadwal = async (req, res) => {
               const jam = dailyJams[foundStartIndex + k];
               jam.kelasUsed.add(plot.kelasId);
               jam.guruUsed.add(plot.guruId);
+              jam.guruKelasMap.set(plot.guruId, plot.kelasId);
               
               slotsToInsert.push({
                 pengaturanJamId: jam.jamId,
@@ -272,9 +299,34 @@ const generateJadwal = async (req, res) => {
                 }
               }
               if (canFit) {
-                foundStartIndex = j;
-                break;
+              let maxConsecutiveGuruKelas = 0;
+              let currentConsecutiveGuruKelas = 0;
+              for (let m = 0; m < dailyJams.length; m++) {
+                let isTeaching = false;
+                if (m >= j && m < j + blockSize) {
+                   isTeaching = true;
+                } else if (dailyJams[m].guruKelasMap.get(plot.guruId) === plot.kelasId) {
+                   isTeaching = true;
+                }
+                
+                if (isTeaching) {
+                   currentConsecutiveGuruKelas++;
+                   if (currentConsecutiveGuruKelas > maxConsecutiveGuruKelas) {
+                      maxConsecutiveGuruKelas = currentConsecutiveGuruKelas;
+                   }
+                } else {
+                   currentConsecutiveGuruKelas = 0;
+                }
               }
+              if (maxConsecutiveGuruKelas > 3) {
+                 canFit = false;
+              }
+            }
+  
+            if (canFit) {
+              foundStartIndex = j;
+              break;
+            }
             }
   
             if (foundStartIndex !== -1) {
@@ -283,6 +335,7 @@ const generateJadwal = async (req, res) => {
                 const jam = dailyJams[foundStartIndex + k];
                 jam.kelasUsed.add(plot.kelasId);
                 jam.guruUsed.add(plot.guruId);
+                jam.guruKelasMap.set(plot.guruId, plot.kelasId);
                 
                 slotsToInsert.push({
                   pengaturanJamId: jam.jamId,
