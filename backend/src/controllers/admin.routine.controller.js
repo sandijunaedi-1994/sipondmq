@@ -165,12 +165,12 @@ const getDashboardSummary = async (req, res) => {
     let tasksPending = 0;
 
     routineSchedules.forEach(t => {
-      if (t.status === 'SELESAI') tasksCompleted++;
+      if (t.status === 'SELESAI' || t.status === 'COMPLETED') tasksCompleted++;
       else tasksPending++;
     });
 
     userTasksRaw.forEach(t => {
-      if (t.status === 'COMPLETED') tasksCompleted++;
+      if (t.status === 'COMPLETED' || t.status === 'SELESAI') tasksCompleted++;
       else tasksPending++;
     });
 
@@ -186,8 +186,8 @@ const getDashboardSummary = async (req, res) => {
     let saranTotal = saranAll.length;
 
     saranAll.forEach(s => {
-      if (s.status === 'BELUM_DIBACA') saranBelumDibaca++;
-      else if (s.status === 'SELESAI') saranSelesai++;
+      if (s.status === 'TERKIRIM' || s.status === 'BELUM_DIBACA') saranBelumDibaca++;
+      else if (s.status === 'DITINDAKLANJUTI' || s.status === 'SELESAI') saranSelesai++;
     });
 
     // 3. Catatan Summary
