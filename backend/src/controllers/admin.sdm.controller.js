@@ -497,10 +497,60 @@ const deletePegawaiBerkas = async (req, res) => {
   }
 };
 
+const createPegawaiBatch = async (req, res) => {
+  try {
+    const { pegawaiList } = req.body;
+
+    if (!Array.isArray(pegawaiList) || pegawaiList.length === 0) {
+      return res.status(400).json({ message: 'Data pegawai tidak valid atau kosong' });
+    }
+
+    // Pembersihan dan pemetaan data
+    const validPegawaiList = pegawaiList
+      .filter(p => p.nip && p.namaLengkap) // Pastikan NIP dan Nama Lengkap ada
+      .map(p => ({
+        nip: p.nip.trim(),
+        namaLengkap: p.namaLengkap.trim(),
+        jenisKelamin: 'LAKI_LAKI', // Default
+        posisi: 'Staf', // Default
+        penempatan: 'DIREKTORAT_PUSAT', // Default
+        statusPegawai: 'KONTRAK', // Default
+        tinggalDiKomplek: false,
+      }));
+
+    if (validPegawaiList.length === 0) {
+      return res.status(400).json({ message: 'Tidak ada data NIP dan Nama Lengkap yang valid dalam CSV' });
+    }
+
+    const result = await prisma.pegawai.createMany({
+      data: validPegawaiList,
+      skipDuplicates: true, // Abaikan NIP yang sudah ada
+    });
+
+    await logActivity({
+      userId: req.user.userId,
+      action: 'CREATE',
+      entity: 'Pegawai',
+      entityId: 'BATCH',
+      details: `Mengunggah batch data pegawai via CSV sebanyak ${result.count} data baru.`,
+      req
+    });
+
+    res.status(201).json({ 
+      message: `Berhasil memproses upload CSV. ${result.count} data pegawai baru ditambahkan. NIP duplikat dilewati.`, 
+      count: result.count 
+    });
+  } catch (error) {
+    console.error("Error createPegawaiBatch:", error);
+    res.status(500).json({ message: 'Internal server error saat import CSV' });
+  }
+};
+
 module.exports = {
   getPegawaiList,
   getPegawaiById,
   createPegawai,
+  createPegawaiBatch,
   updatePegawai,
   deletePegawai,
   linkAccount,

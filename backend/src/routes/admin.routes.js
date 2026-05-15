@@ -294,6 +294,7 @@ const {
   getPegawaiList,
   getPegawaiById,
   createPegawai,
+  createPegawaiBatch,
   updatePegawai,
   deletePegawai,
   linkAccount,
@@ -337,6 +338,7 @@ router.post('/halaqoh/:halaqohId/absensi', requireAdmin, halaqohController.input
 router.get('/sdm/pegawai/me', requireAdmin, getMyProfile);
 router.post('/sdm/pegawai/me/foto', requireAdmin, uploadDisk.single('file'), uploadFotoProfil);
 router.get('/sdm/pegawai', requireAdmin, getPegawaiList);
+router.post('/sdm/pegawai/batch', requireAdmin, createPegawaiBatch);
 router.get('/sdm/pegawai/:id', requireAdmin, getPegawaiById);
 router.post('/sdm/pegawai', requireAdmin, createPegawai);
 router.put('/sdm/pegawai/:id', requireAdmin, updatePegawai);

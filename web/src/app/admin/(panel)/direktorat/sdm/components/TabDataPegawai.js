@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
@@ -22,6 +22,8 @@ export default function TabDataPegawai() {
   const [modalMode, setModalMode] = useState("add"); // add, edit, link
   const [currentPegawai, setCurrentPegawai] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isUploadingCSV, setIsUploadingCSV] = useState(false);
+  const fileInputRef = useRef(null);
   
   // Dependencies
   const [markazList, setMarkazList] = useState([]);
@@ -220,19 +222,95 @@ export default function TabDataPegawai() {
     }
   };
 
+  const handleUploadCSV = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploadingCSV(true);
+
+    try {
+      const text = await file.text();
+      const lines = text.split(/\r?\n/);
+      const dataRows = [];
+      
+      for (let i = 1; i < lines.length; i++) {
+        const line = lines[i].trim();
+        if (!line) continue;
+        
+        let cols = line.split(',');
+        if (cols.length < 2 && line.includes(';')) cols = line.split(';');
+
+        if (cols.length >= 2) {
+          const nip = cols[0].trim().replace(/^["']|["']$/g, '');
+          const namaLengkap = cols[1].trim().replace(/^["']|["']$/g, '');
+          if (nip && namaLengkap) {
+            dataRows.push({ nip, namaLengkap });
+          }
+        }
+      }
+
+      if (dataRows.length === 0) {
+        throw new Error("Tidak ditemukan baris data yang valid. Pastikan format CSV: NIP,Nama Lengkap");
+      }
+
+      const token = localStorage.getItem("admin_token");
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"}/api/admin/sdm/pegawai/batch`, {
+        method: "POST",
+        headers: { 
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}` 
+        },
+        body: JSON.stringify({ pegawaiList: dataRows })
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Gagal mengunggah CSV");
+
+      alert(data.message);
+      fetchData();
+    } catch (err) {
+      alert("Error: " + err.message);
+      console.error(err);
+    } finally {
+      setIsUploadingCSV(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100">Daftar Pegawai</h2>
         </div>
-        <button 
-          onClick={() => handleOpenModal('add')} 
-          className="bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow-lg shadow-emerald-500/30 transition-all flex items-center gap-2"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd" /></svg>
-          Tambah Pegawai Baru
-        </button>
+        <div className="flex gap-2">
+          <input 
+            type="file" 
+            accept=".csv" 
+            hidden 
+            ref={fileInputRef} 
+            onChange={handleUploadCSV} 
+          />
+          <button 
+            disabled={isUploadingCSV}
+            onClick={() => fileInputRef.current?.click()} 
+            className="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow-lg shadow-blue-500/30 transition-all flex items-center gap-2 disabled:opacity-50"
+          >
+            {isUploadingCSV ? "Proses..." : (
+              <>
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
+                Upload CSV
+              </>
+            )}
+          </button>
+          <button 
+            onClick={() => handleOpenModal('add')} 
+            className="bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow-lg shadow-emerald-500/30 transition-all flex items-center gap-2"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd" /></svg>
+            Tambah Pegawai
+          </button>
+        </div>
       </div>
       {/* Filter & Search */}
       <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 flex flex-col md:flex-row gap-4 items-center">
