@@ -127,25 +127,24 @@ export default function DashboardPribadiPage() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
+  // Tab definitif — Tugas & Delegasi selalu ada, posisi 2
   let tabs = [
     { id: "ringkasan", name: "Ringkasan", icon: <BarChart2 size={18} strokeWidth={2.5} />, color: "text-blue-500", bg: "bg-blue-50 dark:bg-blue-500/10 border-blue-100 dark:border-blue-500/20" },
-    { id: "tugas_delegasi", name: "Tugas & Delegasi", icon: <Briefcase size={18} strokeWidth={2.5} />, color: "text-indigo-500", bg: "bg-indigo-50 dark:bg-indigo-500/10 border-indigo-100 dark:border-indigo-500/20" },
-    { id: "aktivitas_rutin", name: "Aktivitas Saya", icon: <ClipboardList size={18} strokeWidth={2.5} />, color: "text-orange-500", bg: "bg-orange-50 dark:bg-orange-500/10 border-orange-100 dark:border-orange-500/20" },
+    { id: "tugas_delegasi", name: "Tugas", icon: <Briefcase size={18} strokeWidth={2.5} />, color: "text-indigo-500", bg: "bg-indigo-50 dark:bg-indigo-500/10 border-indigo-100 dark:border-indigo-500/20" },
+    { id: "aktivitas_rutin", name: "Aktivitas", icon: <ClipboardList size={18} strokeWidth={2.5} />, color: "text-orange-500", bg: "bg-orange-50 dark:bg-orange-500/10 border-orange-100 dark:border-orange-500/20" },
     { id: "catatan", name: "Catatan", icon: <Edit3 size={18} strokeWidth={2.5} />, color: "text-teal-500", bg: "bg-teal-50 dark:bg-teal-500/10 border-teal-100 dark:border-teal-500/20" },
-    { id: "master_time", name: "Master Time", icon: <CalendarDays size={18} strokeWidth={2.5} />, color: "text-rose-500", bg: "bg-rose-50 dark:bg-rose-500/10 border-rose-100 dark:border-rose-500/20" },
-    { id: "saran_online", name: "Saran Online", icon: <MessageSquare size={18} strokeWidth={2.5} />, color: "text-pink-500", bg: "bg-pink-50 dark:bg-pink-500/10 border-pink-100 dark:border-pink-500/20" },
-    { id: "log_aktivitas", name: "Log Aktivitas", icon: <History size={18} strokeWidth={2.5} />, color: "text-purple-500", bg: "bg-purple-50 dark:bg-purple-500/10 border-purple-100 dark:border-purple-500/20" }
+    { id: "master_time", name: "Jadwal", icon: <CalendarDays size={18} strokeWidth={2.5} />, color: "text-rose-500", bg: "bg-rose-50 dark:bg-rose-500/10 border-rose-100 dark:border-rose-500/20" },
+    { id: "saran_online", name: "Saran", icon: <MessageSquare size={18} strokeWidth={2.5} />, color: "text-pink-500", bg: "bg-pink-50 dark:bg-pink-500/10 border-pink-100 dark:border-pink-500/20" },
+    { id: "log_aktivitas", name: "Log", icon: <History size={18} strokeWidth={2.5} />, color: "text-purple-500", bg: "bg-purple-50 dark:bg-purple-500/10 border-purple-100 dark:border-purple-500/20" }
   ];
 
-  let insertIndex = 1;
+  // Tambahkan tab kondisional di akhir agar tidak menggeser posisi tab utama
   if (isWaliKelas) {
-    tabs.splice(insertIndex, 0, { id: "wali_kelas", name: "Ruang Wali Kelas", icon: <Users size={18} strokeWidth={2.5} />, color: "text-teal-500", bg: "bg-teal-50 dark:bg-teal-500/10 border-teal-100 dark:border-teal-500/20" });
-    insertIndex++;
+    tabs.push({ id: "wali_kelas", name: "Wali Kelas", icon: <Users size={18} strokeWidth={2.5} />, color: "text-teal-500", bg: "bg-teal-50 dark:bg-teal-500/10 border-teal-100 dark:border-teal-500/20" });
   }
   
   if (isMuhaffidz) {
-    tabs.splice(insertIndex, 0, { id: "muhaffidz", name: "Ruang Muhaffidz", icon: <BookOpen size={18} strokeWidth={2.5} />, color: "text-emerald-500", bg: "bg-emerald-50 dark:bg-emerald-500/10 border-emerald-100 dark:border-emerald-500/20" });
-    insertIndex++;
+    tabs.push({ id: "muhaffidz", name: "Muhaffidz", icon: <BookOpen size={18} strokeWidth={2.5} />, color: "text-emerald-500", bg: "bg-emerald-50 dark:bg-emerald-500/10 border-emerald-100 dark:border-emerald-500/20" });
   }
 
   const getActiveTabTitle = () => {
@@ -255,33 +254,17 @@ export default function DashboardPribadiPage() {
             .hide-scrollbar::-webkit-scrollbar { display: none; }
           `}} />
           
-          {/* 5 Item Pertama (Selalu Muncul) */}
-          {tabs.slice(0, 5).map(tab => (
+        {/* Semua tab tampil di scroll horizontal */}
+          {tabs.map(tab => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`snap-center shrink-0 flex flex-col items-center gap-2.5 w-16 md:w-24 group transition-all`}
+              className={`snap-center shrink-0 flex flex-col items-center gap-2.5 w-16 md:w-20 group transition-all`}
             >
-              <div className={`w-12 h-12 md:w-14 md:h-14 flex items-center justify-center rounded-2xl border shadow-sm transition-transform duration-300 ${tab.bg} ${tab.color} ${activeTab === tab.id ? 'ring-2 ring-offset-2 ring-emerald-500 dark:ring-offset-slate-900 scale-105' : 'group-hover:scale-105'}`}>
+              <div className={`w-12 h-12 flex items-center justify-center rounded-2xl border shadow-sm transition-transform duration-300 ${tab.bg} ${tab.color} ${activeTab === tab.id ? 'ring-2 ring-offset-2 ring-emerald-500 dark:ring-offset-slate-900 scale-110' : 'group-hover:scale-105'}`}>
                 {tab.icon}
               </div>
-              <span className={`text-[10px] md:text-xs font-bold text-center leading-tight transition-colors ${activeTab === tab.id ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-600 dark:text-slate-400'}`}>
-                {tab.name}
-              </span>
-            </button>
-          ))}
-          
-          {/* Item Sisanya (Sembunyikan di Mobile, Muncul di Desktop) */}
-          {tabs.slice(5).map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`snap-center shrink-0 hidden md:flex flex-col items-center gap-2.5 w-16 md:w-24 group transition-all`}
-            >
-              <div className={`w-12 h-12 md:w-14 md:h-14 flex items-center justify-center rounded-2xl border shadow-sm transition-transform duration-300 ${tab.bg} ${tab.color} ${activeTab === tab.id ? 'ring-2 ring-offset-2 ring-emerald-500 dark:ring-offset-slate-900 scale-105' : 'group-hover:scale-105'}`}>
-                {tab.icon}
-              </div>
-              <span className={`text-[10px] md:text-xs font-bold text-center leading-tight transition-colors ${activeTab === tab.id ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-600 dark:text-slate-400'}`}>
+              <span className={`text-[10px] font-bold text-center leading-tight transition-colors ${activeTab === tab.id ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-600 dark:text-slate-400'}`}>
                 {tab.name}
               </span>
             </button>

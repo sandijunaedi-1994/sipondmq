@@ -93,10 +93,27 @@ export default function AdminLayout({ children }) {
 
   const toggleSubmenu = (menuName) => {
     setExpandedMenus(prev => ({
-      // Mode accordion: tutup yang lain saat membuka menu baru
+      ...prev,
       [menuName]: !prev[menuName]
     }));
   };
+
+  // Auto-expand parent menu based on current path
+  useEffect(() => {
+    if (!loading) {
+      const newExpanded = {};
+      allMenuItems.forEach(item => {
+        if (item.subItems) {
+          const isAnySubActive = item.subItems.some(sub => pathname.startsWith(sub.path));
+          if (isAnySubActive) {
+            newExpanded[item.name] = true;
+          }
+        }
+      });
+      setExpandedMenus(newExpanded);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname, loading]);
 
   const allMenuItems = [
     { 
