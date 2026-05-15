@@ -9,7 +9,6 @@ import RuangWaliKelas from "./components/RuangWaliKelas";
 import RuangMuhaffidz from "./components/RuangMuhaffidz";
 import SaranOnline from "./components/SaranOnline";
 import CatatanPribadi from "./components/CatatanPribadi";
-import TugasDelegasi from "./components/TugasDelegasi";
 import { BookOpen, Clock, Calendar, MapPin, BarChart2, ClipboardList, CalendarDays, Edit3, History, Sun, Moon, Sunrise, Sunset, UserCircle, Users, MessageSquare, Briefcase } from "lucide-react";
 
 export default function DashboardPribadiPage() {
@@ -127,10 +126,9 @@ export default function DashboardPribadiPage() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
-  // Tab definitif — Tugas & Delegasi selalu ada, posisi 2
+  // Tab definitif
   let tabs = [
     { id: "ringkasan", name: "Ringkasan", icon: <BarChart2 size={18} strokeWidth={2.5} />, color: "text-blue-500", bg: "bg-blue-50 dark:bg-blue-500/10 border-blue-100 dark:border-blue-500/20" },
-    { id: "tugas_delegasi", name: "Tugas", icon: <Briefcase size={18} strokeWidth={2.5} />, color: "text-indigo-500", bg: "bg-indigo-50 dark:bg-indigo-500/10 border-indigo-100 dark:border-indigo-500/20" },
     { id: "aktivitas_rutin", name: "Aktivitas", icon: <ClipboardList size={18} strokeWidth={2.5} />, color: "text-orange-500", bg: "bg-orange-50 dark:bg-orange-500/10 border-orange-100 dark:border-orange-500/20" },
     { id: "catatan", name: "Catatan", icon: <Edit3 size={18} strokeWidth={2.5} />, color: "text-teal-500", bg: "bg-teal-50 dark:bg-teal-500/10 border-teal-100 dark:border-teal-500/20" },
     { id: "master_time", name: "Jadwal", icon: <CalendarDays size={18} strokeWidth={2.5} />, color: "text-rose-500", bg: "bg-rose-50 dark:bg-rose-500/10 border-rose-100 dark:border-rose-500/20" },
@@ -152,7 +150,6 @@ export default function DashboardPribadiPage() {
       case "ringkasan": return "Ringkasan Harian";
       case "wali_kelas": return "Ruang Wali Kelas";
       case "muhaffidz": return "Ruang Muhaffidz";
-      case "tugas_delegasi": return "Tugas & Delegasi";
       case "aktivitas_rutin": return "Aktivitas Saya";
       case "catatan": return "Catatan Pribadi";
       case "master_time": return "Master Time: Calendar";
@@ -287,7 +284,6 @@ export default function DashboardPribadiPage() {
           {activeTab === "ringkasan" && <RingkasanPribadi />}
           {activeTab === "wali_kelas" && <RuangWaliKelas />}
           {activeTab === "muhaffidz" && <RuangMuhaffidz />}
-          {activeTab === "tugas_delegasi" && <TugasDelegasi />}
           {activeTab === "aktivitas_rutin" && <AktivitasRutin />}
           {activeTab === "catatan" && <CatatanPribadi />}
           {activeTab === "master_time" && <MasterTime />}
