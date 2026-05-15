@@ -99,28 +99,33 @@ export default function AdminLayout({ children }) {
   };
 
   const allMenuItems = [
+    // --- Group: Menu Utama ---
     { 
-      name: "Dashboard", icon: "📊", permission: null,
+      name: "Dashboard", icon: "📊", permission: null, group: "Menu Utama",
       subItems: [
         { name: "Dashboard Organisasi", path: "/admin/dashboard/organisasi", permission: "DASHBOARD_ORGANISASI_VIEW" },
         { name: "Dashboard Santri", path: "/admin/dashboard/santri", permission: "DASHBOARD_SANTRI_VIEW" }
       ]
     },
-    { name: "Ruang Kerja & Tugas", path: "/admin/ruang-kerja", icon: "💼", permission: null },
-    { name: "Organisasi", path: "/admin/organisasi", icon: "🏢", permission: "ORGANISASI_VIEW" },
-    { name: "Sekretariat", path: "/admin/direktorat/sekretariat", icon: "📝", permission: "SEKRETARIAT_VIEW" },
-    { name: "Manajemen SDM", path: "/admin/direktorat/sdm", icon: "👥", permission: "SDM_VIEW" },
-    { name: "Litbang & Budaya", path: "/admin/direktorat/litbang", icon: "🔬", permission: "LITBANG_VIEW" },
-    { name: "Pengelolaan Keuangan", path: "/admin/direktorat/keuangan", icon: "💰", permission: "KEUANGAN_ANGGARAN_VIEW" },
-    { name: "Legal & Aset", path: "/admin/direktorat/legal", icon: "⚖️", permission: "LEGAL_VIEW" },
+    { name: "Ruang Kerja & Tugas", path: "/admin/ruang-kerja", icon: "💼", permission: null, group: "Menu Utama" },
+    { name: "Organisasi", path: "/admin/organisasi", icon: "🏢", permission: "ORGANISASI_VIEW", group: "Menu Utama" },
+
+    // --- Group: Direktorat Pusat ---
+    { name: "Sekretariat", path: "/admin/direktorat/sekretariat", icon: "📝", permission: "SEKRETARIAT_VIEW", group: "Direktorat Pusat" },
+    { name: "Manajemen SDM", path: "/admin/direktorat/sdm", icon: "👥", permission: "SDM_VIEW", group: "Direktorat Pusat" },
+    { name: "Litbang & Budaya", path: "/admin/direktorat/litbang", icon: "🔬", permission: "LITBANG_VIEW", group: "Direktorat Pusat" },
+    { name: "Pengelolaan Keuangan", path: "/admin/direktorat/keuangan", icon: "💰", permission: "KEUANGAN_ANGGARAN_VIEW", group: "Direktorat Pusat" },
+    { name: "Legal & Aset", path: "/admin/direktorat/legal", icon: "⚖️", permission: "LEGAL_VIEW", group: "Direktorat Pusat" },
+
+    // --- Group: Menu Santri ---
     { 
-      name: "Administrasi Pembelajaran", icon: "📖", permission: null,
+      name: "Administrasi Pembelajaran", icon: "📖", permission: null, group: "Menu Santri",
       subItems: [
         { name: "Kurikulum", path: "/admin/pembelajaran/kurikulum", permission: "AKADEMIK_ADMIN_VIEW" }
       ]
     },
     { 
-      name: "Manajemen SPMB", icon: "📋", permission: null,
+      name: "Manajemen SPMB", icon: "📋", permission: null, group: "Menu Santri",
       subItems: [
         { name: "Data Peserta", path: "/admin/ppdb/peserta", permission: "SPMB_PESERTA_VIEW" },
         { name: "Data Survey", path: "/admin/ppdb/survey", permission: "SPMB_SURVEY_VIEW" },
@@ -129,7 +134,7 @@ export default function AdminLayout({ children }) {
       ]
     },
     { 
-      name: "Santri Aktif", icon: "🎓", permission: null,
+      name: "Santri Aktif", icon: "🎓", permission: null, group: "Menu Santri",
       subItems: [
         { name: "Data Santri", path: "/admin/santri/data", permission: "SANTRI_VIEW" },
         { name: "Kelengkapan Berkas", path: "/admin/santri/berkas", permission: "SANTRI_BERKAS_VIEW" },
@@ -137,7 +142,7 @@ export default function AdminLayout({ children }) {
       ] 
     },
     { 
-      name: "Akademik", icon: "📚", permission: null,
+      name: "Akademik", icon: "📚", permission: null, group: "Menu Santri",
       subItems: [
         { name: "Hafalan Qur'an", path: "/admin/akademik/tahfidz", permission: "QURAN_VIEW" },
         { name: "Hafalan Matan", path: "/admin/matan", permission: "MATAN_VIEW" },
@@ -146,7 +151,7 @@ export default function AdminLayout({ children }) {
       ]
     },
     { 
-      name: "Keuangan", icon: "💳", permission: null,
+      name: "Keuangan", icon: "💳", permission: null, group: "Menu Santri",
       subItems: [
         { name: "Setting Tagihan", path: "/admin/keuangan/setting-tagihan", permission: "KEUANGAN_SETTING_VIEW" },
         { name: "Ringkasan Tagihan", path: "/admin/keuangan/ringkasan", permission: "KEUANGAN_RINGKASAN_VIEW" },
@@ -155,22 +160,24 @@ export default function AdminLayout({ children }) {
       ]
     },
     { 
-      name: "Layanan Umum", icon: "🏥", permission: null,
+      name: "Layanan Umum", icon: "🏥", permission: null, group: "Menu Santri",
       subItems: [
         { name: "Kesehatan (UKS)", path: "/admin/kesehatan", permission: "KESEHATAN_VIEW" },
         { name: "Perizinan", path: "/admin/perizinan", permission: "PERIZINAN_VIEW" },
         { name: "Chat / Pesan", path: "/admin/chat", permission: "CHAT_VIEW" }
       ]
     },
-    { name: "Pusat Informasi", icon: "📢", permission: null,
+    { name: "Pusat Informasi", icon: "📢", permission: null, group: "Menu Santri",
       subItems: [
         { name: "Dokumen", path: "/admin/informasi/dokumen", permission: "INFO_DOKUMEN_VIEW" },
         { name: "Kalender Kegiatan", path: "/admin/kalender", permission: "INFO_KALENDER_VIEW" },
         { name: "Broadcast", path: "/admin/informasi/broadcast", permission: "INFO_BROADCAST_VIEW" }
       ] 
     },
-    { name: "Halaman Admin", path: "/admin/admins", icon: "🛡️", permission: "MANAJEMEN_ADMIN" },
-    { name: "Tentang", path: "/admin/tentang", icon: "ℹ️", permission: null }
+
+    // --- Group: Lainnya ---
+    { name: "Halaman Admin", path: "/admin/admins", icon: "🛡️", permission: "MANAJEMEN_ADMIN", group: "Lainnya" },
+    { name: "Tentang", path: "/admin/tentang", icon: "ℹ️", permission: null, group: "Lainnya" }
   ];
 
   // Auto-expand parent menu berdasarkan path aktif
@@ -257,25 +264,12 @@ export default function AdminLayout({ children }) {
             // Check if any subitem is active
             const isSubItemActive = hasSubmenu && item.subItems.some(sub => pathname.startsWith(sub.path));
             const active = !hasSubmenu && item.path && pathname.startsWith(item.path);
-            
-            const isMenuSayaFirst = item.name === "Dashboard" && index === menuItems.findIndex(i => i.name === "Dashboard");
-            const isDirektoratFirst = item.name === "Sekretariat" && index === menuItems.findIndex(i => i.name === "Sekretariat");
-            const isMenuUtamaFirst = item.name === "Administrasi Pembelajaran" && index === menuItems.findIndex(i => i.name === "Administrasi Pembelajaran");
-            const isLainnyaFirst = (item.name === "Halaman Admin" || item.name === "Tentang") && index === menuItems.findIndex(i => i.name === "Halaman Admin" || i.name === "Tentang");
+            const showGroupHeader = index === 0 || item.group !== menuItems[index - 1].group;
 
             return (
               <div key={item.name}>
-                {isMenuSayaFirst && (
-                  <p className={`px-3 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest ${index === 0 ? 'mb-3' : 'mt-6 mb-3'} transition-colors`}>Menu Utama</p>
-                )}
-                {isDirektoratFirst && (
-                  <p className={`px-3 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest ${index === 0 ? 'mb-3' : 'mt-6 mb-3'} transition-colors`}>Direktorat Pusat</p>
-                )}
-                {isMenuUtamaFirst && (
-                  <p className={`px-3 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest ${index === 0 ? 'mb-3' : 'mt-6 mb-3'} transition-colors`}>Menu Santri</p>
-                )}
-                {isLainnyaFirst && (
-                  <p className={`px-3 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest ${index === 0 ? 'mb-3' : 'mt-6 mb-3'} transition-colors`}>Lainnya</p>
+                {showGroupHeader && item.group && (
+                  <p className={`px-3 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest ${index === 0 ? 'mb-3' : 'mt-6 mb-3'} transition-colors`}>{item.group}</p>
                 )}
                 {hasSubmenu ? (
                   <button 
