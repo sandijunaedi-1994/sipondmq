@@ -98,23 +98,6 @@ export default function AdminLayout({ children }) {
     }));
   };
 
-  // Auto-expand parent menu based on current path
-  useEffect(() => {
-    if (!loading) {
-      const newExpanded = {};
-      allMenuItems.forEach(item => {
-        if (item.subItems) {
-          const isAnySubActive = item.subItems.some(sub => pathname.startsWith(sub.path));
-          if (isAnySubActive) {
-            newExpanded[item.name] = true;
-          }
-        }
-      });
-      setExpandedMenus(newExpanded);
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pathname, loading]);
-
   const allMenuItems = [
     { 
       name: "Dashboard", icon: "📊", permission: null,
@@ -194,6 +177,24 @@ export default function AdminLayout({ children }) {
     { name: "Halaman Admin", path: "/admin/admins", icon: "🛡️", permission: "MANAJEMEN_ADMIN" },
     { name: "Tentang", path: "/admin/tentang", icon: "ℹ️", permission: null }
   ];
+
+  // Auto-expand parent menu berdasarkan path aktif
+  useEffect(() => {
+    if (!loading) {
+      const newExpanded = {};
+      allMenuItems.forEach(item => {
+        if (item.subItems) {
+          const isAnySubActive = item.subItems.some(sub => pathname.startsWith(sub.path));
+          if (isAnySubActive) {
+            newExpanded[item.name] = true;
+          }
+        }
+      });
+      // Hanya expand yang relevan, tutup yang lain
+      setExpandedMenus(newExpanded);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname, loading]);
 
   const hasAccess = (perm) => {
     if (!perm) return true;
