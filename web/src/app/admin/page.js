@@ -162,7 +162,7 @@ export default function AdminLoginPage() {
       localStorage.setItem("admin_permissions", JSON.stringify(data.user.permissions || []));
       localStorage.setItem("admin_name", data.user.namaLengkap || "Penguji");
       localStorage.setItem("admin_email", data.user.email || "admin@mqbs.com");
-      router.push("/admin/ruang-kerja");
+      router.push("/admin/tentang");
     } catch (err) {
       setError(err.message);
     } finally {

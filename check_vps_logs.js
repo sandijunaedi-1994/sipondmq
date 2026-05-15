@@ -3,13 +3,17 @@ const conn = new Client();
 
 conn.on('ready', () => {
   const cmd = [
-    'npx pm2 logs web-mymq --lines 10 --nostream'
+    `curl -s -X POST http://127.0.0.1:4000/api/auth/login -H "Content-Type: application/json" -d '{"contact":"sandi@mymq.com", "password":"password123"}'`
   ].join(' && ');
 
   conn.exec(cmd, (err, stream) => {
     if (err) throw err;
-    stream.on('close', () => conn.end())
-      .on('data', d => process.stdout.write(d.toString()))
+    let data = '';
+    stream.on('close', () => {
+        console.log(data);
+        conn.end();
+    })
+      .on('data', d => data += d.toString())
       .stderr.on('data', d => process.stderr.write(d.toString()));
   });
 }).connect({
