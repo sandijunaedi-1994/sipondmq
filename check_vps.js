@@ -3,9 +3,8 @@ const conn = new Client();
 
 conn.on('ready', () => {
   const cmd = [
-    'echo "=== CLEARING NGINX CACHE (again to be sure) ==="',
-    'rm -rf /www/wwwroot/mq.zamzami.or.id/proxy_cache_dir/*',
-    '/etc/init.d/nginx reload'
+    'echo "=== TUGAS DELEGASI ON VPS ==="',
+    'cat /root/web-mymq/src/app/admin/\\(panel\\)/ruang-kerja/components/TugasDelegasi.js | grep -A 2 -B 2 "replace" || echo "no replace"'
   ].join(' && ');
 
   conn.exec(cmd, (err, stream) => {

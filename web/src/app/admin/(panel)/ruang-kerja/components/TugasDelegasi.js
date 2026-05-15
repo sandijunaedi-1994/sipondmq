@@ -163,8 +163,8 @@ export default function TugasDelegasi() {
               }`}
             >
               <Inbox size={16} /> Kotak Masuk
-              {tugasMasuk.filter(t => t.status !== 'SELESAI').length > 0 && (
-                <span className="bg-indigo-500 text-white text-[10px] px-1.5 py-0.5 rounded-full">{tugasMasuk.filter(t => t.status !== 'SELESAI').length}</span>
+              {Array.isArray(tugasMasuk) && tugasMasuk.filter(t => t?.status !== 'SELESAI').length > 0 && (
+                <span className="bg-indigo-500 text-white text-[10px] px-1.5 py-0.5 rounded-full">{tugasMasuk.filter(t => t?.status !== 'SELESAI').length}</span>
               )}
             </button>
             
@@ -191,25 +191,25 @@ export default function TugasDelegasi() {
       {/* TUGAS MASUK (INBOX) */}
       {activeView === "inbox" && (
         <div className="space-y-4">
-          {tugasMasuk.length === 0 ? (
+          {!Array.isArray(tugasMasuk) || tugasMasuk.length === 0 ? (
             <div className="text-center py-12 text-slate-500">Tidak ada tugas yang perlu dikerjakan saat ini. ✨</div>
           ) : (
             tugasMasuk.map(task => (
               <div key={task.id} className={`p-4 md:p-5 rounded-2xl border ${task.status === 'SELESAI' ? 'bg-slate-50 border-slate-100 opacity-60' : 'bg-white border-slate-200'} shadow-sm flex flex-col md:flex-row gap-4 justify-between items-start md:items-center transition-all hover:shadow-md`}>
                 <div className="flex-1">
                   <div className="flex flex-wrap items-center gap-2 mb-2">
-                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md border uppercase tracking-wider ${getPriorityColor(task.priority)}`}>
-                      {task.priority}
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md border uppercase tracking-wider ${getPriorityColor(task?.priority)}`}>
+                      {task?.priority || 'NORMAL'}
                     </span>
-                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md border uppercase tracking-wider ${getStatusColor(task.status)}`}>
-                      {(task.status || 'PENDING').replace('_', ' ')}
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md border uppercase tracking-wider ${getStatusColor(task?.status)}`}>
+                      {String(task?.status || 'PENDING').replace('_', ' ')}
                     </span>
                     <span className="text-[10px] font-bold px-2 py-0.5 rounded-md border border-slate-200 bg-slate-100 text-slate-600 uppercase tracking-wider">
-                      {task.taskType === 'MANUAL_DELEGATION' ? 'DARI ATASAN' : (task.taskType || 'TUGAS').replace('_', ' ')}
+                      {task?.taskType === 'MANUAL_DELEGATION' ? 'DARI ATASAN' : String(task?.taskType || 'TUGAS').replace('_', ' ')}
                     </span>
                   </div>
-                  <h3 className={`font-bold text-lg ${task.status === 'SELESAI' ? 'line-through text-slate-500' : 'text-slate-800'}`}>{task.title}</h3>
-                  {task.description && <p className="text-sm text-slate-500 mt-1 line-clamp-2">{task.description}</p>}
+                  <h3 className={`font-bold text-lg ${task?.status === 'SELESAI' ? 'line-through text-slate-500' : 'text-slate-800'}`}>{task?.title || 'Tanpa Judul'}</h3>
+                  {task?.description && <p className="text-sm text-slate-500 mt-1 line-clamp-2">{task.description}</p>}
                   
                   <div className="flex flex-wrap items-center gap-4 mt-3 text-xs text-slate-500 font-medium">
                     <div className="flex items-center gap-1.5">
@@ -249,21 +249,21 @@ export default function TugasDelegasi() {
       {/* TUGAS KELUAR (OUTBOX) */}
       {isAtasan && activeView === "outbox" && (
         <div className="space-y-4">
-          {tugasKeluar.length === 0 ? (
+          {!Array.isArray(tugasKeluar) || tugasKeluar.length === 0 ? (
             <div className="text-center py-12 text-slate-500">Anda belum mendelegasikan tugas apapun.</div>
           ) : (
             tugasKeluar.map(task => (
-              <div key={task.id} className="p-4 md:p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row gap-4 justify-between items-start md:items-center">
+              <div key={task?.id || Math.random()} className="p-4 md:p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row gap-4 justify-between items-start md:items-center">
                 <div className="flex-1">
                   <div className="flex flex-wrap items-center gap-2 mb-2">
-                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md border uppercase tracking-wider ${getPriorityColor(task.priority)}`}>
-                      {task.priority}
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md border uppercase tracking-wider ${getPriorityColor(task?.priority)}`}>
+                      {task?.priority || 'NORMAL'}
                     </span>
-                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md border uppercase tracking-wider ${getStatusColor(task.status)}`}>
-                      {(task.status || 'PENDING').replace('_', ' ')}
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md border uppercase tracking-wider ${getStatusColor(task?.status)}`}>
+                      {String(task?.status || 'PENDING').replace('_', ' ')}
                     </span>
                   </div>
-                  <h3 className="font-bold text-lg text-slate-800">{task.title}</h3>
+                  <h3 className="font-bold text-lg text-slate-800">{task?.title || 'Tanpa Judul'}</h3>
                   
                   <div className="flex flex-wrap items-center gap-4 mt-3 text-xs text-slate-500 font-medium">
                     <div className="flex items-center gap-1.5 bg-indigo-50 text-indigo-700 px-2 py-1 rounded-md">
@@ -310,9 +310,9 @@ export default function TugasDelegasi() {
                 <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Tugaskan Kepada <span className="text-red-500">*</span></label>
                 <select required value={formData.assigneeId} onChange={e => setFormData({...formData, assigneeId: e.target.value})} className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500">
                   <option value="">-- Pilih Bawahan --</option>
-                  {subordinates.map(sub => (
-                    <option key={sub.subordinate.id} value={sub.subordinate.id}>
-                      {sub.subordinate.namaLengkap || sub.subordinate.email} ({sub.subordinate.role})
+                  {Array.isArray(subordinates) && subordinates.map(sub => (
+                    <option key={sub?.subordinate?.id} value={sub?.subordinate?.id}>
+                      {sub?.subordinate?.namaLengkap || sub?.subordinate?.email || 'Tanpa Nama'} ({sub?.subordinate?.role || 'Tanpa Role'})
                     </option>
                   ))}
                 </select>
