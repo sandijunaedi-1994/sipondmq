@@ -322,14 +322,14 @@ export default function TabDataPegawai() {
             type="text"
             placeholder="Cari nama atau NIP..."
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => { setSearch(e.target.value); setPage(1); }}
             className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all dark:text-white"
           />
         </div>
         <div className="w-full flex gap-4">
           <select
             value={filterPenempatan}
-            onChange={(e) => setFilterPenempatan(e.target.value)}
+            onChange={(e) => { setFilterPenempatan(e.target.value); setPage(1); }}
             className="w-full py-2.5 px-4 bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800 rounded-xl text-sm outline-none focus:ring-2 focus:ring-emerald-500 dark:text-white"
           >
             <option value="">Semua Penempatan</option>
@@ -338,7 +338,7 @@ export default function TabDataPegawai() {
           </select>
           <select
             value={filterStatus}
-            onChange={(e) => setFilterStatus(e.target.value)}
+            onChange={(e) => { setFilterStatus(e.target.value); setPage(1); }}
             className="w-full py-2.5 px-4 bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800 rounded-xl text-sm outline-none focus:ring-2 focus:ring-emerald-500 dark:text-white"
           >
             <option value="">Semua Status</option>
