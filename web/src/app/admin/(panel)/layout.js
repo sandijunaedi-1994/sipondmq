@@ -118,12 +118,7 @@ export default function AdminLayout({ children }) {
     { name: "Legal & Aset", path: "/admin/direktorat/legal", icon: "⚖️", permission: "LEGAL_VIEW", group: "Direktorat Pusat" },
 
     // --- Group: Menu Santri ---
-    { 
-      name: "Administrasi Pembelajaran", icon: "📖", permission: null, group: "Menu Santri",
-      subItems: [
-        { name: "Kurikulum", path: "/admin/pembelajaran/kurikulum", permission: "AKADEMIK_ADMIN_VIEW" }
-      ]
-    },
+
     { 
       name: "Manajemen SPMB", icon: "📋", permission: null, group: "Menu Santri",
       subItems: [
