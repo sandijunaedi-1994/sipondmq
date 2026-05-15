@@ -108,16 +108,11 @@ export default function AdminLayout({ children }) {
     },
     { name: "Ruang Kerja & Tugas", path: "/admin/ruang-kerja", icon: "💼", permission: null },
     { name: "Organisasi", path: "/admin/organisasi", icon: "🏢", permission: "ORGANISASI_VIEW" },
-    { 
-      name: "Direktorat Pusat", icon: "🏛️", permission: null,
-      subItems: [
-        { name: "Sekretariat", path: "/admin/direktorat/sekretariat", permission: "SEKRETARIAT_VIEW" },
-        { name: "Manajemen SDM", path: "/admin/direktorat/sdm", permission: "SDM_VIEW" },
-        { name: "Litbang & Budaya", path: "/admin/direktorat/litbang", permission: "LITBANG_VIEW" },
-        { name: "Pengelolaan Keuangan", path: "/admin/direktorat/keuangan", permission: "KEUANGAN_ANGGARAN_VIEW" },
-        { name: "Legal & Aset", path: "/admin/direktorat/legal", permission: "LEGAL_VIEW" }
-      ]
-    },
+    { name: "Sekretariat", path: "/admin/direktorat/sekretariat", icon: "📝", permission: "SEKRETARIAT_VIEW" },
+    { name: "Manajemen SDM", path: "/admin/direktorat/sdm", icon: "👥", permission: "SDM_VIEW" },
+    { name: "Litbang & Budaya", path: "/admin/direktorat/litbang", icon: "🔬", permission: "LITBANG_VIEW" },
+    { name: "Pengelolaan Keuangan", path: "/admin/direktorat/keuangan", icon: "💰", permission: "KEUANGAN_ANGGARAN_VIEW" },
+    { name: "Legal & Aset", path: "/admin/direktorat/legal", icon: "⚖️", permission: "LEGAL_VIEW" },
     { 
       name: "Administrasi Pembelajaran", icon: "📖", permission: null,
       subItems: [
@@ -264,13 +259,17 @@ export default function AdminLayout({ children }) {
             const active = !hasSubmenu && item.path && pathname.startsWith(item.path);
             
             const isMenuSayaFirst = item.name === "Dashboard" && index === menuItems.findIndex(i => i.name === "Dashboard");
-            const isMenuUtamaFirst = item.name === "Manajemen SPMB" && index === menuItems.findIndex(i => i.name === "Manajemen SPMB");
+            const isDirektoratFirst = item.name === "Sekretariat" && index === menuItems.findIndex(i => i.name === "Sekretariat");
+            const isMenuUtamaFirst = item.name === "Administrasi Pembelajaran" && index === menuItems.findIndex(i => i.name === "Administrasi Pembelajaran");
             const isLainnyaFirst = (item.name === "Halaman Admin" || item.name === "Tentang") && index === menuItems.findIndex(i => i.name === "Halaman Admin" || i.name === "Tentang");
 
             return (
               <div key={item.name}>
                 {isMenuSayaFirst && (
                   <p className={`px-3 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest ${index === 0 ? 'mb-3' : 'mt-6 mb-3'} transition-colors`}>Menu Utama</p>
+                )}
+                {isDirektoratFirst && (
+                  <p className={`px-3 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest ${index === 0 ? 'mb-3' : 'mt-6 mb-3'} transition-colors`}>Direktorat Pusat</p>
                 )}
                 {isMenuUtamaFirst && (
                   <p className={`px-3 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest ${index === 0 ? 'mb-3' : 'mt-6 mb-3'} transition-colors`}>Menu Santri</p>
