@@ -202,10 +202,10 @@ export default function TugasDelegasi() {
                       {task.priority}
                     </span>
                     <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md border uppercase tracking-wider ${getStatusColor(task.status)}`}>
-                      {task.status.replace('_', ' ')}
+                      {(task.status || 'PENDING').replace('_', ' ')}
                     </span>
                     <span className="text-[10px] font-bold px-2 py-0.5 rounded-md border border-slate-200 bg-slate-100 text-slate-600 uppercase tracking-wider">
-                      {task.sourceType === 'MANUAL_DELEGATION' ? 'DARI ATASAN' : task.sourceType.replace('_', ' ')}
+                      {task.taskType === 'MANUAL_DELEGATION' ? 'DARI ATASAN' : (task.taskType || 'TUGAS').replace('_', ' ')}
                     </span>
                   </div>
                   <h3 className={`font-bold text-lg ${task.status === 'SELESAI' ? 'line-through text-slate-500' : 'text-slate-800'}`}>{task.title}</h3>
@@ -260,7 +260,7 @@ export default function TugasDelegasi() {
                       {task.priority}
                     </span>
                     <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md border uppercase tracking-wider ${getStatusColor(task.status)}`}>
-                      {task.status.replace('_', ' ')}
+                      {(task.status || 'PENDING').replace('_', ' ')}
                     </span>
                   </div>
                   <h3 className="font-bold text-lg text-slate-800">{task.title}</h3>
