@@ -44,6 +44,8 @@ export default function TabDataPegawai() {
     penempatan: "DIREKTORAT_PUSAT",
     markazId: "",
     statusPegawai: "KONTRAK",
+    tanggalBerhenti: "",
+    catatanBerhenti: "",
     tanggalMasuk: "",
     tinggalDiKomplek: false,
     domisiliMarkaz: "",
@@ -128,6 +130,8 @@ export default function TabDataPegawai() {
         penempatan: pegawai.penempatan,
         markazId: pegawai.markazId || "",
         statusPegawai: pegawai.statusPegawai,
+        tanggalBerhenti: pegawai.tanggalBerhenti ? pegawai.tanggalBerhenti.split('T')[0] : "",
+        catatanBerhenti: pegawai.catatanBerhenti || "",
         tanggalMasuk: pegawai.tanggalMasuk ? pegawai.tanggalMasuk.split('T')[0] : "",
         tinggalDiKomplek: pegawai.tinggalDiKomplek || false,
         domisiliMarkaz: pegawai.domisiliMarkaz || "",
@@ -346,6 +350,7 @@ export default function TabDataPegawai() {
             <option value="KONTRAK">Pegawai Kontrak</option>
             <option value="MAGANG">Magang</option>
             <option value="BERHENTI">Berhenti</option>
+            <option value="DIBERHENTIKAN">Diberhentikan</option>
             <option value="PENGABDIAN_INTERNAL">Pengabdian Internal</option>
             <option value="MASYARAKAT_SEKITAR">Masyarakat Sekitar</option>
           </select>
@@ -405,6 +410,7 @@ export default function TabDataPegawai() {
                         pegawai.statusPegawai === 'TETAP' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
                         pegawai.statusPegawai === 'KONTRAK' ? 'bg-blue-50 text-blue-700 border-blue-200' :
                         pegawai.statusPegawai === 'MAGANG' ? 'bg-amber-50 text-amber-700 border-amber-200' :
+                        pegawai.statusPegawai === 'DIBERHENTIKAN' ? 'bg-red-100 text-red-800 border-red-300' :
                         'bg-red-50 text-red-700 border-red-200'
                       }`}>
                         {pegawai.statusPegawai}
@@ -517,6 +523,7 @@ export default function TabDataPegawai() {
                         <option value="KONTRAK">Pegawai Kontrak</option>
                         <option value="MAGANG">Magang</option>
                         <option value="BERHENTI">Berhenti / Resign</option>
+                        <option value="DIBERHENTIKAN">Diberhentikan</option>
                         <option value="PENGABDIAN_INTERNAL">Pengabdian Internal</option>
                         <option value="MASYARAKAT_SEKITAR">Masyarakat Sekitar</option>
                       </select>
@@ -525,6 +532,18 @@ export default function TabDataPegawai() {
                       <label className="block text-xs font-bold text-slate-500 mb-1.5">Tanggal Masuk Bekerja</label>
                       <input type="date" value={formData.tanggalMasuk} onChange={e => setFormData({...formData, tanggalMasuk: e.target.value})} className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl outline-none focus:ring-2 focus:ring-emerald-500 text-sm dark:text-white" />
                     </div>
+                    {(formData.statusPegawai === 'BERHENTI' || formData.statusPegawai === 'DIBERHENTIKAN') && (
+                      <>
+                        <div>
+                          <label className="block text-xs font-bold text-red-500 mb-1.5">Tanggal Berhenti *</label>
+                          <input required type="date" value={formData.tanggalBerhenti} onChange={e => setFormData({...formData, tanggalBerhenti: e.target.value})} className="w-full px-4 py-2.5 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 rounded-xl outline-none focus:ring-2 focus:ring-red-500 text-sm dark:text-red-200" />
+                        </div>
+                        <div className="md:col-span-2">
+                          <label className="block text-xs font-bold text-red-500 mb-1.5">Catatan / Alasan Berhenti</label>
+                          <textarea rows="2" value={formData.catatanBerhenti} onChange={e => setFormData({...formData, catatanBerhenti: e.target.value})} className="w-full px-4 py-2.5 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 rounded-xl outline-none focus:ring-2 focus:ring-red-500 text-sm custom-scrollbar dark:text-red-200" placeholder="Opsional: Tuliskan alasan berhenti..."></textarea>
+                        </div>
+                      </>
+                    )}
                   </div>
                 </div>
 

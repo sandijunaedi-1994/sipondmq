@@ -434,6 +434,7 @@ enum StatusPegawai {
   KONTRAK
   MAGANG
   BERHENTI
+  DIBERHENTIKAN
   PENGABDIAN_INTERNAL
   MASYARAKAT_SEKITAR
 }
@@ -500,6 +501,8 @@ model Pegawai {
   markaz        Markaz?           @relation(fields: [markazId], references: [id])
   tanggalMasuk  DateTime?
   statusPegawai StatusPegawai     @default(KONTRAK)
+  tanggalBerhenti DateTime?
+  catatanBerhenti String?         @db.Text
   tinggalDiKomplek Boolean        @default(false)
   domisiliMarkaz String?          @db.VarChar(100)
   jarakRumah    Float?

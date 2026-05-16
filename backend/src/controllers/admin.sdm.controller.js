@@ -187,6 +187,8 @@ const createPegawai = async (req, res) => {
         markazId: data.penempatan === 'MARKAZ' && data.markazId ? parseInt(data.markazId) : null,
         tanggalMasuk: data.tanggalMasuk ? new Date(data.tanggalMasuk) : null,
         statusPegawai: data.statusPegawai || 'KONTRAK',
+        tanggalBerhenti: data.tanggalBerhenti ? new Date(data.tanggalBerhenti) : null,
+        catatanBerhenti: data.catatanBerhenti || null,
         tinggalDiKomplek: data.tinggalDiKomplek || false,
         domisiliMarkaz: data.domisiliMarkaz || null,
         jarakRumah: data.jarakRumah ? parseFloat(data.jarakRumah) : null,
@@ -254,6 +256,10 @@ const updatePegawai = async (req, res) => {
         markazId: data.penempatan === 'MARKAZ' && data.markazId ? parseInt(data.markazId) : null,
         tanggalMasuk: data.tanggalMasuk ? new Date(data.tanggalMasuk) : null,
         statusPegawai: data.statusPegawai || existing.statusPegawai,
+        tanggalBerhenti: data.tanggalBerhenti ? new Date(data.tanggalBerhenti) : 
+                         (data.statusPegawai === 'BERHENTI' || data.statusPegawai === 'DIBERHENTIKAN' ? existing.tanggalBerhenti : null),
+        catatanBerhenti: data.catatanBerhenti !== undefined ? data.catatanBerhenti : 
+                         (data.statusPegawai === 'BERHENTI' || data.statusPegawai === 'DIBERHENTIKAN' ? existing.catatanBerhenti : null),
         tinggalDiKomplek: data.tinggalDiKomplek !== undefined ? data.tinggalDiKomplek : existing.tinggalDiKomplek,
         domisiliMarkaz: data.domisiliMarkaz !== undefined ? data.domisiliMarkaz : existing.domisiliMarkaz,
         jarakRumah: data.jarakRumah !== undefined ? (data.jarakRumah ? parseFloat(data.jarakRumah) : null) : existing.jarakRumah,
