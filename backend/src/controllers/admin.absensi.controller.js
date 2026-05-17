@@ -6,8 +6,9 @@ const HARI_MAP = ['Ahad', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
 
 /**
  * GET /api/admin/absensi/kbm/sesi
- * Query: tanggal (YYYY-MM-DD), guruId (optional, default = pegawai login)
- * Return: semua slot jadwal guru di hari tersebut + status absensi sudah diisi atau belum
+ * Query: tanggal (YYYY-MM-DD), guruId (optional)
+ * - Jika guruId diberikan: tampilkan sesi guru tersebut
+ * - Jika tidak: tampilkan SEMUA sesi hari itu (untuk Waka/TU/Admin)
  */
 const getSesiHariIni = async (req, res) => {
   try {
@@ -15,36 +16,31 @@ const getSesiHariIni = async (req, res) => {
     if (!tanggal) return res.status(400).json({ message: 'Parameter tanggal wajib diisi' });
 
     const date = new Date(tanggal);
-    const hariIndex = date.getDay(); // 0=Minggu, 1=Senin, ...
+    const hariIndex = date.getDay();
     const hariNama = HARI_MAP[hariIndex];
 
-    // Cari pegawai login jika guruId tidak diberikan
-    let targetGuruId = guruId;
-    if (!targetGuruId && req.user) {
-      const pegawai = await prisma.pegawai.findFirst({ where: { userId: req.user.id } });
-      if (pegawai) targetGuruId = pegawai.id;
-    }
+    // Build where clause
+    const whereClause = {
+      pengaturanJam: { hari: hariNama, aktif: true, isIstirahat: false }
+    };
+    if (guruId) whereClause.guruId = guruId;
 
-    if (!targetGuruId) return res.status(400).json({ message: 'guruId tidak ditemukan' });
-
-    // Ambil semua slot jadwal guru di hari tersebut
     const slots = await prisma.jadwalPelajaranSlot.findMany({
-      where: {
-        guruId: targetGuruId,
-        pengaturanJam: { hari: hariNama, aktif: true, isIstirahat: false }
-      },
+      where: whereClause,
       include: {
         pengaturanJam: true,
         mapel: true,
         kelas: { include: { markaz: true } },
         guru: true,
-        // Hitung jumlah absensi yang sudah diinput hari ini
         absensiKBM: {
           where: { tanggal: new Date(tanggal) },
           select: { id: true }
         }
       },
-      orderBy: { pengaturanJam: { jpKe: 'asc' } }
+      orderBy: [
+        { pengaturanJam: { jpKe: 'asc' } },
+        { kelas: { nama: 'asc' } }
+      ]
     });
 
     const result = slots.map(slot => ({
@@ -62,6 +58,31 @@ const getSesiHariIni = async (req, res) => {
     res.json({ hari: hariNama, tanggal, sesi: result });
   } catch (error) {
     console.error(error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+/**
+ * GET /api/admin/absensi/kbm/guru-list
+ * Query: tanggal (YYYY-MM-DD)
+ * Return: daftar guru yang punya jadwal di hari tersebut
+ */
+const getGuruList = async (req, res) => {
+  try {
+    const { tanggal } = req.query;
+    if (!tanggal) return res.status(400).json({ message: 'Parameter tanggal wajib' });
+
+    const hariNama = HARI_MAP[new Date(tanggal).getDay()];
+
+    const slots = await prisma.jadwalPelajaranSlot.findMany({
+      where: { pengaturanJam: { hari: hariNama, aktif: true, isIstirahat: false } },
+      select: { guru: { select: { id: true, namaLengkap: true } } },
+      distinct: ['guruId'],
+      orderBy: { guru: { namaLengkap: 'asc' } }
+    });
+
+    res.json(slots.map(s => s.guru));
+  } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
@@ -230,4 +251,4 @@ const getRekapAbsensiKBM = async (req, res) => {
   }
 };
 
-module.exports = { getSesiHariIni, getSantriBySlot, simpanAbsensiKBM, getRekapAbsensiKBM };
+module.exports = { getSesiHariIni, getSantriBySlot, simpanAbsensiKBM, getRekapAbsensiKBM, getGuruList };

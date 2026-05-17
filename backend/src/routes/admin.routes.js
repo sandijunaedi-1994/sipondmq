@@ -387,6 +387,7 @@ router.post('/litbang/jadwal/generate', requireAdmin, jadwalController.generateJ
 // ── ABSENSI KBM ──────────────────────────────────────────
 const absensiController = require('../controllers/admin.absensi.controller');
 router.get('/absensi/kbm/sesi', requireAdmin, absensiController.getSesiHariIni);
+router.get('/absensi/kbm/guru-list', requireAdmin, absensiController.getGuruList);
 router.get('/absensi/kbm/santri', requireAdmin, absensiController.getSantriBySlot);
 router.post('/absensi/kbm', requireAdmin, absensiController.simpanAbsensiKBM);
 router.get('/absensi/kbm/rekap', requireAdmin, absensiController.getRekapAbsensiKBM);
