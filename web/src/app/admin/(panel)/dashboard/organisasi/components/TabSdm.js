@@ -30,14 +30,18 @@ export default function TabSdm() {
     fetchSdmStats();
   }, []);
 
-  const COLORS_STATUS = ['#10b981', '#3b82f6', '#f59e0b', '#ef4444'];
+  const COLORS_STATUS = ['#10b981', '#3b82f6', '#f59e0b', '#8b5cf6', '#ec4899'];
   const COLORS_PLACEMENT = ['#8b5cf6', '#ec4899'];
 
   const statusData = stats ? [
     { name: 'Tetap', value: stats.tetap || 0 },
     { name: 'Kontrak', value: stats.kontrak || 0 },
-    { name: 'Magang', value: stats.total - (stats.tetap + stats.kontrak) || 0 } // Approximation
-  ] : [];
+    { name: 'Magang', value: stats.magang || 0 },
+    { name: 'Pengabdian', value: stats.pengabdian || 0 },
+    { name: 'Masyarakat Sekitar', value: stats.masyarakat || 0 }
+  ].filter(item => item.value > 0) : [];
+
+  const berhentiData = stats?.berhentiPerTahun || [];
 
   const placementData = stats ? [
     { name: 'Direktorat Pusat', value: stats.pusat || 0 },
@@ -212,6 +216,27 @@ export default function TabSdm() {
                     <Cell key={`cell-${index}`} fill={COLORS_MASA_KERJA[index % COLORS_MASA_KERJA.length]} />
                   ))}
                 </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Pegawai Berhenti / Diberhentikan */}
+        <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm transition-colors lg:col-span-2">
+          <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100 uppercase tracking-widest mb-6">Statistik Pegawai Berhenti / Diberhentikan per Tahun</h3>
+          <div className="h-72 w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={berhentiData} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                <XAxis dataKey="year" tick={{fontSize: 12, fill: '#64748b', fontWeight: 'bold'}} tickLine={false} axisLine={false} />
+                <YAxis tick={{fontSize: 12, fill: '#64748b'}} tickLine={false} axisLine={false} />
+                <Tooltip 
+                  cursor={{fill: '#f8fafc'}}
+                  contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                />
+                <Legend wrapperStyle={{ paddingTop: '20px' }} />
+                <Bar dataKey="BERHENTI" name="Berhenti (Resign)" fill="#f59e0b" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="DIBERHENTIKAN" name="Diberhentikan" fill="#ef4444" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>

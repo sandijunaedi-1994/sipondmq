@@ -102,19 +102,41 @@ const getPegawaiList = async (req, res) => {
     const threeYearsAgo = new Date(now.getFullYear() - 3, now.getMonth(), now.getDate());
     const fiveYearsAgo = new Date(now.getFullYear() - 5, now.getMonth(), now.getDate());
 
+    const berhentiList = await prisma.pegawai.findMany({
+      where: {
+        statusPegawai: { in: ['BERHENTI', 'DIBERHENTIKAN'] },
+        tanggalBerhenti: { not: null }
+      },
+      select: { statusPegawai: true, tanggalBerhenti: true }
+    });
+
+    const berhentiPerTahunObj = {};
+    berhentiList.forEach(p => {
+      const year = p.tanggalBerhenti.getFullYear().toString();
+      if (!berhentiPerTahunObj[year]) {
+        berhentiPerTahunObj[year] = { year, BERHENTI: 0, DIBERHENTIKAN: 0 };
+      }
+      berhentiPerTahunObj[year][p.statusPegawai]++;
+    });
+    const berhentiPerTahun = Object.values(berhentiPerTahunObj).sort((a, b) => a.year.localeCompare(b.year));
+
     const stats = {
       total: totalData,
       tetap: await prisma.pegawai.count({ where: { statusPegawai: 'TETAP' } }),
       kontrak: await prisma.pegawai.count({ where: { statusPegawai: 'KONTRAK' } }),
+      magang: await prisma.pegawai.count({ where: { statusPegawai: 'MAGANG' } }),
+      pengabdian: await prisma.pegawai.count({ where: { statusPegawai: 'PENGABDIAN_INTERNAL' } }),
+      masyarakat: await prisma.pegawai.count({ where: { statusPegawai: 'MASYARAKAT_SEKITAR' } }),
+      berhentiPerTahun,
       pusat: await prisma.pegawai.count({ where: { penempatan: 'DIREKTORAT_PUSAT' } }),
       markaz: await prisma.pegawai.count({ where: { penempatan: 'MARKAZ' } }),
       komplek: await prisma.pegawai.count({ where: { tinggalDiKomplek: true } }),
       luarKomplek: await prisma.pegawai.count({ where: { tinggalDiKomplek: false } }),
       masaKerja: {
-        kurangDariSatu: await prisma.pegawai.count({ where: { tanggalMasuk: { gt: oneYearAgo } } }),
-        satuTiga: await prisma.pegawai.count({ where: { tanggalMasuk: { lte: oneYearAgo, gt: threeYearsAgo } } }),
-        tigaLima: await prisma.pegawai.count({ where: { tanggalMasuk: { lte: threeYearsAgo, gt: fiveYearsAgo } } }),
-        lebihDariLima: await prisma.pegawai.count({ where: { tanggalMasuk: { lte: fiveYearsAgo } } }),
+        kurangDariSatu: await prisma.pegawai.count({ where: { tanggalMasuk: { gt: oneYearAgo }, statusPegawai: { notIn: ['BERHENTI', 'DIBERHENTIKAN'] } } }),
+        satuTiga: await prisma.pegawai.count({ where: { tanggalMasuk: { lte: oneYearAgo, gt: threeYearsAgo }, statusPegawai: { notIn: ['BERHENTI', 'DIBERHENTIKAN'] } } }),
+        tigaLima: await prisma.pegawai.count({ where: { tanggalMasuk: { lte: threeYearsAgo, gt: fiveYearsAgo }, statusPegawai: { notIn: ['BERHENTI', 'DIBERHENTIKAN'] } } }),
+        lebihDariLima: await prisma.pegawai.count({ where: { tanggalMasuk: { lte: fiveYearsAgo }, statusPegawai: { notIn: ['BERHENTI', 'DIBERHENTIKAN'] } } }),
       }
     };
 
