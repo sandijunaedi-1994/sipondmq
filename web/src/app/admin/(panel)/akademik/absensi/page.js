@@ -1,6 +1,5 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { useSession } from 'next-auth/react';
 import AbsensiKBMTab from './AbsensiKBMTab';
 
 const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
@@ -19,15 +18,14 @@ const TABS = [
 ];
 
 export default function AbsensiPage() {
-  const { data: session } = useSession();
   const [activeTab, setActiveTab] = useState('kbm');
   const [pegawaiId, setPegawaiId] = useState(null);
 
-  // Cari pegawaiId dari session user
+  // Cari pegawaiId dari token user yang login
   useEffect(() => {
     const fetchPegawai = async () => {
       try {
-        const token = session?.token || localStorage.getItem('auth_token');
+        const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null;
         if (!token) return;
         const res = await fetch(`${API}/api/admin/profile`, {
           headers: { Authorization: `Bearer ${token}` }
@@ -40,8 +38,8 @@ export default function AbsensiPage() {
         console.error(e);
       }
     };
-    if (session) fetchPegawai();
-  }, [session]);
+    fetchPegawai();
+  }, []);
 
   return (
     <div className="p-4 md:p-6 space-y-4">

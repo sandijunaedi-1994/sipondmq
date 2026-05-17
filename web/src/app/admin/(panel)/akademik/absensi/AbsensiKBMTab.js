@@ -1,8 +1,12 @@
 'use client';
 import { useState, useEffect, useCallback } from 'react';
-import { useSession } from 'next-auth/react';
 
 const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+
+function getToken() {
+  if (typeof window === 'undefined') return null;
+  return localStorage.getItem('auth_token');
+}
 const STATUS_OPTS = [
   { value: 'IZIN',  label: 'Izin',  color: 'bg-blue-100 text-blue-700 border-blue-300' },
   { value: 'SAKIT', label: 'Sakit', color: 'bg-yellow-100 text-yellow-700 border-yellow-300' },
@@ -15,7 +19,6 @@ function todayStr() {
 }
 
 export default function AbsensiKBMTab({ pegawaiId }) {
-  const { data: session } = useSession();
   const [tanggal, setTanggal]   = useState(todayStr());
   const [sesiList, setSesiList] = useState([]);
   const [loadingSesi, setLoadingSesi] = useState(false);
@@ -34,7 +37,7 @@ export default function AbsensiKBMTab({ pegawaiId }) {
     setActiveSesi(null);
     setSantriList([]);
     try {
-      const token = session?.token || localStorage.getItem('auth_token');
+      const token = getToken();
       const res = await fetch(`${API}/api/admin/absensi/kbm/sesi?tanggal=${tanggal}&guruId=${pegawaiId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -45,7 +48,7 @@ export default function AbsensiKBMTab({ pegawaiId }) {
     } finally {
       setLoadingSesi(false);
     }
-  }, [tanggal, pegawaiId, session]);
+  }, [tanggal, pegawaiId]);
 
   useEffect(() => { fetchSesi(); }, [fetchSesi]);
 
@@ -55,7 +58,7 @@ export default function AbsensiKBMTab({ pegawaiId }) {
     setLoadingDetail(true);
     setSaved(false);
     try {
-      const token = session?.token || localStorage.getItem('auth_token');
+      const token = getToken();
       const res = await fetch(`${API}/api/admin/absensi/kbm/santri?slotId=${sesi.id}&tanggal=${tanggal}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -87,7 +90,7 @@ export default function AbsensiKBMTab({ pegawaiId }) {
     if (!activeSesi || !pegawaiId) return;
     setSaving(true);
     try {
-      const token = session?.token || localStorage.getItem('auth_token');
+      const token = getToken();
       const res = await fetch(`${API}/api/admin/absensi/kbm`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
