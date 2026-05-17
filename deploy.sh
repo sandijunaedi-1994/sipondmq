@@ -27,7 +27,6 @@ cd $FRONTEND
 npm install
 
 echo '[4/5] Building frontend (wait for completion)...'
-rm -rf .next
 npm run build
 BUILD_EXIT=$?
 if [ $BUILD_EXIT -ne 0 ]; then
