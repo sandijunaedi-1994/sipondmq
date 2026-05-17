@@ -503,6 +503,7 @@ model Pegawai {
   statusPegawai StatusPegawai     @default(KONTRAK)
   tanggalBerhenti DateTime?
   catatanBerhenti String?         @db.Text
+  tanggalAkhirKontrak DateTime?
   tinggalDiKomplek Boolean        @default(false)
   domisiliMarkaz String?          @db.VarChar(100)
   jarakRumah    Float?

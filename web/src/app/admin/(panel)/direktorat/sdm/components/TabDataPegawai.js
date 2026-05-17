@@ -46,6 +46,7 @@ export default function TabDataPegawai() {
     statusPegawai: "KONTRAK",
     tanggalBerhenti: "",
     catatanBerhenti: "",
+    tanggalAkhirKontrak: "",
     tanggalMasuk: "",
     tinggalDiKomplek: false,
     domisiliMarkaz: "",
@@ -160,6 +161,7 @@ export default function TabDataPegawai() {
         statusPegawai: pegawai.statusPegawai,
         tanggalBerhenti: pegawai.tanggalBerhenti ? pegawai.tanggalBerhenti.split('T')[0] : "",
         catatanBerhenti: pegawai.catatanBerhenti || "",
+        tanggalAkhirKontrak: pegawai.tanggalAkhirKontrak ? pegawai.tanggalAkhirKontrak.split('T')[0] : "",
         tanggalMasuk: pegawai.tanggalMasuk ? pegawai.tanggalMasuk.split('T')[0] : "",
         tinggalDiKomplek: pegawai.tinggalDiKomplek || false,
         domisiliMarkaz: pegawai.domisiliMarkaz || "",
@@ -444,6 +446,9 @@ export default function TabDataPegawai() {
                       }`}>
                         {pegawai.statusPegawai}
                       </span>
+                      {pegawai.statusPegawai === 'KONTRAK' && pegawai.tanggalAkhirKontrak && (
+                        <p className="text-[10px] text-slate-500 mt-1">s/d {new Date(pegawai.tanggalAkhirKontrak).toLocaleDateString('id-ID', {day: 'numeric', month: 'short', year: 'numeric'})}</p>
+                      )}
                     </td>
                     <td className="px-6 py-4 text-center">
                       <span className="text-xs font-bold text-slate-600 dark:text-slate-300">
@@ -566,6 +571,12 @@ export default function TabDataPegawai() {
                       <label className="block text-xs font-bold text-slate-500 mb-1.5">Tanggal Masuk Bekerja</label>
                       <input type="date" value={formData.tanggalMasuk} onChange={e => setFormData({...formData, tanggalMasuk: e.target.value})} className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl outline-none focus:ring-2 focus:ring-emerald-500 text-sm dark:text-white" />
                     </div>
+                    {formData.statusPegawai === 'KONTRAK' && (
+                      <div>
+                        <label className="block text-xs font-bold text-slate-500 mb-1.5">Tanggal Berakhir Kontrak</label>
+                        <input type="date" value={formData.tanggalAkhirKontrak} onChange={e => setFormData({...formData, tanggalAkhirKontrak: e.target.value})} className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl outline-none focus:ring-2 focus:ring-emerald-500 text-sm dark:text-white" />
+                      </div>
+                    )}
                     {(formData.statusPegawai === 'BERHENTI' || formData.statusPegawai === 'DIBERHENTIKAN') && (
                       <>
                         <div>
