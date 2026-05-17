@@ -1,13 +1,16 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
+
 async function main() {
   try {
-    const res = await prisma.user.findMany({
-      where: { role: { notIn: ['WALI_SANTRI', 'CALON_WALI'] } }
+    const superAdmins = await prisma.user.findMany({
+      where: {
+        permissions: { array_contains: 'MANAJEMEN_ADMIN' }
+      }
     });
-    console.log("Success! Users found:", res.length);
+    console.log('Success:', superAdmins.length);
   } catch (e) {
-    console.error("Prisma Error:", e.message);
+    console.error('Error:', e);
   } finally {
     await prisma.$disconnect();
   }

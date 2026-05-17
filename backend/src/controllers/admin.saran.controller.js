@@ -57,7 +57,7 @@ const createSaran = async (req, res) => {
       targetUserIds = superAdmins.map(u => u.id);
     } else if (targetType === 'KEPALA_UNIT' && targetUnitId) {
       // Find users who are kepala unit of targetUnitId
-      const kepalaUnitPosisi = await prisma.posisiOrganisasi.findMany({
+      const kepalaUnitPosisi = await prisma.sdmPosisi.findMany({
         where: { unitId: targetUnitId, isKepala: true },
         include: { pegawai: true }
       });
