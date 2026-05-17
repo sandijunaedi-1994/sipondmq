@@ -522,6 +522,7 @@ model Pegawai {
   
   jadwalPlotting     JadwalAturanPlotting[]
   jadwalPelajaran    JadwalPelajaranSlot[]
+  absensiKBMDicatat  AbsensiKBM[] @relation("AbsensiKBMPencatat")
 }
 
 model Markaz {
@@ -611,6 +612,7 @@ model Santri {
   perizinan       Perizinan[]
   healthRecords   HealthRecord[]
   kartuSantri     KartuSantri?
+  absensiKBM      AbsensiKBM[]
 }
 
 model HealthRecord {
@@ -1788,5 +1790,44 @@ model JadwalPelajaranSlot {
 
   @@unique([pengaturanJamId, kelasId]) // Satu kelas hanya punya 1 pelajaran di waktu yang sama
   @@unique([pengaturanJamId, guruId]) // Satu guru hanya bisa mengajar 1 kelas di waktu yang sama
+  absensiKBM      AbsensiKBM[]
 }
 
+// ==========================================
+// ABSENSI
+// ==========================================
+
+enum StatusAbsensiKBM {
+  IZIN
+  SAKIT
+  ALPA
+  TUGAS
+}
+
+model AbsensiKBM {
+  id        String   @id @default(uuid())
+  
+  // Referensi sesi (slot jadwal + tanggal aktual)
+  slotId    String
+  slot      JadwalPelajaranSlot @relation(fields: [slotId], references: [id], onDelete: Cascade)
+  tanggal   DateTime @db.Date
+  
+  // Santri yang tidak hadir
+  santriId  String
+  santri    Santri   @relation(fields: [santriId], references: [id], onDelete: Cascade)
+  
+  status    StatusAbsensiKBM
+  catatan   String?  @db.Text
+  
+  // Siapa yang mencatat (guru pengampu)
+  pencatatId String
+  pencatat   Pegawai  @relation("AbsensiKBMPencatat", fields: [pencatatId], references: [id])
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([slotId, tanggal, santriId]) // Satu santri hanya bisa punya 1 record per sesi per hari
+  @@index([tanggal])
+  @@index([santriId])
+  @@index([slotId, tanggal])
+}

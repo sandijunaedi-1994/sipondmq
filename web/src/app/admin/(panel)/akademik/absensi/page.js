@@ -1,63 +1,100 @@
-"use client";
+'use client';
+import { useState, useEffect } from 'react';
+import { useSession } from 'next-auth/react';
+import AbsensiKBMTab from './AbsensiKBMTab';
 
-import React, { useState } from "react";
-import { ClipboardList, BookOpen, Clock, Users, Moon, Sun, Monitor, Activity } from "lucide-react";
+const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
-export default function ManajemenAbsensiPage() {
-  const [activeTab, setActiveTab] = useState("kbm");
+const TABS = [
+  { key: 'kbm',     label: 'KBM',              icon: '🏫', aktif: true },
+  { key: 'shalat',  label: 'Shalat Berjamaah', icon: '🕌', aktif: false },
+  { key: 'apel',    label: 'Apel Pagi',        icon: '🚩', aktif: false },
+  { key: 'amal',    label: 'Amal Jamai',       icon: '🌿', aktif: false },
+  { key: 'kajian',  label: 'Kajian Maghrib',   icon: '📚', aktif: false },
+  { key: 'halaqoh', label: 'Halaqoh Mutun',    icon: '📖', aktif: false },
+  { key: 'ekskul',  label: 'Ekskul',           icon: '⚽', aktif: false },
+  { key: 'malam',   label: 'Belajar Malam',    icon: '🌙', aktif: false },
+  { key: 'subuh',   label: 'Bangun Subuh',     icon: '🌅', aktif: false },
+  { key: 'tidur',   label: 'Tidur Malam',      icon: '😴', aktif: false },
+];
 
-  const tabs = [
-    { id: "kbm", label: "KBM", icon: <BookOpen size={16} /> },
-    { id: "shalat", label: "Shalat Berjamaah", icon: <Users size={16} /> },
-    { id: "apel", label: "Apel Pagi", icon: <Sun size={16} /> },
-    { id: "amal", label: "Amal Jamai", icon: <Activity size={16} /> },
-    { id: "kajian", label: "Kajian Maghrib", icon: <Monitor size={16} /> },
-    { id: "halaqoh", label: "Halaqoh Mutun", icon: <BookOpen size={16} /> },
-    { id: "ekskul", label: "Ekskul", icon: <Activity size={16} /> },
-    { id: "belajar", label: "Belajar Malam", icon: <Clock size={16} /> },
-    { id: "bangun", label: "Bangun Subuh", icon: <Sun size={16} /> },
-    { id: "tidur", label: "Tidur Malam", icon: <Moon size={16} /> }
-  ];
+export default function AbsensiPage() {
+  const { data: session } = useSession();
+  const [activeTab, setActiveTab] = useState('kbm');
+  const [pegawaiId, setPegawaiId] = useState(null);
+
+  // Cari pegawaiId dari session user
+  useEffect(() => {
+    const fetchPegawai = async () => {
+      try {
+        const token = session?.token || localStorage.getItem('auth_token');
+        if (!token) return;
+        const res = await fetch(`${API}/api/admin/profile`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.pegawai?.id) setPegawaiId(data.pegawai.id);
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    };
+    if (session) fetchPegawai();
+  }, [session]);
 
   return (
-    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+    <div className="p-4 md:p-6 space-y-4">
+      {/* Page Header */}
       <div>
-        <h1 className="text-2xl font-black text-slate-800 dark:text-white flex items-center gap-2">
-          <ClipboardList className="text-emerald-500" /> Absensi Santri
-        </h1>
-        <p className="text-slate-500 dark:text-slate-400 mt-1">
-          Pencatatan dan pemantauan kehadiran santri di berbagai kegiatan.
-        </p>
+        <h1 className="text-2xl font-extrabold text-slate-800">Absensi Santri</h1>
+        <p className="text-slate-500 text-sm">Rekam ketidakhadiran santri pada setiap kegiatan</p>
       </div>
 
-      {/* Tabs */}
-      <div className="flex gap-2 overflow-x-auto pb-2 border-b border-slate-200 dark:border-slate-800 custom-scrollbar">
-        {tabs.map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap ${
-              activeTab === tab.id
-                ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20"
-                : "text-slate-500 hover:bg-slate-50 dark:text-slate-400 dark:hover:bg-slate-800/50 border border-transparent"
-            }`}
-          >
-            {tab.icon} {tab.label}
-          </button>
-        ))}
-      </div>
-
-      {/* Content Area */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm p-8 min-h-[400px] flex flex-col items-center justify-center text-center">
-        <div className="w-16 h-16 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-500 rounded-full flex items-center justify-center mb-4">
-          {tabs.find(t => t.id === activeTab)?.icon}
+      {/* Tab Navigation — scrollable horizontal */}
+      <div className="relative">
+        <div className="flex gap-1 overflow-x-auto pb-1 scrollbar-hide border-b border-slate-200">
+          {TABS.map(tab => (
+            <button
+              key={tab.key}
+              onClick={() => tab.aktif && setActiveTab(tab.key)}
+              title={!tab.aktif ? 'Segera hadir' : undefined}
+              className={`flex items-center gap-1.5 px-3 py-2.5 text-sm font-semibold rounded-t-lg whitespace-nowrap transition-all shrink-0 relative
+                ${activeTab === tab.key
+                  ? 'bg-white border border-b-white border-slate-200 text-emerald-700 -mb-px z-10'
+                  : tab.aktif
+                    ? 'text-slate-500 hover:text-slate-700 hover:bg-slate-50'
+                    : 'text-slate-300 cursor-not-allowed'
+                }`}
+            >
+              <span>{tab.icon}</span>
+              <span>{tab.label}</span>
+              {!tab.aktif && (
+                <span className="text-[9px] bg-slate-100 text-slate-400 px-1 rounded">soon</span>
+              )}
+            </button>
+          ))}
         </div>
-        <h2 className="text-xl font-bold text-slate-800 dark:text-white mb-2">
-          Absensi {tabs.find(t => t.id === activeTab)?.label}
-        </h2>
-        <p className="text-slate-500 dark:text-slate-400 max-w-md">
-          Modul absensi untuk kegiatan ini sedang dalam tahap pengembangan. Nantinya Anda dapat mencatat kehadiran, izin, sakit, dan alpa santri di halaman ini.
-        </p>
+      </div>
+
+      {/* Tab Content */}
+      <div className="bg-white border border-slate-200 rounded-2xl p-4 md:p-6 min-h-[400px]">
+        {activeTab === 'kbm' && (
+          <AbsensiKBMTab pegawaiId={pegawaiId} />
+        )}
+
+        {/* Placeholder untuk tab yang belum aktif */}
+        {activeTab !== 'kbm' && (
+          <div className="flex flex-col items-center justify-center h-64 text-slate-400">
+            <div className="text-5xl mb-4">
+              {TABS.find(t => t.key === activeTab)?.icon}
+            </div>
+            <p className="font-semibold text-lg text-slate-500">
+              {TABS.find(t => t.key === activeTab)?.label}
+            </p>
+            <p className="text-sm mt-1">Fitur ini sedang dalam pengembangan</p>
+          </div>
+        )}
       </div>
     </div>
   );

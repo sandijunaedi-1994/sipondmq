@@ -384,4 +384,11 @@ router.delete('/litbang/jadwal/plotting/:id', requireAdmin, jadwalController.del
 router.get('/litbang/jadwal/generate', requireAdmin, jadwalController.getJadwal);
 router.post('/litbang/jadwal/generate', requireAdmin, jadwalController.generateJadwal);
 
+// ── ABSENSI KBM ──────────────────────────────────────────
+const absensiController = require('../controllers/admin.absensi.controller');
+router.get('/absensi/kbm/sesi', requireAdmin, absensiController.getSesiHariIni);
+router.get('/absensi/kbm/santri', requireAdmin, absensiController.getSantriBySlot);
+router.post('/absensi/kbm', requireAdmin, absensiController.simpanAbsensiKBM);
+router.get('/absensi/kbm/rekap', requireAdmin, absensiController.getRekapAbsensiKBM);
+
 module.exports = router;
