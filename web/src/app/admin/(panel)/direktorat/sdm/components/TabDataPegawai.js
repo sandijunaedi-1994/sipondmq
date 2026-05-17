@@ -16,6 +16,7 @@ export default function TabDataPegawai() {
   const [filterStatus, setFilterStatus] = useState("");
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [totalData, setTotalData] = useState(0);
   const [sortField, setSortField] = useState("createdAt");
   const [sortOrder, setSortOrder] = useState("desc");
 
@@ -107,6 +108,7 @@ export default function TabDataPegawai() {
 
       setPegawaiList(data.data);
       setTotalPages(data.pagination.totalPages);
+      setTotalData(data.pagination.total);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -519,25 +521,34 @@ export default function TabDataPegawai() {
         </div>
         
         {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="flex items-center justify-between p-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50">
-            <button 
-              disabled={page === 1} 
-              onClick={() => setPage(page - 1)}
-              className="px-4 py-2 text-sm font-semibold bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl disabled:opacity-50 text-slate-700 dark:text-slate-300"
-            >
-              Sebelumnya
-            </button>
-            <span className="text-sm font-bold text-slate-600 dark:text-slate-400">Halaman {page} dari {totalPages}</span>
-            <button 
-              disabled={page === totalPages} 
-              onClick={() => setPage(page + 1)}
-              className="px-4 py-2 text-sm font-semibold bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl disabled:opacity-50 text-slate-700 dark:text-slate-300"
-            >
-              Selanjutnya
-            </button>
+        <div className="flex flex-col sm:flex-row items-center justify-between p-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50 gap-4">
+          <div className="text-sm text-slate-500 dark:text-slate-400">
+            {totalData > 0 ? (
+              <>Menampilkan <span className="font-bold text-slate-700 dark:text-slate-300">{(page - 1) * 10 + 1}</span> - <span className="font-bold text-slate-700 dark:text-slate-300">{Math.min(page * 10, totalData)}</span> dari <span className="font-bold text-slate-700 dark:text-slate-300">{totalData}</span> data</>
+            ) : (
+              "Tidak ada data"
+            )}
           </div>
-        )}
+          {totalPages > 1 && (
+            <div className="flex items-center gap-2">
+              <button 
+                disabled={page === 1} 
+                onClick={() => setPage(page - 1)}
+                className="px-4 py-2 text-sm font-semibold bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl disabled:opacity-50 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition"
+              >
+                Sebelumnya
+              </button>
+              <span className="text-sm font-bold text-slate-600 dark:text-slate-400 px-2">Hal {page} / {totalPages}</span>
+              <button 
+                disabled={page === totalPages} 
+                onClick={() => setPage(page + 1)}
+                className="px-4 py-2 text-sm font-semibold bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl disabled:opacity-50 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition"
+              >
+                Selanjutnya
+              </button>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Modal Tambah/Edit */}

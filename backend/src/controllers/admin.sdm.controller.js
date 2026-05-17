@@ -122,6 +122,7 @@ const getPegawaiList = async (req, res) => {
 
     const stats = {
       total: totalData,
+      totalAktif: await prisma.pegawai.count({ where: { statusPegawai: { notIn: ['BERHENTI', 'DIBERHENTIKAN'] } } }),
       tetap: await prisma.pegawai.count({ where: { statusPegawai: 'TETAP' } }),
       kontrak: await prisma.pegawai.count({ where: { statusPegawai: 'KONTRAK' } }),
       magang: await prisma.pegawai.count({ where: { statusPegawai: 'MAGANG' } }),

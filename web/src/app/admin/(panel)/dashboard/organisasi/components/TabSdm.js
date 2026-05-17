@@ -78,7 +78,7 @@ export default function TabSdm() {
         <div className="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm flex items-center justify-between hover:shadow-md transition">
           <div>
             <p className="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-widest mb-1">Total Pegawai</p>
-            <p className="text-3xl font-black text-slate-800 dark:text-slate-100">{stats?.total || 0}</p>
+            <p className="text-3xl font-black text-slate-800 dark:text-slate-100">{stats?.totalAktif || stats?.total || 0}</p>
           </div>
           <div className="p-3 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 rounded-xl">
             <Users size={24} />
