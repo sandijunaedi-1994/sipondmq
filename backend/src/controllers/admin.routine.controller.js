@@ -51,6 +51,65 @@ const getRoutineTasks = async (req, res) => {
   }
 };
 
+const _generateTaskSchedules = async (task) => {
+  const startDate = new Date();
+  startDate.setHours(0, 0, 0, 0);
+  const endDate = new Date(startDate);
+  endDate.setDate(startDate.getDate() + 7);
+  
+  const { frekuensi, petugas, id: routineTaskId } = task;
+  const freqUpper = frekuensi.toUpperCase();
+  let datesToGenerate = [];
+  
+  for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+    const dayOfWeek = d.getDay();
+    const currentDate = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 12, 0, 0, 0);
+    let shouldGenerate = false;
+    
+    if (freqUpper === 'HARIAN' || freqUpper === 'SETIAP HARI' || freqUpper === 'DAILY') {
+      if (dayOfWeek !== 0) shouldGenerate = true;
+    } else if (freqUpper.startsWith('PEKANAN')) {
+      if (freqUpper.includes('SENIN') && dayOfWeek === 1) shouldGenerate = true;
+      else if (freqUpper.includes('SELASA') && dayOfWeek === 2) shouldGenerate = true;
+      else if (freqUpper.includes('RABU') && dayOfWeek === 3) shouldGenerate = true;
+      else if (freqUpper.includes('KAMIS') && dayOfWeek === 4) shouldGenerate = true;
+      else if ((freqUpper.includes('JUMAT') || freqUpper.includes("JUM'AT")) && dayOfWeek === 5) shouldGenerate = true;
+      else if (freqUpper.includes('SABTU') && dayOfWeek === 6) shouldGenerate = true;
+      else if (freqUpper.includes('MINGGU') && dayOfWeek === 0) shouldGenerate = true;
+      else if (freqUpper.includes('TIDAK TERTENTU') && dayOfWeek === 1) shouldGenerate = true;
+    } else if (freqUpper === 'BULANAN') {
+      if (currentDate.getDate() === 1) shouldGenerate = true;
+    } else if (freqUpper === 'SEMESTERAN') {
+      if (currentDate.getDate() === 1 && (currentDate.getMonth() === 0 || currentDate.getMonth() === 6)) shouldGenerate = true;
+    } else if (freqUpper === 'TAHUNAN') {
+      if (currentDate.getDate() === 1 && currentDate.getMonth() === 0) shouldGenerate = true;
+    }
+
+    if (shouldGenerate) {
+      const startOfDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), 0, 0, 0);
+      const endOfDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), 23, 59, 59);
+      const exists = await prisma.mcRoutineSchedule.findFirst({
+        where: { routineTaskId, taskDate: { gte: startOfDay, lte: endOfDay } }
+      });
+      if (!exists) datesToGenerate.push(currentDate);
+    }
+  }
+  
+  if (datesToGenerate.length > 0) {
+    await prisma.mcRoutineSchedule.createMany({
+      data: datesToGenerate.map(date => ({
+        id: uuidv4(),
+        routineTaskId,
+        taskDate: date,
+        petugas: petugas || '-',
+        status: 'PENDING',
+        updatedAt: new Date()
+      }))
+    });
+  }
+  return datesToGenerate.length;
+};
+
 const createRoutineTask = async (req, res) => {
   try {
     const { aktivitas, frekuensi, jamMulai, jamSelesai, petugas, deskripsi } = req.body;
@@ -68,6 +127,7 @@ const createRoutineTask = async (req, res) => {
         updatedAt: new Date()
       }
     });
+    await _generateTaskSchedules(task);
 
     await logActivity({
       userId: req.user.userId,
@@ -112,6 +172,16 @@ const updateRoutineTask = async (req, res) => {
         updatedAt: new Date()
       }
     });
+    // Hapus jadwal masa depan yang masih PENDING (agar tidak duplikat dengan jadwal lama)
+    const now = new Date();
+    await prisma.mcRoutineSchedule.deleteMany({
+      where: {
+        routineTaskId: id,
+        status: 'PENDING',
+        taskDate: { gte: now }
+      }
+    });
+    await _generateTaskSchedules(task);
 
     await logActivity({
       userId: req.user.userId,
@@ -373,8 +443,29 @@ const generateSchedules = async (req, res) => {
     
     let whereClause = {};
     if (!isSuperAdmin) {
+      const subordinates = await prisma.userHierarchy.findMany({
+        where: { supervisorId: req.user.userId },
+        include: { subordinate: { include: { pegawai: true } } }
+      });
+      
+      const relatedNames = [];
+      if (currentUser?.namaLengkap) relatedNames.push(currentUser.namaLengkap);
+      
+      subordinates.forEach(s => {
+        if (s.subordinate?.namaLengkap) {
+          relatedNames.push(s.subordinate.namaLengkap);
+        } else if (s.subordinate?.pegawai?.length > 0) {
+          relatedNames.push(s.subordinate.pegawai[0].namaLengkap);
+        }
+      });
+      
+      const nameConditions = relatedNames.map(name => ({ petugas: { contains: name } }));
+
       whereClause = {
-        petugas: { contains: currentUser.namaLengkap }
+        OR: [
+          { creatorId: req.user.userId },
+          ...nameConditions
+        ]
       };
     }
     
@@ -382,95 +473,11 @@ const generateSchedules = async (req, res) => {
       where: whereClause
     });
     
-    // Generate untuk 1 pekan ke depan saja, mulai dari hari ini
-    const startDate = new Date();
-    startDate.setHours(0, 0, 0, 0);
-    
-    const endDate = new Date(startDate);
-    endDate.setDate(startDate.getDate() + 7);
-    
     let createdCount = 0;
 
     for (const task of tasks) {
-      const { frekuensi, petugas, id: routineTaskId } = task;
-      const freqUpper = frekuensi.toUpperCase();
-      
-      let datesToGenerate = [];
-      
-      for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
-        const dayOfWeek = d.getDay(); // 0 = Sunday, 1 = Monday
-        // Set to 12:00 PM local time to prevent UTC date shifting backward in Prisma
-        const currentDate = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 12, 0, 0, 0);
-        
-        let shouldGenerate = false;
-        
-        if (freqUpper === 'HARIAN' || freqUpper === 'SETIAP HARI' || freqUpper === 'DAILY') {
-          // Lewatkan hari Minggu (0) untuk rutinitas harian
-          if (dayOfWeek !== 0) {
-            shouldGenerate = true;
-          }
-        } 
-        else if (freqUpper.startsWith('PEKANAN')) {
-          if (freqUpper.includes('SENIN') && dayOfWeek === 1) shouldGenerate = true;
-          else if (freqUpper.includes('SELASA') && dayOfWeek === 2) shouldGenerate = true;
-          else if (freqUpper.includes('RABU') && dayOfWeek === 3) shouldGenerate = true;
-          else if (freqUpper.includes('KAMIS') && dayOfWeek === 4) shouldGenerate = true;
-          else if ((freqUpper.includes('JUMAT') || freqUpper.includes("JUM'AT")) && dayOfWeek === 5) shouldGenerate = true;
-          else if (freqUpper.includes('SABTU') && dayOfWeek === 6) shouldGenerate = true;
-          else if (freqUpper.includes('MINGGU') && dayOfWeek === 0) shouldGenerate = true;
-          else if (freqUpper.includes('TIDAK TERTENTU') && dayOfWeek === 1) {
-            // Default ke hari Senin untuk pekanan tidak tertentu
-            shouldGenerate = true;
-          }
-        }
-        else if (freqUpper === 'BULANAN') {
-          if (currentDate.getDate() === 1) shouldGenerate = true;
-        }
-        else if (freqUpper === 'SEMESTERAN') {
-          if (currentDate.getDate() === 1 && (currentDate.getMonth() === 0 || currentDate.getMonth() === 6)) {
-            shouldGenerate = true;
-          }
-        }
-        else if (freqUpper === 'TAHUNAN') {
-          if (currentDate.getDate() === 1 && currentDate.getMonth() === 0) {
-            shouldGenerate = true;
-          }
-        }
-
-        if (shouldGenerate) {
-          // Check if already exists to prevent duplicates (using range to avoid timezone mismatch)
-          const startOfDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), 0, 0, 0);
-          const endOfDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), 23, 59, 59);
-          
-          const exists = await prisma.mcRoutineSchedule.findFirst({
-            where: {
-              routineTaskId,
-              taskDate: {
-                gte: startOfDay,
-                lte: endOfDay
-              }
-            }
-          });
-          
-          if (!exists) {
-            datesToGenerate.push(currentDate);
-          }
-        }
-      }
-      
-      if (datesToGenerate.length > 0) {
-        await prisma.mcRoutineSchedule.createMany({
-          data: datesToGenerate.map(date => ({
-            id: uuidv4(),
-            routineTaskId,
-            taskDate: date,
-            petugas: petugas || '-',
-            status: 'PENDING',
-            updatedAt: new Date()
-          }))
-        });
-        createdCount += datesToGenerate.length;
-      }
+      const added = await _generateTaskSchedules(task);
+      createdCount += added;
     }
 
     await logActivity({

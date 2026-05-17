@@ -672,7 +672,7 @@ export default function AktivitasRutin() {
                   />
                   {subordinates.length > 0 && (
                     <datalist id="subordinates-list">
-                      <option value="Diri Sendiri (Me)" />
+                      <option value={typeof window !== 'undefined' ? (localStorage.getItem("admin_name") || "") : ""} label="Diri Sendiri" />
                       {subordinates.map(sub => (
                         <option key={sub.id} value={sub.namaLengkap || sub.email} />
                       ))}
