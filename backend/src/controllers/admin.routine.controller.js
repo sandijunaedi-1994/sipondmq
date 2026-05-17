@@ -204,6 +204,8 @@ const getDashboardSummary = async (req, res) => {
     // Reset "today" variable safely
     const now = new Date();
     
+    const targetUserId = req.query.userId || req.user.userId;
+
     // Get Monday of current week
     const day = now.getDay();
     const diff = now.getDate() - day + (day === 0 ? -6 : 1);
@@ -214,7 +216,7 @@ const getDashboardSummary = async (req, res) => {
     endOfWeek.setDate(startOfWeek.getDate() + 6);
     endOfWeek.setHours(23, 59, 59, 999);
 
-    const user = await prisma.user.findUnique({ where: { id: req.user.userId } });
+    const user = await prisma.user.findUnique({ where: { id: targetUserId } });
 
     // 1. Tasks Summary (This week)
     const routineSchedules = await prisma.mcRoutineSchedule.findMany({
@@ -226,7 +228,7 @@ const getDashboardSummary = async (req, res) => {
 
     const userTasksRaw = await prisma.userTask.findMany({
       where: {
-        assigneeId: req.user.userId,
+        assigneeId: targetUserId,
         dueDate: { gte: startOfWeek, lte: endOfWeek }
       }
     });
@@ -255,7 +257,7 @@ const getDashboardSummary = async (req, res) => {
 
     // 2. Saran Summary
     const saranAll = await prisma.saranOnline.findMany({
-      where: { pengirimId: req.user.userId }
+      where: { pengirimId: targetUserId }
     });
     
     let saranBelumDibaca = 0;
@@ -268,7 +270,7 @@ const getDashboardSummary = async (req, res) => {
     });
 
     // 3. Catatan Summary
-    const catatanArr = await prisma.$queryRaw`SELECT COUNT(*) as count FROM CatatanAdmin WHERE userId = ${req.user.userId}`;
+    const catatanArr = await prisma.$queryRaw`SELECT COUNT(*) as count FROM CatatanAdmin WHERE userId = ${targetUserId}`;
     // Handle BigInt from COUNT(*)
     const catatanTotal = Number(catatanArr[0]?.count || 0);
 

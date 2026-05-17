@@ -35,7 +35,7 @@ export default function PengaturanAsrama() {
       }
 
       // Fetch Pegawai for Musyrif
-      const resPegawai = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"}/api/admin/sdm/pegawai`, {
+      const resPegawai = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"}/api/admin/sdm/pegawai?limit=1000`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (resPegawai.ok) {

@@ -8,6 +8,8 @@ export default function RingkasanPribadi() {
   const [loadingSummary, setLoadingSummary] = useState(true);
 
   const [currentUserId, setCurrentUserId] = useState("");
+  const [subordinates, setSubordinates] = useState([]);
+  const [selectedUserId, setSelectedUserId] = useState("");
 
   useEffect(() => {
     // Get User ID from Token
@@ -20,15 +22,37 @@ export default function RingkasanPribadi() {
         console.error("Failed to parse token", e);
       }
     }
-
-    fetchSummary();
+    fetchSubordinates();
   }, []);
+
+  useEffect(() => {
+    fetchSummary();
+  }, [selectedUserId]);
+
+  const fetchSubordinates = async () => {
+    try {
+      const token = localStorage.getItem("admin_token");
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"}/api/admin/hierarchy/subordinates`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setSubordinates(data || []);
+      }
+    } catch (error) {
+      console.error("Failed to fetch subordinates:", error);
+    }
+  };
 
   const fetchSummary = async () => {
     try {
       setLoadingSummary(true);
       const token = localStorage.getItem("admin_token");
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"}/api/admin/dashboard/summary`, {
+      let url = `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"}/api/admin/dashboard/summary`;
+      if (selectedUserId) {
+        url += `?userId=${selectedUserId}`;
+      }
+      const res = await fetch(url, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.ok) {
@@ -82,6 +106,26 @@ export default function RingkasanPribadi() {
 
   return (
     <div className="space-y-6">
+      {/* Top Header & Filter */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 animate-in fade-in slide-in-from-top-4 duration-500 mb-2">
+        <div>
+          <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">Ringkasan Aktivitas</h3>
+          <p className="text-slate-500 dark:text-slate-400 text-sm">Pantau statistik tugas dan pencapaian.</p>
+        </div>
+        {subordinates.length > 0 && (
+          <select
+            value={selectedUserId}
+            onChange={(e) => setSelectedUserId(e.target.value)}
+            className="w-full sm:w-auto px-4 py-2 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+          >
+            <option value="">Saya Sendiri</option>
+            {subordinates.map(sub => (
+              <option key={sub.id} value={sub.id}>{sub.namaLengkap || sub.email || 'Bawahan'}</option>
+            ))}
+          </select>
+        )}
+      </div>
+
       {/* Top Summary Cards */}
       {!loadingSummary && summary && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
