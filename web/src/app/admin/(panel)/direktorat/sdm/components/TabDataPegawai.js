@@ -109,6 +109,34 @@ export default function TabDataPegawai() {
     }
   };
 
+  const hitungMasaKerja = (tanggalMasuk, tanggalBerhenti, status) => {
+    if (!tanggalMasuk) return "-";
+    
+    const start = new Date(tanggalMasuk);
+    let end = new Date();
+    
+    if ((status === 'BERHENTI' || status === 'DIBERHENTIKAN') && tanggalBerhenti) {
+      end = new Date(tanggalBerhenti);
+    }
+    
+    let years = end.getFullYear() - start.getFullYear();
+    let months = end.getMonth() - start.getMonth();
+    
+    if (months < 0) {
+      years--;
+      months += 12;
+    }
+    
+    if (years < 0) return "-";
+    
+    let result = [];
+    if (years > 0) result.push(`${years} thn`);
+    if (months > 0) result.push(`${months} bln`);
+    
+    if (result.length === 0) return "< 1 bln";
+    return result.join(" ");
+  };
+
   const handleOpenModal = (mode, pegawai = null) => {
     setModalMode(mode);
     setError(null);
@@ -366,15 +394,16 @@ export default function TabDataPegawai() {
                 <th className="px-6 py-4">Profil Pegawai</th>
                 <th className="px-6 py-4">Jabatan & Penempatan</th>
                 <th className="px-6 py-4 text-center">Status</th>
+                <th className="px-6 py-4 text-center">Masa Kerja</th>
                 <th className="px-6 py-4 text-center">Akun Sistem</th>
                 <th className="px-6 py-4 text-center">Aksi</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
               {loading ? (
-                <tr><td colSpan="5" className="text-center py-8 text-slate-500">Memuat data...</td></tr>
+                <tr><td colSpan="6" className="text-center py-8 text-slate-500">Memuat data...</td></tr>
               ) : pegawaiList.length === 0 ? (
-                <tr><td colSpan="5" className="text-center py-8 text-slate-500">Tidak ada data pegawai yang ditemukan.</td></tr>
+                <tr><td colSpan="6" className="text-center py-8 text-slate-500">Tidak ada data pegawai yang ditemukan.</td></tr>
               ) : (
                 pegawaiList.map(pegawai => (
                   <tr key={pegawai.id} className="hover:bg-slate-50 dark:hover:bg-slate-950 transition-colors">
@@ -414,6 +443,11 @@ export default function TabDataPegawai() {
                         'bg-red-50 text-red-700 border-red-200'
                       }`}>
                         {pegawai.statusPegawai}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-center">
+                      <span className="text-xs font-bold text-slate-600 dark:text-slate-300">
+                        {hitungMasaKerja(pegawai.tanggalMasuk, pegawai.tanggalBerhenti, pegawai.statusPegawai)}
                       </span>
                     </td>
                     <td className="px-6 py-4 text-center">
