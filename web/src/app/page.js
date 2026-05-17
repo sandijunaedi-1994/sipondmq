@@ -1,15 +1,85 @@
 'use client';
 
+// Flip Card styles injected once
+const FLIP_STYLE = `
+  .flip-card { perspective: 1000px; }
+  .flip-inner { transition: transform 0.65s cubic-bezier(.4,0,.2,1); transform-style: preserve-3d; position: relative; }
+  .flip-inner.flipped { transform: rotateY(180deg); }
+  .flip-front, .flip-back { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+  .flip-back { transform: rotateY(180deg); }
+`;
+
 import Link from 'next/link';
 import { useState, useEffect, useRef } from 'react';
+
+const PROGRAMS = [
+  {
+    icon: '📖',
+    title: 'SD Tahfidz',
+    desc: 'Fondasi kuat akhlak dan hafalan Juz 30 untuk anak usia dini dengan pendampingan intensif.',
+    highlights: [
+      'Target hafalan Juz 30 sebelum lulus',
+      'Pembelajaran Al-Qur\'an dengan metode talaqqi',
+      'Kurikulum SD terintegrasi pesantren',
+      'Pembentukan karakter sejak dini',
+      'Pembiasaan shalat berjamaah & ibadah harian',
+    ],
+  },
+  {
+    icon: '🏫',
+    title: 'SMP Tahfidz',
+    desc: 'Pendalaman tahfidz dan ilmu agama serta kurikulum nasional untuk jenjang menengah pertama.',
+    highlights: [
+      'Target hafalan 15 - 20 juz',
+      'Pelajaran bahasa Arab dan Inggris harian',
+      'Kurikulum nasional terintegrasi pesantren',
+      'Kegiatan ekstrakurikuler islami',
+      'Bimbingan konseling dan pengembangan diri',
+    ],
+  },
+  {
+    icon: '🎓',
+    title: 'SMA Tahfidz',
+    desc: 'Persiapan perguruan tinggi terbaik dengan bekal hafalan mutqin dan prestasi akademik.',
+    highlights: [
+      'Target hafalan 30 juz mutqin',
+      'Persiapan SNBP & SNBT perguruan tinggi negeri',
+      'Program Olimpiade Sains & keagamaan',
+      'Pelatihan kepemimpinan & organisasi',
+      'Bimbingan beasiswa dalam & luar negeri',
+    ],
+  },
+  {
+    icon: '📜',
+    title: "Ma'had Aly",
+    desc: "Program intensif ulama muda dengan kajian kitab kuning dan tahfidz mendalam pasca SMA.",
+    highlights: [
+      'Kajian kitab kuning intensif',
+      'Pendalaman Fiqh, Ushul Fiqh & Hadits',
+      'Nahwu, Shorof & Balaghah tingkat lanjut',
+      'Riset & Bahtsul Masa\'il',
+      'Persiapan dakwah & retorika publik',
+    ],
+  },
+];
 
 export default function Home() {
   const [navScrolled, setNavScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isClient, setIsClient] = useState(false);
+  const [flipped, setFlipped] = useState({});
+
+  const toggleFlip = (i) => setFlipped(prev => ({ ...prev, [i]: !prev[i] }));
 
   useEffect(() => {
     setIsClient(true);
+    // Inject flip styles
+    if (!document.getElementById('flip-styles')) {
+      const s = document.createElement('style');
+      s.id = 'flip-styles';
+      s.innerHTML = FLIP_STYLE;
+      document.head.appendChild(s);
+    }
     const handleScroll = () => setNavScrolled(window.scrollY > 50);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
@@ -134,7 +204,7 @@ export default function Home() {
         <div>
           <span className="text-emerald-600 font-bold tracking-widest text-sm uppercase block mb-3">Mengenal Lebih Dekat</span>
           <h2 className="text-3xl md:text-4xl font-extrabold mb-6 text-slate-900 leading-snug">
-            Visi Mencetak Ulama yang Intelek & Hafidz Qur'an
+            Visi Membangun Generasi Qur'ani, Berkarakter, dan Visioner
           </h2>
           <p className="text-slate-600 mb-6 leading-relaxed">
             Madinatul Qur'an Boarding School hadir dengan semangat mengembalikan kejayaan peradaban Islam melalui pendidikan yang komprehensif. Kami percaya setiap anak memiliki potensi untuk menjadi pemimpin masa depan yang berlandaskan Al-Qur'an dan Sunnah.
@@ -143,7 +213,7 @@ export default function Home() {
             {[
               'Program tahfidz 30 juz dengan metode talaqqi bersanad',
               'Kurikulum nasional terintegrasi dengan pendidikan pesantren',
-              'Pembiasaan bahasa Arab dan Inggris sehari-hari',
+              'Penanaman Karakter Kepemimpinan dan Kemandirian',
             ].map((item, i) => (
               <li key={i} className="flex items-start gap-3">
                 <div className="w-6 h-6 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">✓</div>
@@ -178,17 +248,41 @@ export default function Home() {
             <h2 className="text-3xl md:text-4xl font-extrabold mb-4">Program Unggulan</h2>
             <p className="text-slate-400 max-w-2xl mx-auto">Kami menyediakan berbagai jenjang pendidikan yang memadukan kecerdasan spiritual, intelektual, dan emosional.</p>
           </div>
+          <p className="text-slate-400 text-sm mb-10">✦ Klik kartu untuk melihat program unggulan setiap jenjang</p>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[
-              { icon: '📖', title: 'SD / MI', desc: 'Fondasi kuat akhlak dan hafalan juz 30 untuk anak usia dini.' },
-              { icon: '🏫', title: 'SMP / MTs', desc: 'Pendalaman tahfidz dan ilmu agama serta kurikulum nasional.' },
-              { icon: '🎓', title: 'SMA / MA', desc: 'Persiapan perguruan tinggi terbaik dengan bekal hafalan mutqin.' },
-              { icon: '📜', title: "Ma'had Aly", desc: 'Program intensif ulama muda dengan kajian kitab kuning mendalam.' },
-            ].map((p, i) => (
-              <div key={i} className="bg-white/5 border border-white/10 p-8 rounded-3xl hover:bg-emerald-600 transition-all duration-500 group cursor-default">
-                <div className="text-4xl mb-5">{p.icon}</div>
-                <h3 className="text-xl font-bold mb-3">{p.title}</h3>
-                <p className="text-slate-400 group-hover:text-emerald-50 text-sm leading-relaxed">{p.desc}</p>
+            {PROGRAMS.map((p, i) => (
+              <div
+                key={i}
+                className="flip-card cursor-pointer"
+                style={{ height: '320px' }}
+                onClick={() => toggleFlip(i)}
+              >
+                <div className={`flip-inner w-full h-full${flipped[i] ? ' flipped' : ''}`}>
+                  {/* FRONT */}
+                  <div className="flip-front absolute inset-0 bg-white/5 border border-white/10 p-7 rounded-3xl flex flex-col justify-between hover:bg-emerald-700/40 transition-colors">
+                    <div>
+                      <div className="text-5xl mb-5">{p.icon}</div>
+                      <h3 className="text-xl font-bold mb-2">{p.title}</h3>
+                      <p className="text-slate-400 text-sm leading-relaxed">{p.desc}</p>
+                    </div>
+                    <span className="text-emerald-400 text-xs font-bold tracking-wider">TAP UNTUK DETAIL →</span>
+                  </div>
+                  {/* BACK */}
+                  <div className="flip-back absolute inset-0 bg-emerald-600 border border-emerald-500 p-7 rounded-3xl flex flex-col justify-between">
+                    <div>
+                      <h3 className="text-lg font-extrabold mb-4 text-white">{p.title}</h3>
+                      <ul className="space-y-2.5">
+                        {p.highlights.map((h, j) => (
+                          <li key={j} className="flex items-start gap-2 text-sm text-emerald-50">
+                            <span className="text-emerald-300 font-bold shrink-0">✓</span>
+                            <span>{h}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                    <span className="text-emerald-200 text-xs font-bold tracking-wider">TAP UNTUK KEMBALI ←</span>
+                  </div>
+                </div>
               </div>
             ))}
           </div>
