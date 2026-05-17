@@ -399,4 +399,10 @@ router.post('/absensi/shalat/checkin', requireAdmin, absensiShalatController.che
 router.get('/absensi/shalat/santri',  requireAdmin, absensiShalatController.getSantriShalat);
 router.post('/absensi/shalat',        requireAdmin, absensiShalatController.simpanAbsensiShalat);
 
+// ── BERKAS SANTRI ────────────────────────────────────────
+const berkasController = require('../controllers/admin.berkas.santri.controller');
+router.get('/santri/:santriId/documents',         requireAdmin, berkasController.getDocuments);
+router.post('/santri/:santriId/documents/:type',  requireAdmin, berkasController.uploadDocument);
+router.delete('/santri/:santriId/documents/:docId', requireAdmin, berkasController.deleteDocument);
+
 module.exports = router;
