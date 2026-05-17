@@ -53,7 +53,7 @@ const sortPosisiOrganisasi = async (pegawaiListOrSingle) => {
 // Mendapatkan daftar pegawai dengan filter dan pencarian
 const getPegawaiList = async (req, res) => {
   try {
-    const { search, penempatan, markazId, statusPegawai, limit = 50, page = 1 } = req.query;
+    const { search, penempatan, markazId, statusPegawai, limit = 50, page = 1, sortField, sortOrder = 'asc' } = req.query;
     
     let whereClause = {};
 
@@ -70,6 +70,11 @@ const getPegawaiList = async (req, res) => {
 
     const skip = (parseInt(page) - 1) * parseInt(limit);
 
+    let orderBy = { createdAt: 'desc' };
+    if (sortField) {
+      orderBy = { [sortField]: sortOrder === 'desc' ? 'desc' : 'asc' };
+    }
+
     const [pegawaiList, totalData] = await Promise.all([
       prisma.pegawai.findMany({
         where: whereClause,
@@ -85,7 +90,7 @@ const getPegawaiList = async (req, res) => {
         },
         skip,
         take: parseInt(limit),
-        orderBy: { createdAt: 'desc' }
+        orderBy
       }),
       prisma.pegawai.count({ where: whereClause })
     ]);

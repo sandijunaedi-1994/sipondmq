@@ -16,6 +16,8 @@ export default function TabDataPegawai() {
   const [filterStatus, setFilterStatus] = useState("");
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [sortField, setSortField] = useState("createdAt");
+  const [sortOrder, setSortOrder] = useState("desc");
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -58,7 +60,7 @@ export default function TabDataPegawai() {
 
   useEffect(() => {
     fetchData();
-  }, [search, filterPenempatan, filterStatus, page]);
+  }, [search, filterPenempatan, filterStatus, page, sortField, sortOrder]);
 
   useEffect(() => {
     fetchDependencies();
@@ -89,6 +91,8 @@ export default function TabDataPegawai() {
       const query = new URLSearchParams({
         page,
         limit: 10,
+        sortField,
+        sortOrder,
         ...(search && { search }),
         ...(filterPenempatan && { penempatan: filterPenempatan }),
         ...(filterStatus && { statusPegawai: filterStatus })
@@ -136,6 +140,20 @@ export default function TabDataPegawai() {
     
     if (result.length === 0) return "< 1 bln";
     return result.join(" ");
+  };
+
+  const handleSort = (field) => {
+    if (sortField === field) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortOrder('asc');
+    }
+  };
+
+  const SortIcon = ({ field }) => {
+    if (sortField !== field) return <span className="ml-1 opacity-30 text-[8px] inline-block align-middle">↕</span>;
+    return sortOrder === 'asc' ? <span className="ml-1 text-emerald-500 text-[10px] inline-block align-middle">↑</span> : <span className="ml-1 text-emerald-500 text-[10px] inline-block align-middle">↓</span>;
   };
 
   const handleOpenModal = (mode, pegawai = null) => {
@@ -393,10 +411,18 @@ export default function TabDataPegawai() {
           <table className="w-full text-left text-sm">
             <thead className="bg-slate-50 dark:bg-slate-950 text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider text-[10px]">
               <tr>
-                <th className="px-6 py-4">Profil Pegawai</th>
-                <th className="px-6 py-4">Jabatan & Penempatan</th>
-                <th className="px-6 py-4 text-center">Status</th>
-                <th className="px-6 py-4 text-center">Masa Kerja</th>
+                <th className="px-6 py-4 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition" onClick={() => handleSort('namaLengkap')}>
+                  Profil Pegawai <SortIcon field="namaLengkap" />
+                </th>
+                <th className="px-6 py-4 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition" onClick={() => handleSort('penempatan')}>
+                  Jabatan & Penempatan <SortIcon field="penempatan" />
+                </th>
+                <th className="px-6 py-4 text-center cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition" onClick={() => handleSort('statusPegawai')}>
+                  Status <SortIcon field="statusPegawai" />
+                </th>
+                <th className="px-6 py-4 text-center cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition" onClick={() => handleSort('tanggalMasuk')}>
+                  Masa Kerja <SortIcon field="tanggalMasuk" />
+                </th>
                 <th className="px-6 py-4 text-center">Akun Sistem</th>
                 <th className="px-6 py-4 text-center">Aksi</th>
               </tr>
