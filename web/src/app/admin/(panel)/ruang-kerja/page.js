@@ -17,7 +17,7 @@ export default function DashboardPribadiPage() {
   const [isSuperAdmin, setIsSuperAdmin] = useState(false);
   const [isWaliKelas, setIsWaliKelas] = useState(false);
   const [isMuhaffidz, setIsMuhaffidz] = useState(false);
-  
+
   const [adminName, setAdminName] = useState("");
   const [greeting, setGreeting] = useState("");
   const [greetingMsg, setGreetingMsg] = useState("");
@@ -30,18 +30,18 @@ export default function DashboardPribadiPage() {
   useEffect(() => {
     // Nama Admin
     setAdminName(localStorage.getItem("admin_name") || "Admin");
-    
+
     // Cek Role Superadmin & Wali Kelas
     try {
       const perms = JSON.parse(localStorage.getItem("admin_permissions") || "[]");
       setIsSuperAdmin(perms.includes("MANAJEMEN_ADMIN"));
       setIsWaliKelas(perms.includes("WALI_KELAS_VIEW"));
       setIsMuhaffidz(perms.includes("MUHAFFIDZ_VIEW"));
-    } catch (e) {}
+    } catch (e) { }
 
     // Tanggal Hijriyah
     try {
-      setHijriDate(new Intl.DateTimeFormat('id-TN-u-ca-islamic', {day: 'numeric', month: 'long', year: 'numeric'}).format(new Date()));
+      setHijriDate(new Intl.DateTimeFormat('id-TN-u-ca-islamic', { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date()));
     } catch (e) {
       setHijriDate("");
     }
@@ -51,7 +51,7 @@ export default function DashboardPribadiPage() {
       const now = new Date();
       setCurrentTime(now);
       const hour = now.getHours();
-      
+
       if (hour >= 3 && hour < 10) {
         setGreeting("Selamat Pagi");
         setGreetingIcon(<Sunrise className="w-4 h-4 text-amber-500" />);
@@ -79,7 +79,7 @@ export default function DashboardPribadiPage() {
       fetch("https://api.aladhan.com/v1/timingsByCity?city=Bogor&country=Indonesia&method=11")
         .then(res => res.json())
         .then(data => {
-          if(data?.data?.timings) setPrayerTimes(data.data.timings);
+          if (data?.data?.timings) setPrayerTimes(data.data.timings);
         })
         .catch(console.error);
     };
@@ -89,11 +89,11 @@ export default function DashboardPribadiPage() {
         (position) => {
           const lat = position.coords.latitude;
           const lon = position.coords.longitude;
-          
+
           fetch(`https://api.aladhan.com/v1/timings?latitude=${lat}&longitude=${lon}&method=11`)
             .then(res => res.json())
             .then(data => {
-              if(data?.data?.timings) setPrayerTimes(data.data.timings);
+              if (data?.data?.timings) setPrayerTimes(data.data.timings);
             })
             .catch(console.error);
 
@@ -130,8 +130,8 @@ export default function DashboardPribadiPage() {
   let tabs = [
     { id: "ringkasan", name: "Ringkasan", icon: <BarChart2 size={18} strokeWidth={2.5} />, color: "text-blue-500", bg: "bg-blue-50 dark:bg-blue-500/10 border-blue-100 dark:border-blue-500/20" },
     { id: "aktivitas_rutin", name: "Aktivitas", icon: <ClipboardList size={18} strokeWidth={2.5} />, color: "text-orange-500", bg: "bg-orange-50 dark:bg-orange-500/10 border-orange-100 dark:border-orange-500/20" },
-    { id: "catatan", name: "Catatan", icon: <Edit3 size={18} strokeWidth={2.5} />, color: "text-teal-500", bg: "bg-teal-50 dark:bg-teal-500/10 border-teal-100 dark:border-teal-500/20" },
     { id: "master_time", name: "Jadwal", icon: <CalendarDays size={18} strokeWidth={2.5} />, color: "text-rose-500", bg: "bg-rose-50 dark:bg-rose-500/10 border-rose-100 dark:border-rose-500/20" },
+    { id: "catatan", name: "Catatan", icon: <Edit3 size={18} strokeWidth={2.5} />, color: "text-teal-500", bg: "bg-teal-50 dark:bg-teal-500/10 border-teal-100 dark:border-teal-500/20" },
     { id: "saran_online", name: "Saran", icon: <MessageSquare size={18} strokeWidth={2.5} />, color: "text-pink-500", bg: "bg-pink-50 dark:bg-pink-500/10 border-pink-100 dark:border-pink-500/20" },
     { id: "log_aktivitas", name: "Log", icon: <History size={18} strokeWidth={2.5} />, color: "text-purple-500", bg: "bg-purple-50 dark:bg-purple-500/10 border-purple-100 dark:border-purple-500/20" }
   ];
@@ -140,19 +140,19 @@ export default function DashboardPribadiPage() {
   if (isWaliKelas) {
     tabs.push({ id: "wali_kelas", name: "Wali Kelas", icon: <Users size={18} strokeWidth={2.5} />, color: "text-teal-500", bg: "bg-teal-50 dark:bg-teal-500/10 border-teal-100 dark:border-teal-500/20" });
   }
-  
+
   if (isMuhaffidz) {
     tabs.push({ id: "muhaffidz", name: "Muhaffidz", icon: <BookOpen size={18} strokeWidth={2.5} />, color: "text-emerald-500", bg: "bg-emerald-50 dark:bg-emerald-500/10 border-emerald-100 dark:border-emerald-500/20" });
   }
 
   const getActiveTabTitle = () => {
-    switch(activeTab) {
+    switch (activeTab) {
       case "ringkasan": return "Ringkasan Harian";
       case "wali_kelas": return "Ruang Wali Kelas";
       case "muhaffidz": return "Ruang Muhaffidz";
       case "aktivitas_rutin": return "Aktivitas Saya";
-      case "catatan": return "Catatan Pribadi";
       case "master_time": return "Master Time: Calendar";
+      case "catatan": return "Catatan Pribadi";
       case "saran_online": return "Saran Online";
       case "log_aktivitas": return "Log Aktivitas";
       default: return "";
@@ -161,7 +161,7 @@ export default function DashboardPribadiPage() {
 
   return (
     <div className="space-y-4 md:space-y-6 pb-20 md:pb-0 font-sans w-full min-w-0">
-      
+
       {/* ── Header Information (Latar Terang) ── */}
       <div className="flex justify-between items-start pt-2 px-2 md:px-0">
         <div className="flex flex-col gap-1.5 pr-4">
@@ -172,7 +172,7 @@ export default function DashboardPribadiPage() {
             {greetingMsg}
           </p>
         </div>
-        
+
         <div className="relative flex-shrink-0 mt-1">
           <div className="absolute -inset-1 bg-gradient-to-r from-emerald-500 to-teal-400 rounded-xl blur opacity-30"></div>
           <div className="relative bg-emerald-600 shadow-lg px-3 py-2 md:px-4 md:py-2 rounded-xl text-xs md:text-sm font-bold text-white flex items-center gap-1.5 border border-emerald-500/50">
@@ -222,7 +222,7 @@ export default function DashboardPribadiPage() {
           {/* Lokasi & Jadwal Sholat */}
           <div className="mt-2 pt-4 border-t border-emerald-600/50 flex flex-wrap items-center gap-x-4 gap-y-2.5">
             <div className="flex items-center gap-1.5 text-emerald-100 text-[10px] font-bold uppercase tracking-widest mr-2 bg-emerald-900/40 px-2 py-1 rounded-md">
-              <MapPin size={12} className="text-emerald-400" /> 
+              <MapPin size={12} className="text-emerald-400" />
               {locationName}
             </div>
             {['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'].map(prayer => {
@@ -244,14 +244,15 @@ export default function DashboardPribadiPage() {
           <h3 className="font-bold text-slate-800 dark:text-slate-100 text-sm">Menu Cepat</h3>
           <button onClick={() => setShowAllMenu(true)} className="text-emerald-600 dark:text-emerald-400 text-xs font-bold cursor-pointer hover:underline">Lihat semua &gt;</button>
         </div>
-        
+
         {/* Horizontal Scroll Area */}
         <div className="flex overflow-x-auto gap-3 pb-6 pt-4 px-2 custom-scrollbar snap-x snap-mandatory hide-scrollbar" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-          <style dangerouslySetInnerHTML={{__html: `
+          <style dangerouslySetInnerHTML={{
+            __html: `
             .hide-scrollbar::-webkit-scrollbar { display: none; }
           `}} />
-          
-        {/* Semua tab tampil di scroll horizontal */}
+
+          {/* Semua tab tampil di scroll horizontal */}
           {tabs.map(tab => (
             <button
               key={tab.id}
@@ -279,14 +280,14 @@ export default function DashboardPribadiPage() {
             </span>
           )}
         </div>
-        
+
         <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 w-full min-w-0">
           {activeTab === "ringkasan" && <RingkasanPribadi />}
           {activeTab === "wali_kelas" && <RuangWaliKelas />}
           {activeTab === "muhaffidz" && <RuangMuhaffidz />}
           {activeTab === "aktivitas_rutin" && <AktivitasRutin />}
-          {activeTab === "catatan" && <CatatanPribadi />}
           {activeTab === "master_time" && <MasterTime />}
+          {activeTab === "catatan" && <CatatanPribadi />}
           {activeTab === "saran_online" && <SaranOnline />}
           {activeTab === "log_aktivitas" && <LogAktivitas />}
         </div>

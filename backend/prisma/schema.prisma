@@ -522,7 +522,9 @@ model Pegawai {
   
   jadwalPlotting     JadwalAturanPlotting[]
   jadwalPelajaran    JadwalPelajaranSlot[]
-  absensiKBMDicatat  AbsensiKBM[] @relation("AbsensiKBMPencatat")
+  absensiKBMDicatat    AbsensiKBM[]           @relation("AbsensiKBMPencatat")
+  shalatCheckIn        MusyrifCheckInShalat[] @relation("ShalatCheckIn")
+  absensiShalatDicatat AbsensiShalat[]        @relation("AbsensiShalatPencatat")
 }
 
 model Markaz {
@@ -613,6 +615,7 @@ model Santri {
   healthRecords   HealthRecord[]
   kartuSantri     KartuSantri?
   absensiKBM      AbsensiKBM[]
+  absensiShalat   AbsensiShalat[]
 }
 
 model HealthRecord {
@@ -1824,10 +1827,64 @@ model AbsensiKBM {
   pencatat   Pegawai  @relation("AbsensiKBMPencatat", fields: [pencatatId], references: [id])
   
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 
-  @@unique([slotId, tanggal, santriId]) // Satu santri hanya bisa punya 1 record per sesi per hari
   @@index([tanggal])
   @@index([santriId])
   @@index([slotId, tanggal])
+}
+
+// ==========================================
+// ABSENSI SHALAT BERJAMAAH
+// ==========================================
+
+enum WaktuShalat {
+  SUBUH
+  DZUHUR
+  ASHAR
+  MAGHRIB
+  ISYA
+}
+
+model JadwalShalat {
+  id        String   @id @default(uuid())
+  tanggal   DateTime @db.Date @unique
+  subuh     String   @db.VarChar(10)
+  dzuhur    String   @db.VarChar(10)
+  ashar     String   @db.VarChar(10)
+  maghrib   String   @db.VarChar(10)
+  isya      String   @db.VarChar(10)
+  sumber    String   @default("API") @db.VarChar(10)
+  createdAt DateTime @default(now())
+}
+
+model MusyrifCheckInShalat {
+  id            String      @id @default(uuid())
+  musyrifId     String
+  musyrif       Pegawai     @relation("ShalatCheckIn", fields:[musyrifId], references:[id])
+  tanggal       DateTime    @db.Date
+  waktu         WaktuShalat
+  waktuCheckIn  DateTime
+  statusCheckIn String      @db.VarChar(20)
+  createdAt     DateTime    @default(now())
+
+  @@unique([musyrifId, tanggal, waktu])
+  @@index([tanggal, waktu])
+}
+
+model AbsensiShalat {
+  id         String           @id @default(uuid())
+  santriId   String
+  santri     Santri           @relation(fields:[santriId], references:[id], onDelete: Cascade)
+  tanggal    DateTime         @db.Date
+  waktu      WaktuShalat
+  status     StatusAbsensiKBM
+  catatan    String?          @db.Text
+  pencatatId String
+  pencatat   Pegawai          @relation("AbsensiShalatPencatat", fields:[pencatatId], references:[id])
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+
+  @@unique([santriId, tanggal, waktu])
+  @@index([tanggal, waktu])
+  @@index([santriId])
 }

@@ -1,12 +1,13 @@
 'use client';
 import { useState, useEffect } from 'react';
 import AbsensiKBMTab from './AbsensiKBMTab';
+import AbsensiShalatTab from './AbsensiShalatTab';
 
 const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
 const TABS = [
   { key: 'kbm',     label: 'KBM',              icon: '🏫', aktif: true },
-  { key: 'shalat',  label: 'Shalat Berjamaah', icon: '🕌', aktif: false },
+  { key: 'shalat',  label: 'Shalat Berjamaah', icon: '🕌', aktif: true },
   { key: 'apel',    label: 'Apel Pagi',        icon: '🚩', aktif: false },
   { key: 'amal',    label: 'Amal Jamai',       icon: '🌿', aktif: false },
   { key: 'kajian',  label: 'Kajian Maghrib',   icon: '📚', aktif: false },
@@ -80,9 +81,12 @@ export default function AbsensiPage() {
         {activeTab === 'kbm' && (
           <AbsensiKBMTab pegawaiId={pegawaiId} />
         )}
+        {activeTab === 'shalat' && (
+          <AbsensiShalatTab pegawaiId={pegawaiId} />
+        )}
 
         {/* Placeholder untuk tab yang belum aktif */}
-        {activeTab !== 'kbm' && (
+        {activeTab !== 'kbm' && activeTab !== 'shalat' && (
           <div className="flex flex-col items-center justify-center h-64 text-slate-400">
             <div className="text-5xl mb-4">
               {TABS.find(t => t.key === activeTab)?.icon}

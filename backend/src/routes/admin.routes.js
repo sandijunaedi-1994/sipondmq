@@ -392,4 +392,11 @@ router.get('/absensi/kbm/santri', requireAdmin, absensiController.getSantriBySlo
 router.post('/absensi/kbm', requireAdmin, absensiController.simpanAbsensiKBM);
 router.get('/absensi/kbm/rekap', requireAdmin, absensiController.getRekapAbsensiKBM);
 
+// ── ABSENSI SHALAT ──────────────────────────────────────
+const absensiShalatController = require('../controllers/admin.absensi.shalat.controller');
+router.get('/absensi/shalat/jadwal',  requireAdmin, absensiShalatController.getJadwalShalat);
+router.post('/absensi/shalat/checkin', requireAdmin, absensiShalatController.checkInMusyrif);
+router.get('/absensi/shalat/santri',  requireAdmin, absensiShalatController.getSantriShalat);
+router.post('/absensi/shalat',        requireAdmin, absensiShalatController.simpanAbsensiShalat);
+
 module.exports = router;
