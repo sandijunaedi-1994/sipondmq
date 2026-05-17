@@ -662,22 +662,20 @@ export default function AktivitasRutin() {
 
                 <div>
                   <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Nama Petugas / PIC</label>
-                  <input 
-                    type="text" 
+                  <select
                     value={formData.petugas || ''}
                     onChange={e => setFormData({...formData, petugas: e.target.value})}
-                    placeholder="Nama yang bertanggung jawab"
-                    list="subordinates-list"
-                    className="w-full px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50 dark:text-white"
-                  />
-                  {subordinates.length > 0 && (
-                    <datalist id="subordinates-list">
-                      <option value={typeof window !== 'undefined' ? (localStorage.getItem("admin_name") || "") : ""} label="Diri Sendiri" />
-                      {subordinates.map(sub => (
-                        <option key={sub.id} value={sub.namaLengkap || sub.email} />
-                      ))}
-                    </datalist>
-                  )}
+                    className="w-full px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50 dark:text-white appearance-none"
+                  >
+                    <option value={typeof window !== 'undefined' ? (localStorage.getItem("admin_name") || "") : ""}>
+                      Diri Sendiri ({typeof window !== 'undefined' ? (localStorage.getItem("admin_name") || "") : ""})
+                    </option>
+                    {subordinates.map(sub => (
+                      <option key={sub.id} value={sub.namaLengkap || sub.email}>
+                        {sub.namaLengkap || sub.email}
+                      </option>
+                    ))}
+                  </select>
                 </div>
 
                 <div>
@@ -859,8 +857,8 @@ function RoutineVisualizer({ filteredTasks }) {
       let matchDay = false;
       if (t.frekuensi === 'HARIAN') matchDay = true;
       else if (t.frekuensi.startsWith('PEKANAN')) {
-        const pekananDays = (t.frekuensi.split('-')[1] || "").split(',').map(d => d.trim());
-        if (pekananDays.includes(day)) matchDay = true;
+        const pekananDays = (t.frekuensi.split('-')[1] || "").split(',').map(d => d.trim().toUpperCase());
+        if (pekananDays.includes(day.toUpperCase())) matchDay = true;
       }
       if (!matchDay) return false;
 
